@@ -359,6 +359,11 @@ void hx_gl_texImage2D(value* args, int narg) {
     Buffer* ptr = (Buffer*)val_data(args[8]);
     glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), ptr->data);
 }
+void hx_gl_texSubImage2D(value* args, int narg) {
+    val_check_kind(args[8], k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(args[8]);
+    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), ptr->data);
+}
 CONST(TEXTURE_BASE_LEVEL);
 CONST(TEXTURE_COMPARE_FUNC);
 CONST(TEXTURE_COMPARE_MODE);
@@ -406,6 +411,7 @@ void hx_gl_texParameterf(value target, value pname, value param) {
     glTexParameterf(val_get<int>(target), val_get<int>(pname), val_get<float>(param));
 }
 DEFINE_PRIM_MULT(hx_gl_texImage2D);
+DEFINE_PRIM_MULT(hx_gl_texSubImage2D);
 DEFINE_PRIM(hx_gl_texParameteri, 3);
 DEFINE_PRIM(hx_gl_texParameterf, 3);
 

@@ -213,6 +213,7 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var RGBA;
     @:GLConst var BGRA;
     @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:Buffer):Void;
+    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:Buffer):Void;
     @:GLConst var TEXTURE_BASE_LEVEL;
     @:GLConst var TEXTURE_COMPARE_FUNC;
     @:GLConst var TEXTURE_COMPARE_MODE;

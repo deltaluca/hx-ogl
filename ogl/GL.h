@@ -1,4 +1,0 @@
-package ogl;
-
-class GL {
-}
