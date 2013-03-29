@@ -1,0 +1,8 @@
+<project name="ogl" url="https://github.com/deltaluca/hx-ogl" license="MIT">
+	<depends name="hxcpp"/>
+
+	<user name="deltaluca"/>
+	<tag v="cpp"/>
+	<description>hxcpp bindings to OpenGL v3</description>
+	<version name="0.0.1">Early alpha, most of the API unimplemented.</version>
+</project>
