@@ -299,3 +299,95 @@ class GLProcsImpl {
     }
 #end
 }
+
+
+//
+// Add same type vector operations
+// for GLM vector type.
+//
+class GLMVector {
+#if macro
+    static var self:String;
+    static var selfT:ComplexType;
+
+    static function binop(name:String, op:Binop) {
+        return {
+            pos: Context.currentPos(),
+            name: name,
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "u",
+                }, {
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "v",
+                }],
+                expr: macro return cvt(GLM.load($v{self+"_"+name}, 2)(u.nativeObject, v.nativeObject))
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        };
+    }
+
+    public static function run(N:Int) {
+        var fields = Context.getBuildFields();
+
+        self = "vec"+N;
+        selfT = TPath({sub:null,params:[],pack:[],name:"Vec"+N});
+
+        // Add cvt function.
+        fields.push({
+            pos: Context.currentPos(),
+            name: "cvt",
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":allow",
+                params: [macro ogl]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                expr: macro return NativeBinding.generic(x),
+                args: [{
+                    value: null,
+                    type: macro :Dynamic,
+                    opt: false,
+                    name: "x"
+                }]
+            }),
+            doc: null,
+            access: [AStatic, AInline]
+        });
+
+        fields.push(binop("add", OpAdd));
+        fields.push(binop("sub", OpSub));
+        fields.push(binop("div", OpDiv));
+        fields.push(binop("mul", OpMult));
+
+        fields.push(binop("assign", OpAssign));
+        fields.push(binop("addAssign", OpAssignOp(OpAdd)));
+        fields.push(binop("subAssign", OpAssignOp(OpSub)));
+        fields.push(binop("divAssign", OpAssignOp(OpDiv)));
+        fields.push(binop("mulAssign", OpAssignOp(OpMult)));
+
+        var p = new haxe.macro.Printer();
+        trace(Lambda.map(fields, p.printField).join("\n"));
+
+        return fields;
+    }
+#end
+}

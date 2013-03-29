@@ -20,6 +20,7 @@
         <compilerflag value="-Iinclude"/>
 
         <file name="src/main.cpp"/>
+        <file name="src/gl.cpp"/>
     </files>
 
     <!-- Generate the NDLL. -->

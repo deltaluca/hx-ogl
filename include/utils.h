@@ -62,4 +62,22 @@ void finaliser(value v) {
     DEFINE_PRIM(hx_gl_##N, 0)
 
 
+#define PGETPROP(P, N, M, I) \
+    value hx_##P##_##N##_get_##M(value v) { \
+        val_check_kind(v, k_##N); \
+        P::N* ptr = (P::N*)val_data(v); \
+        return alloc<I>(ptr->M); \
+    } \
+    DEFINE_PRIM(hx_##P##_##N##_get_##M, 1)
+#define PSETPROP(P, N, M, I) \
+    value hx_##P##_##N##_set_##M(value v, value M) { \
+        val_check_kind(v, k_##N); \
+        P::N* ptr = (P::N*)val_data(v); \
+        return alloc<I>(ptr->M = val_get<I>(M)); \
+    } \
+    DEFINE_PRIM(hx_##P##_##N##_set_##M, 2)
+#define PPROP(P, N, M, I) \
+    PGETPROP(P, N, M, I); \
+    PSETPROP(P, N, M, I)
+
 #endif

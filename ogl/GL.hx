@@ -28,10 +28,9 @@ class GL implements GLConsts implements GLProcs {
         return Lib.load("ogl","hx_gl_"+n, p);
 
     // Haxe specific interfaces.
-    @:GLProc function createBuffer<T>(data:Array<T>, type:Int):Buffer;
-    @:GLProc function createBufferRaw(data:Dynamic, size:Int, type:Int, nogc:Bool=false):Buffer {
+    @:GLProc(createBuffer)    function buffer<T>(data:Array<T>, type:Int):Buffer;
+    @:GLProc(createBufferRaw) function rawBuffer(data:Dynamic, size:Int, type:Int, nogc:Bool=false):Buffer
         return Buffer.cvt(load("createBufferRaw", 4)(data, size, type, nogc));
-    }
 
 
     // ================================================================================================
@@ -137,6 +136,7 @@ class GL implements GLConsts implements GLProcs {
         load("genVertexArrays", 2)(n, arrays);
         return arrays;
     }
+    @:GLProc function getUniformLocation(program:Int, name:String):Int;
 
     // ================================================================================================
     // H
@@ -261,6 +261,7 @@ class GL implements GLConsts implements GLProcs {
     // U
     // ================================================================================================
     @:GLProc function useProgram(program:Int):Void;
+    @:GLProc function uniformMatrix4fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
 
     // ================================================================================================
     // V
