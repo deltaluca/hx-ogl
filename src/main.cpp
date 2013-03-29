@@ -45,6 +45,64 @@ int byte_array(value arr, int T, void** dat) {
     return 0;
 }
 
+DECLARE_KIND(k_Buffer);
+DEFINE_KIND(k_Buffer);
+struct Buffer {
+    void* data;
+    int size;
+    int type;
+};
+void finalise_Buffer(value v) {
+    Buffer* ptr = (Buffer*)val_data(v);
+    free(ptr->data);
+    delete ptr;
+}
+void finalise_Buffer_nogc(value v) {
+    Buffer* ptr = (Buffer*)val_data(v);
+    delete ptr;
+}
+value hx_gl_createBuffer(value arr, value type) {
+    void* dat;
+    int size = byte_array(arr, val_get<int>(type), &dat);
+    Buffer* ret = new Buffer;
+    ret->data = dat;
+    ret->size = size;
+    ret->type = val_get<int>(type);
+    value v = alloc_abstract(k_Buffer, ret);
+    val_gc(v, finalise_Buffer);
+    return v;
+}
+value hx_gl_createBufferRaw(value raw, value size, value type, value nogc) {
+    Buffer* ret = new Buffer;
+    ret->data = raw;
+    ret->size = val_get<int>(size);
+    ret->type = val_get<int>(type);
+    value v = alloc_abstract(k_Buffer, ret);
+    if (val_get<bool>(nogc)) val_gc(v, finalise_Buffer_nogc);
+    else val_gc(v, finalise_Buffer);
+    return v;
+}
+DEFINE_PRIM(hx_gl_createBuffer, 2);
+DEFINE_PRIM(hx_gl_createBufferRaw, 4);
+
+value hx_gl_Buffer_get_type(value v) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    return alloc<int>(ptr->type);
+}
+value hx_gl_Buffer_get_size(value v) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    return alloc<int>(ptr->size);
+}
+value hx_gl_Buffer_get_raw(value v) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    return (value)(ptr->data);
+}
+DEFINE_PRIM(hx_gl_Buffer_get_type, 1);
+DEFINE_PRIM(hx_gl_Buffer_get_size, 1);
+DEFINE_PRIM(hx_gl_Buffer_get_raw,  1);
 
 // ================================================================================================
 // A
@@ -93,16 +151,15 @@ CONST(STATIC_COPY);
 CONST(DYNAMIC_DRAW);
 CONST(DYNAMIC_READ);
 CONST(DYNAMIC_COPY);
-void hx_gl_bufferData(value target, value data, value type, value usage) {
-    void* dat;
-    int size = byte_array(data, val_get<int>(type), &dat);
-    glBufferData(val_get<int>(target), size, dat, val_get<int>(usage));
-    free(dat);
+void hx_gl_bufferData(value target, value data, value usage) {
+    val_check_kind(data, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(data);
+    glBufferData(val_get<int>(target), ptr->size, ptr->data, val_get<int>(usage));
 }
 DEFINE_PRIM(hx_gl_bindBuffer,       2);
 DEFINE_PRIM(hx_gl_bindTexture,      2);
 DEFINE_PRIM(hx_gl_bindVertexArray,  1);
-DEFINE_PRIM(hx_gl_bufferData,       4);
+DEFINE_PRIM(hx_gl_bufferData,       3);
 
 // ================================================================================================
 // C
@@ -298,10 +355,9 @@ CONST(BGR);
 CONST(RGBA);
 CONST(BGRA);
 void hx_gl_texImage2D(value* args, int narg) {
-    void* dat;
-    int size = byte_array(args[8], val_get<int>(args[7]), &dat);
-    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), dat);
-    free(dat);
+    val_check_kind(args[8], k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(args[8]);
+    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), ptr->data);
 }
 CONST(TEXTURE_BASE_LEVEL);
 CONST(TEXTURE_COMPARE_FUNC);
@@ -404,6 +460,8 @@ DEFINE_PRIM_MULT(hx_gl_vertexAttribPointer);
 extern "C" void hx_ogl_entry() {
     glewExperimental = GL_TRUE;
     glewInit();
+
+    k_Buffer = alloc_kind();
 }
 DEFINE_ENTRY_POINT(hx_ogl_entry);
 

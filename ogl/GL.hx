@@ -3,9 +3,36 @@ package ogl;
 import #if cpp cpp #else neko #end.Lib;
 import ogl.Macros;
 
+class Buffer extends NativeBinding {
+    @:allow(ogl)
+    public function new(x:Dynamic) super(x);
+
+    @:allow(ogl)
+    static inline function cvt(x:Null<Dynamic>):Null<Buffer>
+        return if (x == null) null else new Buffer(x);
+
+    public var type(get,never):Int;
+    inline function get_type() return GL.load("Buffer_get_type", 1)(nativeObject);
+    public var size(get,never):Int;
+    inline function get_size() return GL.load("Buffer_get_size", 1)(nativeObject);
+    public var raw(get,never):Dynamic;
+    inline function get_raw()  return GL.load("Buffer_get_raw", 1)(nativeObject);
+
+    inline public function toString():String
+        return '{ogl Buffer}';
+}
+
 class GL implements GLConsts implements GLProcs {
+    @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
         return Lib.load("ogl","hx_gl_"+n, p);
+
+    // Haxe specific interfaces.
+    @:GLProc function createBuffer<T>(data:Array<T>, type:Int):Buffer;
+    @:GLProc function createBufferRaw(data:Dynamic, size:Int, type:Int, nogc:Bool=false):Buffer {
+        return Buffer.cvt(load("createBufferRaw", 4)(data, size, type, nogc));
+    }
+
 
     // ================================================================================================
     // A
@@ -45,8 +72,7 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var DYNAMIC_DRAW;
     @:GLConst var DYNAMIC_READ;
     @:GLConst var DYNAMIC_COPY;
-    // Change of API, specify ahead of time, the GL type for data.
-    @:GLProc function bufferData<T>(target:Int, data:Array<T>, type:Int, usage:Int):Void;
+    @:GLProc function bufferData(target:Int, data:Buffer, usage:Int):Void;
 
     // ================================================================================================
     // C
@@ -186,7 +212,7 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var BGR;
     @:GLConst var RGBA;
     @:GLConst var BGRA;
-    @:GLProc function texImage2D<T>(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:Array<T>):Void;
+    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:Buffer):Void;
     @:GLConst var TEXTURE_BASE_LEVEL;
     @:GLConst var TEXTURE_COMPARE_FUNC;
     @:GLConst var TEXTURE_COMPARE_MODE;

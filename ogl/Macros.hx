@@ -103,6 +103,7 @@ class GLProcsImpl {
         case macro :Int: true;
         case macro :Float: true;
         case macro :Bool: true;
+        case macro :Dynamic: true;
         case TPath({name:"Null"}): true;
         default: false;
         }
