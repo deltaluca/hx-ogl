@@ -1,15 +1,62 @@
 #define IMPLEMENT_API
 #include <hx/CFFI.h>
-#include <GL/glew.h>
-#include <GL/gl.h>
 #include "utils.h"
 
+
+
+// Convert Array<Int>, Array<Float> into T* array
+// based on GL type
+int byte_array(value arr, int T, void** dat) {
+    int size = val_array_size(arr);
+    int t = (T == GL_UNSIGNED_BYTE || T == GL_BYTE) ? 0 :
+            (T == GL_UNSIGNED_SHORT || T == GL_SHORT) ? 1 :
+            (T == GL_UNSIGNED_INT || T == GL_INT) ? 2 :
+            (T == GL_FLOAT) ? 3 : -1;
+    if (t == -1) {
+        printf("OGL Type not supported for void* data\n");
+        neko_error();
+    }
+
+    int retval;
+    void* ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
+    int* ai = val_array_int(arr);
+    if (ai != NULL)  {
+        for (int i = 0; i < size; i++) {
+            if     (t == 0) ((char *)(ret))[i] = ai[i];
+            else if(t == 1) ((short*)(ret))[i] = ai[i];
+            else if(t == 2) ((int  *)(ret))[i] = ai[i];
+            else            ((float*)(ret))[i] = ai[i];
+        }
+        return retval;
+    }
+
+    double* ad = val_array_double(arr);
+    if (ad != NULL) {
+        for (int i = 0; i < size; i++) {
+            if     (t == 0) ((char *)(ret))[i] = ad[i];
+            else if(t == 1) ((short*)(ret))[i] = ad[i];
+            else if(t == 2) ((int  *)(ret))[i] = ad[i];
+            else            ((float*)(ret))[i] = ad[i];
+        }
+        return retval;
+    }
+
+    printf("OGL void* data should be Array<Int> or Array<Float>\n");
+    return 0;
+}
+
+
+// ================================================================================================
 // A
+// ================================================================================================
 void hx_gl_attachShader(value program, value shader) {
     glAttachShader(val_get<int>(program), val_get<int>(shader));
 }
 DEFINE_PRIM(hx_gl_attachShader, 2);
+
+// ================================================================================================
 // B
+// ================================================================================================
 CONST(ARRAY_BUFFER);
 CONST(COPY_READ_BUFFER);
 CONST(COPY_WRITE_BUFFER);
@@ -21,6 +68,18 @@ CONST(TRANSFORM_FEEDBACK_BUFFER);
 CONST(UNIFORM_BUFFER);
 void hx_gl_bindBuffer(value target, value buffer) {
     glBindBuffer(val_get<int>(target), val_get<int>(buffer));
+}
+CONST(TEXTURE_1D);
+CONST(TEXTURE_2D);
+CONST(TEXTURE_3D);
+CONST(TEXTURE_1D_ARRAY);
+CONST(TEXTURE_2D_ARRAY);
+CONST(TEXTURE_RECTANGLE);
+CONST(TEXTURE_CUBE_MAP);
+CONST(TEXTURE_2D_MULTISAMPLE);
+CONST(TEXTURE_2D_MULTISAMPLE_ARRAY);
+void hx_gl_bindTexture(value target, value texture) {
+    glBindTexture(val_get<int>(target), val_get<int>(texture));
 }
 void hx_gl_bindVertexArray(value arr) {
     glBindVertexArray(val_get<int>(arr));
@@ -34,18 +93,20 @@ CONST(STATIC_COPY);
 CONST(DYNAMIC_DRAW);
 CONST(DYNAMIC_READ);
 CONST(DYNAMIC_COPY);
-void hx_gl_bufferData_float(value target, value data, value usage) {
-    double* dat = val_array_double(data);
-    float* dat2 = new float[val_array_size(data)];
-    for (int i =0 ; i < val_array_size(data); i++)
-        dat2[i] = dat[i];
-    glBufferData(val_get<int>(target), val_array_size(data)*sizeof(float), (GLvoid*)dat2, val_get<int>(usage));
-    delete[] dat2;
+void hx_gl_bufferData(value target, value data, value type, value usage) {
+    void* dat;
+    int size = byte_array(data, val_get<int>(type), &dat);
+    glBufferData(val_get<int>(target), size, dat, val_get<int>(usage));
+    free(dat);
 }
 DEFINE_PRIM(hx_gl_bindBuffer,       2);
+DEFINE_PRIM(hx_gl_bindTexture,      2);
 DEFINE_PRIM(hx_gl_bindVertexArray,  1);
-DEFINE_PRIM(hx_gl_bufferData_float, 3);
+DEFINE_PRIM(hx_gl_bufferData,       4);
+
+// ================================================================================================
 // C
+// ================================================================================================
 CONST(COLOR_BUFFER_BIT);
 CONST(DEPTH_BUFFER_BIT);
 CONST(STENCIL_BUFFER_BIT);
@@ -85,7 +146,10 @@ DEFINE_PRIM(hx_gl_clearColor,    4);
 DEFINE_PRIM(hx_gl_compileShader, 1);
 DEFINE_PRIM(hx_gl_createShader,  1);
 DEFINE_PRIM(hx_gl_createProgram, 0);
+
+// ================================================================================================
 // D
+// ================================================================================================
 void hx_gl_deleteShader(value shader) {
     glDeleteShader(val_get<int>(shader));
 }
@@ -109,28 +173,57 @@ void hx_gl_drawArrays(value mode, value first, value count) {
 DEFINE_PRIM(hx_gl_deleteShader,             1);
 DEFINE_PRIM(hx_gl_disableVertexAttribArray, 1);
 DEFINE_PRIM(hx_gl_drawArrays,               3);
+
+// ================================================================================================
 // E
+// ================================================================================================
 void hx_gl_enableVertexAttribArray(value index) {
     glEnableVertexAttribArray(val_get<int>(index));
 }
 DEFINE_PRIM(hx_gl_enableVertexAttribArray, 1);
+
+// ================================================================================================
 // F
+// ================================================================================================
+
+// ================================================================================================
 // G
+// ================================================================================================
 void hx_gl_genBuffers(value n, value buffers) {
     val_array_set_size(buffers, val_get<int>(n));
     glGenBuffers(val_get<int>(n), (GLuint*)val_array_int(buffers));
+}
+void hx_gl_genTextures(value n, value arrays) {
+    val_array_set_size(arrays, val_get<int>(n));
+    glGenTextures(val_get<int>(n), (GLuint*)val_array_int(arrays));
 }
 void hx_gl_genVertexArrays(value n, value arrays) {
     val_array_set_size(arrays, val_get<int>(n));
     glGenVertexArrays(val_get<int>(n), (GLuint*)val_array_int(arrays));
 }
 DEFINE_PRIM(hx_gl_genBuffers,      2);
+DEFINE_PRIM(hx_gl_genTextures,     2);
 DEFINE_PRIM(hx_gl_genVertexArrays, 2);
+
+// ================================================================================================
 // H
+// ================================================================================================
+
+// ================================================================================================
 // I
+// ================================================================================================
+
+// ================================================================================================
 // J
+// ================================================================================================
+
+// ================================================================================================
 // K
+// ================================================================================================
+
+// ================================================================================================
 // L
+// ================================================================================================
 value hx_gl_linkProgram(value program) {
     glLinkProgram(val_get<int>(program));
 
@@ -148,13 +241,34 @@ value hx_gl_linkProgram(value program) {
     }
 }
 DEFINE_PRIM(hx_gl_linkProgram, 1);
+
+// ================================================================================================
 // M
+// ================================================================================================
+
+// ================================================================================================
 // N
+// ================================================================================================
+
+// ================================================================================================
 // O
+// ================================================================================================
+
+// ================================================================================================
 // P
+// ================================================================================================
+
+// ================================================================================================
 // Q
+// ================================================================================================
+
+// ================================================================================================
 // R
+// ================================================================================================
+
+// ================================================================================================
 // S
+// ================================================================================================
 void hx_gl_shaderSource(value shader, value strings) {
     string* _strings = new string[val_array_size(strings)];
     for (int i = 0; i < val_array_size(strings); i++)
@@ -163,14 +277,93 @@ void hx_gl_shaderSource(value shader, value strings) {
     delete[] _strings;
 }
 DEFINE_PRIM(hx_gl_shaderSource, 2);
+
+// ================================================================================================
 // T
+// ================================================================================================
+CONST(PROXY_TEXTURE_2D);
+CONST(PROXY_TEXTURE_1D_ARRAY);
+CONST(PROXY_TEXTURE_RECTANGLE);
+CONST(TEXTURE_CUBE_MAP_POSITIVE_X);
+CONST(TEXTURE_CUBE_MAP_POSITIVE_Y);
+CONST(TEXTURE_CUBE_MAP_POSITIVE_Z);
+CONST(TEXTURE_CUBE_MAP_NEGATIVE_X);
+CONST(TEXTURE_CUBE_MAP_NEGATIVE_Y);
+CONST(TEXTURE_CUBE_MAP_NEGATIVE_Z);
+CONST(PROXY_TEXTURE_CUBE_MAP);
+CONST(RED);
+CONST(RG);
+CONST(RGB);
+CONST(BGR);
+CONST(RGBA);
+CONST(BGRA);
+void hx_gl_texImage2D(value* args, int narg) {
+    void* dat;
+    int size = byte_array(args[8], val_get<int>(args[7]), &dat);
+    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), dat);
+    free(dat);
+}
+CONST(TEXTURE_BASE_LEVEL);
+CONST(TEXTURE_COMPARE_FUNC);
+CONST(TEXTURE_COMPARE_MODE);
+CONST(TEXTURE_LOD_BIAS);
+CONST(TEXTURE_MIN_FILTER);
+CONST(TEXTURE_MAG_FILTER);
+CONST(TEXTURE_MIN_LOD);
+CONST(TEXTURE_MAX_LOD);
+CONST(TEXTURE_MAX_LEVEL);
+CONST(TEXTURE_SWIZZLE_R);
+CONST(TEXTURE_SWIZZLE_G);
+CONST(TEXTURE_SWIZZLE_B);
+CONST(TEXTURE_SWIZZLE_A);
+CONST(TEXTURE_WRAP_S);
+CONST(TEXTURE_WRAP_T);
+CONST(TEXTURE_WRAP_R);
+CONST(COMPARE_REF_TO_TEXTURE);
+CONST(LEQUAL);
+CONST(GEQUAL);
+CONST(LESS);
+CONST(GREATER);
+CONST(EQUAL);
+CONST(NOTEQUAL);
+CONST(ALWAYS);
+CONST(NEVER);
+CONST(NEAREST);
+CONST(LINEAR);
+CONST(NEAREST_MIPMAP_NEAREST);
+CONST(LINEAR_MIPMAP_NEAREST);
+CONST(NEAREST_MIPMAP_LINEAR);
+CONST(LINEAR_MIPMAP_LINEAR);
+CONST(ZERO);
+CONST(ALPHA);
+CONST(ONE);
+CONST(BLUE);
+CONST(GREEN);
+CONST(CLAMP_TO_EDGE);
+CONST(CLAMP_TO_BORDER);
+CONST(MIRRORED_REPEAT);
+CONST(REPEAT);
+void hx_gl_texParameteri(value target, value pname, value param) {
+    glTexParameteri(val_get<int>(target), val_get<int>(pname), val_get<int>(param));
+}
+void hx_gl_texParameterf(value target, value pname, value param) {
+    glTexParameterf(val_get<int>(target), val_get<int>(pname), val_get<float>(param));
+}
+DEFINE_PRIM_MULT(hx_gl_texImage2D);
+DEFINE_PRIM(hx_gl_texParameteri, 3);
+DEFINE_PRIM(hx_gl_texParameterf, 3);
+
+// ================================================================================================
 // U
+// ================================================================================================
 void hx_gl_useProgram(value program) {
     glUseProgram(val_get<int>(program));
 }
 DEFINE_PRIM(hx_gl_useProgram, 1);
+
+// ================================================================================================
 // V
-CONST(BGRA);
+// ================================================================================================
 CONST(BYTE);
 CONST(UNSIGNED_BYTE);
 CONST(SHORT);
@@ -186,10 +379,27 @@ void hx_gl_vertexAttribPointer(value* args, int narg) {
     glVertexAttribPointer(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<bool>(args[3]), val_get<int>(args[4]), (GLvoid*)val_get<int>(args[5]));
 }
 DEFINE_PRIM_MULT(hx_gl_vertexAttribPointer);
+
+// ================================================================================================
 // W
+// ================================================================================================
+
+// ================================================================================================
 // X
+// ================================================================================================
+
+// ================================================================================================
 // Y
+// ================================================================================================
+
+// ================================================================================================
 // Z
+// ================================================================================================
+
+
+
+
+// ================================================================================================
 
 extern "C" void hx_ogl_entry() {
     glewExperimental = GL_TRUE;

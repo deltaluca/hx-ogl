@@ -124,7 +124,10 @@ class GLProcsImpl {
             case TFunction(_,_): null;
             case TPath({name:"Array",params:[TPType(t)]}):
                 var e2 = targ(e, t);
-                if (e2 == null) e;
+                if (e2 == null || switch (t) {
+                    case TPath({name:"T"}): true;
+                    default: false;
+                }) e;
                 else macro NativeBinding.mapNative($e);
             default: macro NativeBinding.native($e);
             }

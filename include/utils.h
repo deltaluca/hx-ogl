@@ -2,6 +2,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <hx/CFFI.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 
 
