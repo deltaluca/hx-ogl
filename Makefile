@@ -6,9 +6,9 @@ all: lib main
 lib:
 	haxelib run hxcpp Build.xml -DHXCPP_M64 -debug
 
-main: lib ogl/GLM.hx
-	haxe -main ogl.GLM -cpp bin -D HXCPP_M64 -debug
-	cp ndll/Linux64/ogl.ndll bin/ogl.ndll && cd bin && ./GLM-debug
+main: lib Main.hx
+	haxe -main Main.hx -cpp bin -D HXCPP_M64 -debug
+	cp ndll/Linux64/ogl.ndll bin/ogl.ndll && cd bin && ./Main-debug
 
 .PHONY: haxelib
 haxelib: lib

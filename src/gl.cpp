@@ -73,7 +73,7 @@ value hx_gl_createBuffer(value arr, value type) {
 }
 value hx_gl_createBufferRaw(value raw, value size, value type, value nogc) {
     Buffer* ret = new Buffer;
-    ret->data = raw;
+    ret->data = val_data(raw);
     ret->size = val_get<int>(size);
     ret->type = val_get<int>(type);
     value v = alloc_abstract(k_Buffer, ret);
@@ -209,6 +209,9 @@ DEFINE_PRIM(hx_gl_createProgram, 0);
 void hx_gl_deleteShader(value shader) {
     glDeleteShader(val_get<int>(shader));
 }
+void hx_gl_depthFunc(value func) {
+    glDepthFunc(val_get<int>(func));
+}
 void hx_gl_disableVertexAttribArray(value index) {
     glDisableVertexAttribArray(val_get<int>(index));
 }
@@ -227,15 +230,41 @@ void hx_gl_drawArrays(value mode, value first, value count) {
     glDrawArrays(val_get<int>(mode), val_get<int>(first), val_get<int>(count));
 }
 DEFINE_PRIM(hx_gl_deleteShader,             1);
+DEFINE_PRIM(hx_gl_depthFunc,                1);
 DEFINE_PRIM(hx_gl_disableVertexAttribArray, 1);
 DEFINE_PRIM(hx_gl_drawArrays,               3);
 
 // ================================================================================================
 // E
 // ================================================================================================
+CONST(BLEND);
+CONST(COLOR_LOGIC_OP);
+CONST(CULL_FACE);
+CONST(DEPTH_CLAMP);
+CONST(DEPTH_TEST);
+CONST(DITHER);
+CONST(FRAMEBUFFER_SRGB);
+CONST(LINE_SMOOTH);
+CONST(MULTISAMPLE);
+CONST(POLYGON_OFFSET_FILL);
+CONST(POLYGON_OFFSET_LINE);
+CONST(POLYGON_OFFSET_POINT);
+CONST(POLYGON_SMOOTH);
+CONST(PRIMITIVE_RESTART);
+CONST(SAMPLE_ALPHA_TO_COVERAGE);
+CONST(SAMPLE_ALPHA_TO_ONE);
+CONST(SAMPLE_COVERAGE);
+CONST(SCISSOR_TEST);
+CONST(STENCIL_TEST);
+CONST(TEXTURE_CUBE_MAP_SEAMLESS);
+CONST(PROGRAM_POINT_SIZE);
+void hx_gl_enable(value flag) {
+    glEnable(val_get<int>(flag));
+}
 void hx_gl_enableVertexAttribArray(value index) {
     glEnableVertexAttribArray(val_get<int>(index));
 }
+DEFINE_PRIM(hx_gl_enable,                  1);
 DEFINE_PRIM(hx_gl_enableVertexAttribArray, 1);
 
 // ================================================================================================
@@ -451,7 +480,11 @@ CONST(UNSIGNED_INT_2_10_10_10_REV);
 void hx_gl_vertexAttribPointer(value* args, int narg) {
     glVertexAttribPointer(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<bool>(args[3]), val_get<int>(args[4]), (GLvoid*)val_get<int>(args[5]));
 }
+void hx_gl_viewport(value x, value y, value width, value height) {
+    glViewport(val_get<int>(x), val_get<int>(y), val_get<int>(width), val_get<int>(height));
+}
 DEFINE_PRIM_MULT(hx_gl_vertexAttribPointer);
+DEFINE_PRIM(hx_gl_viewport, 4);
 
 // ================================================================================================
 // W
