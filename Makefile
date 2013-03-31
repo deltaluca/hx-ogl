@@ -1,5 +1,5 @@
 all: lib main
-	cp ndll/Linux64/ogl.ndll bin/ogl.ndll && cd bin && ./Main-debug
+	cd bin && ./Main-debug
 #	cd bin && neko Main.n
 
 .PHONY: lib
@@ -8,7 +8,6 @@ lib:
 
 main: haxelib Main.hx
 	haxe -main Main.hx -cpp bin -D HXCPP_M64 -debug -lib ogl
-	cd bin && ./Main-debug
 
 .PHONY: haxelib
 haxelib: lib

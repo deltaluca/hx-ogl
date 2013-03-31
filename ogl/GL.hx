@@ -50,6 +50,26 @@ class BufferImp extends NativeBinding {
     }
 }
 
+abstract Vec2(Array<Float>) from Array<Float> to Array<Float> {
+    public inline function new(x:Float, y:Float) this = [x, y];
+
+    // .xy
+//    public var x(get,set):Float; inline function get_x() return untyped this[0]; inline function set_x(x:Float) return untyped this[0] = x;
+//    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
+
+    // .rg
+//    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
+//    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
+
+    // .st
+//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
+//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+
+    // array access
+    @:arrayAccess public inline function get(i:Int):Float return this[i];
+    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+}
+
 abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
     public inline function new(x:Float, y:Float, z:Float) this = [x, y, z];
 
@@ -63,10 +83,36 @@ abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
 //    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
 //    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
 
-    // .uvw
-//    public var u(get,set):Float; inline function get_u() return this[0]; inline function set_u(u:Float) return this[0] = u;
-//    public var v(get,set):Float; inline function get_v() return this[1]; inline function set_v(v:Float) return this[1] = v;
+    // .stp
+//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
+//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+//    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
+
+    // array access
+    @:arrayAccess public inline function get(i:Int):Float return this[i];
+    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+}
+
+abstract Vec4(Array<Float>) from Array<Float> to Array<Float> {
+    public inline function new(x:Float, y:Float, z:Float, w:Float) this = [x, y, z, w];
+
+    // .xyzw
+//    public var x(get,set):Float; inline function get_x() return untyped this[0]; inline function set_x(x:Float) return untyped this[0] = x;
+//    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
+//    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
 //    public var w(get,set):Float; inline function get_w() return this[2]; inline function set_w(w:Float) return this[2] = w;
+
+    // .rgba
+//    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
+//    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
+//    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
+//    public var a(get,set):Float; inline function get_a() return this[2]; inline function set_a(a:Float) return this[2] = a;
+
+    // .stpq
+//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
+//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+//    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
+//    public var q(get,set):Float; inline function get_q() return this[2]; inline function set_q(q:Float) return this[2] = q;
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
@@ -187,9 +233,17 @@ class GL implements GLConsts implements GLProcs {
         return Lib.load("ogl","hx_gl_"+n, p);
 
     // Haxe specific interfaces.
-    @:GLProc(createBuffer)    function buffer<T>(data:Array<T>, type:Int):Buffer;
+// TODO: Haxe issue 1667 prevents this working nicely
+//    @:generic @:GLProc(createBuffer)    function buffer<T>(data:Array<T>, type:Int):Buffer;
+    public static inline function buffer(data:Array<Dynamic>, type:Int):Buffer
+        return Buffer.cvt(load("createBuffer", 2)(data, type));
     @:GLProc(createBufferRaw) function rawBuffer(data:{ref:Dynamic,raw:Dynamic}, size:Int, type:Int, nogc:Bool=false):Buffer
         return Buffer.cvt(load("createBufferRaw", 4)(data.raw, size, type, nogc));
+
+    // Vector constructors (functional)
+    @:GLProc function v2(x:Float, y:Float):Vec2 return new Vec2(x,y);
+    @:GLProc function v3(x:Float, y:Float, z:Float):Vec3 return new Vec3(x,y,z);
+    @:GLProc function v4(x:Float, y:Float, z:Float, w:Float):Vec4 return new Vec4(x,y,z,w);
 
     // ================================================================================================
     // A
@@ -408,6 +462,7 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var RED;
     @:GLConst var RG;
     @:GLConst var RGB;
+    @:GLConst var LUMINANCE;
     @:GLConst var BGR;
     @:GLConst var RGBA;
     @:GLConst var BGRA;

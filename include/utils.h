@@ -34,11 +34,26 @@ inline value alloc_double(double x) { return alloc(x); }
 template <typename T>
 T val_get(value x) { neko_error(); }
 template <>
-inline int val_get(value x) { return val_get_int(x); }
+inline int val_get(value x) {
+    if (val_is_int  (x)) return val_int(x);
+    if (val_is_float(x)) return (int)val_float(x);
+    if (val_is_bool (x)) return (int)val_bool(x);
+    neko_error();
+    return -1;
+}
 template <>
-inline float val_get(value x) { return val_get_double(x); }
+inline double val_get(value x) {
+    if (val_is_int  (x)) return (double)val_int(x);
+    if (val_is_float(x)) return val_float(x);
+    if (val_is_bool (x)) return (double)val_bool(x);
+    neko_error();
+    return -1;
+}
 template <>
-inline double val_get(value x) { return val_get_double(x); }
+inline float val_get(value x) {
+    double r = val_get<double>(x);
+    return r;
+}
 template <>
 inline string val_get(value x) { return val_get_string(x); }
 template <>

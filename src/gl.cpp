@@ -1,10 +1,9 @@
 #include <hx/CFFI.h>
 #include "utils.h"
 
-
-
-// Convert Array<Int>, Array<Float> into T* array
-// based on GL type
+// Convert Array<Int>, Array<Float> and
+// Array<Int|Float|Vec#> into T* array based
+// on GL type
 int byte_kind(int T) {
     int t = (T == GL_UNSIGNED_BYTE || T == GL_BYTE) ? 0 :
             (T == GL_UNSIGNED_SHORT || T == GL_SHORT) ? 1 :
@@ -21,9 +20,10 @@ int byte_array(value arr, int T, void** dat) {
     }
 
     int retval;
-    void* ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
+    void* ret;
     int* ai = val_array_int(arr);
-    if (ai != NULL)  {
+    if (ai != NULL) {
+        ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
         for (int i = 0; i < size; i++) {
             if     (t == 0) ((char *)(ret))[i] = ai[i];
             else if(t == 1) ((short*)(ret))[i] = ai[i];
@@ -35,6 +35,7 @@ int byte_array(value arr, int T, void** dat) {
 
     double* ad = val_array_double(arr);
     if (ad != NULL) {
+        ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
         for (int i = 0; i < size; i++) {
             if     (t == 0) ((char *)(ret))[i] = ad[i];
             else if(t == 1) ((short*)(ret))[i] = ad[i];
@@ -44,8 +45,48 @@ int byte_array(value arr, int T, void** dat) {
         return retval;
     }
 
-    printf("OGL void* data should be Array<Int> or Array<Float>\n");
-    return 0;
+    // Neither Array<Int> or Array<Float>
+    // Must be mixed type! slower route.
+    int j = 0;
+    for (int i = 0; i < size; i++) {
+        value d = val_array_i(arr, i);
+        if (val_is_int(d) || val_is_float(d) || val_is_bool(d)) {
+            j++;
+        }
+        else {
+            j += val_array_size(d);
+        }
+    }
+    ret = *dat = malloc(retval = j * (t == 0 ? 1 : t == 1 ? 2 : 4));
+
+    j = 0;
+    for (int i = 0; i < size; i++) {
+        value d = val_array_i(arr, i);
+        if (val_is_int(d) || val_is_float(d) || val_is_bool(d)) {
+            if     (t == 0) ((char *)(ret))[j++] = val_get<int>   (d);
+            else if(t == 1) ((short*)(ret))[j++] = val_get<int>   (d);
+            else if(t == 2) ((int  *)(ret))[j++] = val_get<int>   (d);
+            else            ((float*)(ret))[j++] = val_get<double>(d);
+        }
+        else {
+            int size2 = val_array_size(d);
+            for (int k = 0; k < size2; k++) {
+                value e = val_array_i(d, k);
+                if (val_is_int(e) || val_is_float(e) || val_is_bool(e)) {
+                    if     (t == 0) ((char *)(ret))[j++] = val_get<int>   (e);
+                    else if(t == 1) ((short*)(ret))[j++] = val_get<int>   (e);
+                    else if(t == 2) ((int  *)(ret))[j++] = val_get<int>   (e);
+                    else            ((float*)(ret))[j++] = val_get<double>(e);
+                }
+                else {
+                    printf("arr had dim > 2\n");
+                    neko_error();
+                }
+            }
+        }
+    }
+
+    return retval;
 }
 
 DECLARE_KIND(k_Buffer);
@@ -453,6 +494,7 @@ CONST(PROXY_TEXTURE_CUBE_MAP);
 CONST(RED);
 CONST(RG);
 CONST(RGB);
+CONST(LUMINANCE);
 CONST(BGR);
 CONST(RGBA);
 CONST(BGRA);
