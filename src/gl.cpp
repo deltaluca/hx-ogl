@@ -5,12 +5,16 @@
 
 // Convert Array<Int>, Array<Float> into T* array
 // based on GL type
-int byte_array(value arr, int T, void** dat) {
-    int size = val_array_size(arr);
+int byte_kind(int T) {
     int t = (T == GL_UNSIGNED_BYTE || T == GL_BYTE) ? 0 :
             (T == GL_UNSIGNED_SHORT || T == GL_SHORT) ? 1 :
             (T == GL_UNSIGNED_INT || T == GL_INT) ? 2 :
             (T == GL_FLOAT) ? 3 : -1;
+    return t;
+}
+int byte_array(value arr, int T, void** dat) {
+    int size = val_array_size(arr);
+    int t = byte_kind(T);
     if (t == -1) {
         printf("OGL Type not supported for void* data\n");
         neko_error();
@@ -49,6 +53,7 @@ DEFINE_KIND(k_Buffer);
 struct Buffer {
     void* data;
     int size;
+    int count;
     int type;
 };
 void finalise_Buffer(value v) {
@@ -67,6 +72,7 @@ value hx_gl_createBuffer(value arr, value type) {
     ret->data = dat;
     ret->size = size;
     ret->type = val_get<int>(type);
+    ret->count = val_array_size(arr);
     value v = alloc_abstract(k_Buffer, ret);
     val_gc(v, finalise_Buffer);
     return v;
@@ -76,6 +82,8 @@ value hx_gl_createBufferRaw(value raw, value size, value type, value nogc) {
     ret->data = val_data(raw);
     ret->size = val_get<int>(size);
     ret->type = val_get<int>(type);
+    int t = byte_kind(ret->type);
+    ret->count = ret->size / (t == 0 ? 1 : t == 1 ? 2 : 4);
     value v = alloc_abstract(k_Buffer, ret);
     if (val_get<bool>(nogc)) val_gc(v, finalise_Buffer_nogc);
     else val_gc(v, finalise_Buffer);
@@ -89,6 +97,11 @@ value hx_gl_Buffer_get_type(value v) {
     Buffer* ptr = (Buffer*)val_data(v);
     return alloc<int>(ptr->type);
 }
+value hx_gl_Buffer_get_count(value v) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    return alloc<int>(ptr->count);
+}
 value hx_gl_Buffer_get_size(value v) {
     val_check_kind(v, k_Buffer);
     Buffer* ptr = (Buffer*)val_data(v);
@@ -99,9 +112,41 @@ value hx_gl_Buffer_get_raw(value v) {
     Buffer* ptr = (Buffer*)val_data(v);
     return (value)(ptr->data);
 }
-DEFINE_PRIM(hx_gl_Buffer_get_type, 1);
-DEFINE_PRIM(hx_gl_Buffer_get_size, 1);
-DEFINE_PRIM(hx_gl_Buffer_get_raw,  1);
+DEFINE_PRIM(hx_gl_Buffer_get_type,  1);
+DEFINE_PRIM(hx_gl_Buffer_get_size,  1);
+DEFINE_PRIM(hx_gl_Buffer_get_count, 1);
+DEFINE_PRIM(hx_gl_Buffer_get_raw,   1);
+
+value hx_gl_Buffer_get_T(value v, value iv) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    int i = val_get<int>(iv);
+    int t = ptr->type;
+    if      (t == GL_BYTE)           return alloc<int>   (((char*)          ptr->data)[i]);
+    else if (t == GL_SHORT)          return alloc<int>   (((short*)         ptr->data)[i]);
+    else if (t == GL_INT)            return alloc<int>   (((int*)           ptr->data)[i]);
+    else if (t == GL_UNSIGNED_BYTE)  return alloc<int>   (((unsigned char*) ptr->data)[i]);
+    else if (t == GL_UNSIGNED_SHORT) return alloc<int>   (((unsigned short*)ptr->data)[i]);
+    else if (t == GL_UNSIGNED_INT)   return alloc<int>   (((unsigned int*)  ptr->data)[i]);
+    else if (t == GL_FLOAT)          return alloc<double>(((float*)         ptr->data)[i]);
+    else { neko_error(); return val_null; }
+}
+value hx_gl_Buffer_set_T(value v, value iv, value x) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    int i = val_get<int>(iv);
+    int t = ptr->type;
+    if      (t == GL_BYTE)           return alloc<int>   (((char*)          ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_SHORT)          return alloc<int>   (((short*)         ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_INT)            return alloc<int>   (((int*)           ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_UNSIGNED_BYTE)  return alloc<int>   (((unsigned char*) ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_UNSIGNED_SHORT) return alloc<int>   (((unsigned short*)ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_UNSIGNED_INT)   return alloc<int>   (((unsigned int*)  ptr->data)[i] = val_get<int>   (x));
+    else if (t == GL_FLOAT)          return alloc<double>(((float*)         ptr->data)[i] = val_get<double>(x));
+    else { neko_error(); return val_null; }
+}
+DEFINE_PRIM(hx_gl_Buffer_get_T, 2);
+DEFINE_PRIM(hx_gl_Buffer_set_T, 3);
 
 // ================================================================================================
 // A
@@ -141,6 +186,26 @@ void hx_gl_bindTexture(value target, value texture) {
 void hx_gl_bindVertexArray(value arr) {
     glBindVertexArray(val_get<int>(arr));
 }
+CONST(SRC_COLOR);
+CONST(ONE_MINUS_SRC_COLOR);
+CONST(DST_COLOR);
+CONST(ONE_MINUS_DST_COLOR);
+CONST(SRC_ALPHA);
+CONST(ONE_MINUS_SRC_ALPHA);
+CONST(DST_ALPHA);
+CONST(ONE_MINUS_DST_ALPHA);
+CONST(CONSTANT_COLOR);
+CONST(ONE_MINUS_CONSTANT_COLOR);
+CONST(CONSTANT_ALPHA);
+CONST(ONE_MINUS_CONSTANT_ALPHA);
+CONST(SRC_ALPHA_SATURATE);
+CONST(SRC1_COLOR);
+CONST(ONE_MINUS_SRC1_COLOR);
+CONST(SRC1_ALPHA);
+CONST(ONE_MINUS_SRC1_ALPHA);
+void hx_gl_blendFunc(value sfactor, value dfactor) {
+    glBlendFunc(val_get<int>(sfactor), val_get<int>(dfactor));
+}
 CONST(STREAM_DRAW);
 CONST(STREAM_READ);
 CONST(STREAM_COPY);
@@ -158,6 +223,7 @@ void hx_gl_bufferData(value target, value data, value usage) {
 DEFINE_PRIM(hx_gl_bindBuffer,       2);
 DEFINE_PRIM(hx_gl_bindTexture,      2);
 DEFINE_PRIM(hx_gl_bindVertexArray,  1);
+DEFINE_PRIM(hx_gl_blendFunc,        2);
 DEFINE_PRIM(hx_gl_bufferData,       3);
 
 // ================================================================================================
@@ -212,6 +278,9 @@ void hx_gl_deleteShader(value shader) {
 void hx_gl_depthFunc(value func) {
     glDepthFunc(val_get<int>(func));
 }
+void hx_gl_disable(value flag) {
+    glDisable(val_get<int>(flag));
+}
 void hx_gl_disableVertexAttribArray(value index) {
     glDisableVertexAttribArray(val_get<int>(index));
 }
@@ -231,6 +300,7 @@ void hx_gl_drawArrays(value mode, value first, value count) {
 }
 DEFINE_PRIM(hx_gl_deleteShader,             1);
 DEFINE_PRIM(hx_gl_depthFunc,                1);
+DEFINE_PRIM(hx_gl_disable,                  1);
 DEFINE_PRIM(hx_gl_disableVertexAttribArray, 1);
 DEFINE_PRIM(hx_gl_drawArrays,               3);
 

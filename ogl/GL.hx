@@ -3,7 +3,19 @@ package ogl;
 import #if cpp cpp #else neko #end.Lib;
 import ogl.Macros;
 
-class Buffer extends NativeBinding {
+abstract Buffer(BufferImp) from BufferImp to BufferImp {
+    public inline function new(x:Dynamic) this = new BufferImp(x);
+
+    @:allow(ogl)
+    inline static function cvt(x:Dynamic):Buffer return BufferImp.cvt(x);
+
+    @:arrayAccess public inline function get<T>(index:Int):T
+        return untyped GL.load("Buffer_get_T", 2)(this.nativeObject, index);
+    @:arrayAccess public inline function set<T>(index:Int, value:T):T
+        return untyped GL.load("Buffer_set_T", 3)(this.nativeObject, index, value);
+}
+
+class BufferImp extends NativeBinding {
     @:allow(ogl)
     public function new(x:Dynamic) super(x);
 
@@ -11,15 +23,31 @@ class Buffer extends NativeBinding {
     static inline function cvt(x:Null<Dynamic>):Null<Buffer>
         return if (x == null) null else new Buffer(x);
 
+    // GL type of elements.
     public var type(get,never):Int;
     inline function get_type() return GL.load("Buffer_get_type", 1)(nativeObject);
+    // Total byte size of buffer.
     public var size(get,never):Int;
     inline function get_size() return GL.load("Buffer_get_size", 1)(nativeObject);
-    public var raw(get,never):Dynamic;
-    inline function get_raw()  return GL.load("Buffer_get_raw", 1)(nativeObject);
+    // Number of elements in buffer.
+    public var count(get,never):Int;
+    inline function get_count() return GL.load("Buffer_get_count", 1)(nativeObject);
+    // Raw pointer to buffer data.
+    public var raw(get,never):{ref:Dynamic, raw:Dynamic};
+    inline function get_raw() return {
+        ref: nativeObject,
+        raw: GL.load("Buffer_get_raw", 1)(nativeObject)
+    };
 
-    inline public function toString():String
-        return '{ogl Buffer}';
+    inline public function toString():String {
+        var type = this.type;
+        var name = (type == GL.UNSIGNED_BYTE  ? "GL_UNSIGNED_BYTE"  : type == GL.BYTE  ? "GL_BYTE"  :
+                    type == GL.UNSIGNED_SHORT ? "GL_UNSIGNED_SHORT" : type == GL.SHORT ? "GL_SHORT" :
+                    type == GL.UNSIGNED_INT   ? "GL_UNSIGNED_INT"   : type == GL.INT   ? "GL_INT"   :
+                    type == GL.FLOAT          ? "GL_FLOAT" :
+                    "UNKNOWN");
+        return '{Buffer ${name}x$count}';
+    }
 }
 
 abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
@@ -192,6 +220,24 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var TEXTURE_2D_MULTISAMPLE_ARRAY;
     @:GLProc function bindTexture(target:Int, texture:Int):Void;
     @:GLProc function bindVertexArray(array:Int):Void;
+    @:GLConst var SRC_COLOR;
+    @:GLConst var ONE_MINUS_SRC_COLOR;
+    @:GLConst var DST_COLOR;
+    @:GLConst var ONE_MINUS_DST_COLOR;
+    @:GLConst var SRC_ALPHA;
+    @:GLConst var ONE_MINUS_SRC_ALPHA;
+    @:GLConst var DST_ALPHA;
+    @:GLConst var ONE_MINUS_DST_ALPHA;
+    @:GLConst var CONSTANT_COLOR;
+    @:GLConst var ONE_MINUS_CONSTANT_COLOR;
+    @:GLConst var CONSTANT_ALPHA;
+    @:GLConst var ONE_MINUS_CONSTANT_ALPHA;
+    @:GLConst var SRC_ALPHA_SATURATE;
+    @:GLConst var SRC1_COLOR;
+    @:GLConst var ONE_MINUS_SRC1_COLOR;
+    @:GLConst var SRC1_ALPHA;
+    @:GLConst var ONE_MINUS_SRC1_ALPHA;
+    @:GLProc function blendFunc(sfactor:Int, dfactor:Int):Void;
     @:GLConst var STREAM_DRAW;
     @:GLConst var STREAM_READ;
     @:GLConst var STREAM_COPY;
