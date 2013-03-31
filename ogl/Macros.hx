@@ -303,15 +303,58 @@ class GLProcsImpl {
 
 //
 // Add same type vector operations
-// for GLM vector type.
+// for GL vector type.
 //
-class GLMVector {
+class GLVector {
 #if macro
-    static var self:String;
+    static var N:Int;
+    static var fields:Array<Field>;
     static var selfT:ComplexType;
 
-    static function binop(name:String, op:Binop) {
-        return {
+    static function unop(name:String, op:Unop, post:Bool) {
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EUnop(op, post, macro u[$v{i}])
+            });
+        }
+        fields.push({
+            pos: Context.currentPos(),
+            name: name,
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EUnop(op, post, macro A),
+                    pos: Context.currentPos()
+                }]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "u",
+                }],
+                expr: macro return $a{es}
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+    }
+
+    static function binop(name:String, op:Binop, self:Bool=false) {
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EBinop(op, macro u[$v{i}], macro v[$v{i}])
+            });
+        }
+        fields.push({
             pos: Context.currentPos(),
             name: name,
             meta: [{
@@ -336,56 +379,99 @@ class GLMVector {
                     opt: false,
                     name: "v",
                 }],
-                expr: macro return cvt(GLM.load($v{self+"_"+name}, 2)(u.nativeObject, v.nativeObject))
+                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
             }),
             doc: null,
             access: [AInline, AStatic, APublic]
-        };
-    }
+        });
 
-    public static function run(N:Int) {
-        var fields = Context.getBuildFields();
-
-        self = "vec"+N;
-        selfT = TPath({sub:null,params:[],pack:[],name:"Vec"+N});
-
-        // Add cvt function.
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EBinop(op, macro u[$v{i}], macro v)
+            });
+        }
         fields.push({
             pos: Context.currentPos(),
-            name: "cvt",
+            name: name+"f",
             meta: [{
                 pos: Context.currentPos(),
-                name: ":allow",
-                params: [macro ogl]
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
             }],
             kind: FFun({
                 ret: selfT,
                 params: [],
-                expr: macro return NativeBinding.generic(x),
                 args: [{
                     value: null,
-                    type: macro :Dynamic,
+                    type: selfT,
                     opt: false,
-                    name: "x"
-                }]
+                    name: "u",
+                }, {
+                    value: null,
+                    type: macro :Float,
+                    opt: false,
+                    name: "v",
+                }],
+                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
             }),
             doc: null,
-            access: [AStatic, AInline]
+            access: [AInline, AStatic, APublic]
         });
+        fields.push({
+            pos: Context.currentPos(),
+            name: name+"i",
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "u",
+                }, {
+                    value: null,
+                    type: macro :Int,
+                    opt: false,
+                    name: "v",
+                }],
+                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+    }
 
-        fields.push(binop("add", OpAdd));
-        fields.push(binop("sub", OpSub));
-        fields.push(binop("div", OpDiv));
-        fields.push(binop("mul", OpMult));
+    public static function run(n:Int) {
+        N = n;
+        fields = Context.getBuildFields();
 
-        fields.push(binop("assign", OpAssign));
-        fields.push(binop("addAssign", OpAssignOp(OpAdd)));
-        fields.push(binop("subAssign", OpAssignOp(OpSub)));
-        fields.push(binop("divAssign", OpAssignOp(OpDiv)));
-        fields.push(binop("mulAssign", OpAssignOp(OpMult)));
+        selfT = TPath({sub:null,params:[],pack:[],name:"Vec"+N});
 
-        var p = new haxe.macro.Printer();
-        trace(Lambda.map(fields, p.printField).join("\n"));
+        binop("add", OpAdd);
+        binop("sub", OpSub);
+        binop("div", OpDiv);
+        binop("mul", OpMult);
+
+        binop("assign", OpAssign, true);
+        binop("addAssign", OpAssignOp(OpAdd), true);
+        binop("subAssign", OpAssignOp(OpSub), true);
+        binop("divAssign", OpAssignOp(OpDiv), true);
+        binop("mulAssign", OpAssignOp(OpMult), true);
+
+        unop("neg", OpNeg, false);
 
         return fields;
     }

@@ -13,6 +13,23 @@ abstract Buffer(BufferImp) from BufferImp to BufferImp {
         return untyped GL.load("Buffer_get_T", 2)(this.nativeObject, index);
     @:arrayAccess public inline function set<T>(index:Int, value:T):T
         return untyped GL.load("Buffer_set_T", 3)(this.nativeObject, index, value);
+
+    // GL type of elements.
+    public var type(get,never):Int;
+    inline function get_type() return GL.load("Buffer_get_type", 1)(this.nativeObject);
+    // Total byte size of buffer.
+    public var size(get,never):Int;
+    inline function get_size() return GL.load("Buffer_get_size", 1)(this.nativeObject);
+    // Number of elements in buffer.
+    public var count(get,never):Int;
+    inline function get_count() return GL.load("Buffer_get_count", 1)(this.nativeObject);
+    // Raw pointer to buffer data.
+    public var raw(get,never):{ref:Dynamic, raw:Dynamic};
+    inline function get_raw() return {
+        ref: this.nativeObject,
+        raw: GL.load("Buffer_get_raw", 1)(this.nativeObject)
+    };
+
 }
 
 class BufferImp extends NativeBinding {
@@ -23,100 +40,94 @@ class BufferImp extends NativeBinding {
     static inline function cvt(x:Null<Dynamic>):Null<Buffer>
         return if (x == null) null else new Buffer(x);
 
-    // GL type of elements.
-    public var type(get,never):Int;
-    inline function get_type() return GL.load("Buffer_get_type", 1)(nativeObject);
-    // Total byte size of buffer.
-    public var size(get,never):Int;
-    inline function get_size() return GL.load("Buffer_get_size", 1)(nativeObject);
-    // Number of elements in buffer.
-    public var count(get,never):Int;
-    inline function get_count() return GL.load("Buffer_get_count", 1)(nativeObject);
-    // Raw pointer to buffer data.
-    public var raw(get,never):{ref:Dynamic, raw:Dynamic};
-    inline function get_raw() return {
-        ref: nativeObject,
-        raw: GL.load("Buffer_get_raw", 1)(nativeObject)
-    };
-
     inline public function toString():String {
-        var type = this.type;
+        var _this:Buffer = this;
+        var type = _this.type;
         var name = (type == GL.UNSIGNED_BYTE  ? "GL_UNSIGNED_BYTE"  : type == GL.BYTE  ? "GL_BYTE"  :
                     type == GL.UNSIGNED_SHORT ? "GL_UNSIGNED_SHORT" : type == GL.SHORT ? "GL_SHORT" :
                     type == GL.UNSIGNED_INT   ? "GL_UNSIGNED_INT"   : type == GL.INT   ? "GL_INT"   :
                     type == GL.FLOAT          ? "GL_FLOAT" :
                     "UNKNOWN");
-        return '{Buffer ${name}x$count}';
+        return '{Buffer ${name}x${_this.count}}';
     }
 }
 
-abstract Vec2(Array<Float>) from Array<Float> to Array<Float> {
+@:build(ogl.GLVector.run(2)) abstract Vec2(Array<Float>) from Array<Float> to Array<Float> {
     public inline function new(x:Float, y:Float) this = [x, y];
+    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec2(xs[0],xs[1]);
 
     // .xy
-//    public var x(get,set):Float; inline function get_x() return untyped this[0]; inline function set_x(x:Float) return untyped this[0] = x;
-//    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
+    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
+    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
 
     // .rg
-//    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-//    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
+    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
+    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
 
     // .st
-//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
-//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
+    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
 
     // array access
-    @:arrayAccess public inline function get(i:Int):Float return this[i];
-    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+    @:arrayAccess public inline function geti(i:Int):Float return this[i];
+    @:arrayAccess public inline function getf(i:Int):Float return this[i];
+    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
+    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
+@:build(ogl.GLVector.run(3)) abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
     public inline function new(x:Float, y:Float, z:Float) this = [x, y, z];
+    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec3(xs[0],xs[1],xs[2]);
 
     // .xyz
-//    public var x(get,set):Float; inline function get_x() return untyped this[0]; inline function set_x(x:Float) return untyped this[0] = x;
-//    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
-//    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
+    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
+    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
+    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
 
     // .rgb
-//    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-//    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
-//    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
+    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
+    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
+    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
 
     // .stp
-//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
-//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
-//    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
+    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
+    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
 
     // array access
-    @:arrayAccess public inline function get(i:Int):Float return this[i];
-    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+    @:arrayAccess public inline function geti(i:Int):Float return this[i];
+    @:arrayAccess public inline function getf(i:Int):Float return this[i];
+    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
+    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-abstract Vec4(Array<Float>) from Array<Float> to Array<Float> {
+@:build(ogl.GLVector.run(4)) abstract Vec4(Array<Float>) from Array<Float> to Array<Float> {
     public inline function new(x:Float, y:Float, z:Float, w:Float) this = [x, y, z, w];
+    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec4(xs[0],xs[1],xs[2],xs[3]);
 
     // .xyzw
-//    public var x(get,set):Float; inline function get_x() return untyped this[0]; inline function set_x(x:Float) return untyped this[0] = x;
-//    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
-//    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
-//    public var w(get,set):Float; inline function get_w() return this[2]; inline function set_w(w:Float) return this[2] = w;
+    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
+    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
+    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
+    public var w(get,set):Float; inline function get_w() return this[2]; inline function set_w(w:Float) return this[2] = w;
 
     // .rgba
-//    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-//    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
-//    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
-//    public var a(get,set):Float; inline function get_a() return this[2]; inline function set_a(a:Float) return this[2] = a;
+    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
+    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
+    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
+    public var a(get,set):Float; inline function get_a() return this[2]; inline function set_a(a:Float) return this[2] = a;
 
     // .stpq
-//    public var s(get,set):Float; inline function get_s() return unttped this[0]; inline function set_s(s:Float) return unttped this[0] = s;
-//    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
-//    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
-//    public var q(get,set):Float; inline function get_q() return this[2]; inline function set_q(q:Float) return this[2] = q;
+    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
+    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
+    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
+    public var q(get,set):Float; inline function get_q() return this[2]; inline function set_q(q:Float) return this[2] = q;
 
     // array access
-    @:arrayAccess public inline function get(i:Int):Float return this[i];
-    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+    @:arrayAccess public inline function geti(i:Int):Float return this[i];
+    @:arrayAccess public inline function getf(i:Int):Float return this[i];
+    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
+    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
 abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
@@ -171,17 +182,17 @@ abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
                       0.0,     0.0,     -1.0,           0.0       ];
     }
     public static inline function lookAt(eye:Vec3, centre:Vec3, ?up:Null<Vec3>):Mat4 {
-        var e0 = eye[0];
-        var e1 = eye[1];
-        var e2 = eye[2];
+        var e0 = eye.x;
+        var e1 = eye.y;
+        var e2 = eye.z;
 
-        var u0 = (up == null ? 0 : up[0]);
-        var u1 = (up == null ? 1 : up[1]);
-        var u2 = (up == null ? 0 : up[2]);
+        var u0 = (up == null ? 0 : up.x);
+        var u1 = (up == null ? 1 : up.y);
+        var u2 = (up == null ? 0 : up.z);
 
-        var f0 = centre[0] - e0;
-        var f1 = centre[1] - e1;
-        var f2 = centre[2] - e2;
+        var f0 = centre.x - e0;
+        var f1 = centre.y - e1;
+        var f2 = centre.z - e2;
         var n = 1/Math.sqrt(f0*f0+f1*f1+f2*f2);
         f0 *= n;
         f1 *= n;
