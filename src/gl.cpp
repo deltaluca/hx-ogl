@@ -1,5 +1,6 @@
 #include <hx/CFFI.h>
 #include "utils.h"
+#define CONST(N) PCONST(gl, GL, N)
 
 // Convert Array<Int>, Array<Float> and
 // Array<Int|Float|Vec#> into T* array based

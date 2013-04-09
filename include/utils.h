@@ -4,6 +4,7 @@
 #include <hx/CFFI.h>
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <GL/glfw.h>
 
 
 
@@ -72,9 +73,9 @@ void finaliser(value v) {
 
 
 // Defining GL_# integer consts.
-#define CONST(N) \
-    value hx_gl_##N() { return alloc_int(GL_##N); } \
-    DEFINE_PRIM(hx_gl_##N, 0)
+#define PCONST(P, R, N) \
+    value hx_##P##_##N() { return alloc_int(R##_##N); } \
+    DEFINE_PRIM(hx_##P##_##N, 0)
 
 
 #define PGETPROP(P, N, M, I) \
@@ -94,5 +95,25 @@ void finaliser(value v) {
 #define PPROP(P, N, M, I) \
     PGETPROP(P, N, M, I); \
     PSETPROP(P, N, M, I)
+
+
+// GLFW single version callbacks
+#define GLFWCALLBACK(N, G, P) \
+    void hx_glfw_##N(value cbfun) { \
+        if (hx_##N != NULL) { \
+            delete hx_##N; \
+            hx_##N = NULL; \
+        } \
+        if (val_is_null(cbfun)) \
+            glfw##G(NULL); \
+        else { \
+            val_check_function(cbfun, P); \
+            hx_##N = new AutoGCRoot(cbfun); \
+            glfw##G(bound_##N); \
+        } \
+    } \
+    DEFINE_PRIM(hx_glfw_##N, 1)
+
+
 
 #endif
