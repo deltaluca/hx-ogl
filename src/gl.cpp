@@ -11,8 +11,8 @@ DEFINE_PRIM(hx_gl_glewInit, 0);
 
 
 // Convert Array<Int>, Array<Float> and
-// Array<Int|Float|Vec#> into T* array based
-// on GL type
+// Array<Int|Float|Vec#> into hxcpp buffer
+// based on GL type
 int byte_kind(int T) {
     int t = (T == GL_UNSIGNED_BYTE || T == GL_BYTE) ? 0 :
             (T == GL_UNSIGNED_SHORT || T == GL_SHORT) ? 1 :
@@ -24,7 +24,8 @@ int byte_size(int T) {
     int t = byte_kind(t);
     return t == 0 ? 1 : t == 1 ? 2 : 4;
 }
-int byte_array(value arr, int T, void** dat) {
+
+buffer buffer_array(value arr, int T) {
     int size = val_array_size(arr);
     int t = byte_kind(T);
     if (t == -1) {
@@ -32,30 +33,31 @@ int byte_array(value arr, int T, void** dat) {
         neko_error();
     }
 
-    int retval;
-    void* ret;
+    buffer ret;
     int* ai = val_array_int(arr);
     if (ai != NULL) {
-        ret = *dat = malloc(retval = (size * byte_size(T)));
+        ret = alloc_buffer_len(size * byte_size(T));
+        void* dat = (void*)buffer_data(ret);
         for (int i = 0; i < size; i++) {
-            if     (t == 0) ((char *)(ret))[i] = ai[i];
-            else if(t == 1) ((short*)(ret))[i] = ai[i];
-            else if(t == 2) ((int  *)(ret))[i] = ai[i];
-            else            ((float*)(ret))[i] = ai[i];
+            if     (t == 0) ((char *)(dat))[i] = ai[i];
+            else if(t == 1) ((short*)(dat))[i] = ai[i];
+            else if(t == 2) ((int  *)(dat))[i] = ai[i];
+            else            ((float*)(dat))[i] = ai[i];
         }
-        return retval;
+        return ret;
     }
 
     double* ad = val_array_double(arr);
     if (ad != NULL) {
-        ret = *dat = malloc(retval = (size * byte_size(T)));
+        ret = alloc_buffer_len(size * byte_size(T));
+        void* dat = (void*)buffer_data(ret);
         for (int i = 0; i < size; i++) {
-            if     (t == 0) ((char *)(ret))[i] = ad[i];
-            else if(t == 1) ((short*)(ret))[i] = ad[i];
-            else if(t == 2) ((int  *)(ret))[i] = ad[i];
-            else            ((float*)(ret))[i] = ad[i];
+            if     (t == 0) ((char *)(dat))[i] = ad[i];
+            else if(t == 1) ((short*)(dat))[i] = ad[i];
+            else if(t == 2) ((int  *)(dat))[i] = ad[i];
+            else            ((float*)(dat))[i] = ad[i];
         }
-        return retval;
+        return ret;
     }
 
     // Neither Array<Int> or Array<Float>
@@ -70,26 +72,27 @@ int byte_array(value arr, int T, void** dat) {
             j += val_array_size(d);
         }
     }
-    ret = *dat = malloc(retval = j * byte_size(T));
+    ret = alloc_buffer_len(j * byte_size(T));
+    void* dat = (void*)buffer_data(ret);
 
     j = 0;
     for (int i = 0; i < size; i++) {
         value d = val_array_i(arr, i);
         if (val_is_int(d) || val_is_float(d) || val_is_bool(d)) {
-            if     (t == 0) ((char *)(ret))[j++] = val_get<int>   (d);
-            else if(t == 1) ((short*)(ret))[j++] = val_get<int>   (d);
-            else if(t == 2) ((int  *)(ret))[j++] = val_get<int>   (d);
-            else            ((float*)(ret))[j++] = val_get<double>(d);
+            if     (t == 0) ((char *)(dat))[j++] = val_get<int>   (d);
+            else if(t == 1) ((short*)(dat))[j++] = val_get<int>   (d);
+            else if(t == 2) ((int  *)(dat))[j++] = val_get<int>   (d);
+            else            ((float*)(dat))[j++] = val_get<double>(d);
         }
         else {
             int size2 = val_array_size(d);
             for (int k = 0; k < size2; k++) {
                 value e = val_array_i(d, k);
                 if (val_is_int(e) || val_is_float(e) || val_is_bool(e)) {
-                    if     (t == 0) ((char *)(ret))[j++] = val_get<int>   (e);
-                    else if(t == 1) ((short*)(ret))[j++] = val_get<int>   (e);
-                    else if(t == 2) ((int  *)(ret))[j++] = val_get<int>   (e);
-                    else            ((float*)(ret))[j++] = val_get<double>(e);
+                    if     (t == 0) ((char *)(dat))[j++] = val_get<int>   (e);
+                    else if(t == 1) ((short*)(dat))[j++] = val_get<int>   (e);
+                    else if(t == 2) ((int  *)(dat))[j++] = val_get<int>   (e);
+                    else            ((float*)(dat))[j++] = val_get<double>(e);
                 }
                 else {
                     printf("arr had dim > 2\n");
@@ -98,131 +101,24 @@ int byte_array(value arr, int T, void** dat) {
             }
         }
     }
-
-    return retval;
+    return ret;
 }
 
 DECLARE_KIND(k_Buffer);
 DEFINE_KIND(k_Buffer);
-struct Buffer {
-    void* data;
-    int size;
-    int count;
-    int type;
-};
-void finalise_Buffer(value v) {
-    Buffer* ptr = (Buffer*)val_data(v);
-    free(ptr->data);
-    delete ptr;
-}
-void finalise_Buffer_nogc(value v) {
-    Buffer* ptr = (Buffer*)val_data(v);
-    delete ptr;
-}
-value hx_gl_allocBuffer(value _type, value _count) {
-    int type = val_get<int>(_type);
-    int count = val_get<int>(_count);
-
-    Buffer* ret = new Buffer;
-    int t = byte_kind(type);
-    ret->data = malloc(ret->size = (count * byte_size(type)));
-    ret->type = type;
-    ret->count = count;
-    value v = alloc_abstract(k_Buffer, ret);
-    val_gc(v, finalise_Buffer);
-    return v;
+value hx_gl_allocBuffer(value type, value count) {
+    return buffer_val(alloc_buffer_len(val_get<int>(count) * byte_size(val_get<int>(type))));
 }
 value hx_gl_createBuffer(value arr, value type) {
-    void* dat;
-    int size = byte_array(arr, val_get<int>(type), &dat);
-    Buffer* ret = new Buffer;
-    ret->data = dat;
-    ret->size = size;
-    ret->type = val_get<int>(type);
-    ret->count = ret->size / byte_size(ret->type);
-    value v = alloc_abstract(k_Buffer, ret);
-    val_gc(v, finalise_Buffer);
-    return v;
+    return buffer_val(buffer_array(arr, val_get<int>(type)));
 }
-value hx_gl_createBufferRaw(value raw, value size, value type, value nogc) {
-    Buffer* ret = new Buffer;
-    ret->data = val_data(raw);
-    ret->size = val_get<int>(size);
-    ret->type = val_get<int>(type);
-    int t = byte_kind(ret->type);
-    ret->count = ret->size / byte_size(ret->type);
-    value v = alloc_abstract(k_Buffer, ret);
-    if (val_get<bool>(nogc)) val_gc(v, finalise_Buffer_nogc);
-    else val_gc(v, finalise_Buffer);
-    return v;
+value hx_gl_arrbuffer_resize(value buf, value size) {
+    buffer b = val_to_buffer(buf);
+    buffer_set_size(b, val_get<int>(size));
 }
-void hx_gl_Buffer_resize(value v, value newCount) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    ptr->data = realloc(ptr->data, val_get<int>(newCount) * byte_size(ptr->type));
-    ptr->count = val_get<int>(newCount);
-    ptr->size = ptr->count * byte_size(ptr->type);
-}
-DEFINE_PRIM(hx_gl_allocBuffer,     2);
-DEFINE_PRIM(hx_gl_createBuffer,    2);
-DEFINE_PRIM(hx_gl_createBufferRaw, 4);
-DEFINE_PRIM(hx_gl_Buffer_resize,   2);
-
-value hx_gl_Buffer_get_type(value v) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    return alloc<int>(ptr->type);
-}
-value hx_gl_Buffer_get_count(value v) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    return alloc<int>(ptr->count);
-}
-value hx_gl_Buffer_get_size(value v) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    return alloc<int>(ptr->size);
-}
-value hx_gl_Buffer_get_raw(value v) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    return (value)(ptr->data);
-}
-DEFINE_PRIM(hx_gl_Buffer_get_type,  1);
-DEFINE_PRIM(hx_gl_Buffer_get_size,  1);
-DEFINE_PRIM(hx_gl_Buffer_get_count, 1);
-DEFINE_PRIM(hx_gl_Buffer_get_raw,   1);
-
-value hx_gl_Buffer_get_T(value v, value iv) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    int i = val_get<int>(iv);
-    int t = ptr->type;
-    if      (t == GL_BYTE)           return alloc<int>   (((char*)          ptr->data)[i]);
-    else if (t == GL_SHORT)          return alloc<int>   (((short*)         ptr->data)[i]);
-    else if (t == GL_INT)            return alloc<int>   (((int*)           ptr->data)[i]);
-    else if (t == GL_UNSIGNED_BYTE)  return alloc<int>   (((unsigned char*) ptr->data)[i]);
-    else if (t == GL_UNSIGNED_SHORT) return alloc<int>   (((unsigned short*)ptr->data)[i]);
-    else if (t == GL_UNSIGNED_INT)   return alloc<int>   (((unsigned int*)  ptr->data)[i]);
-    else if (t == GL_FLOAT)          return alloc<double>(((float*)         ptr->data)[i]);
-    else { neko_error(); return val_null; }
-}
-value hx_gl_Buffer_set_T(value v, value iv, value x) {
-    val_check_kind(v, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(v);
-    int i = val_get<int>(iv);
-    int t = ptr->type;
-    if      (t == GL_BYTE)           return alloc<int>   (((char*)          ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_SHORT)          return alloc<int>   (((short*)         ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_INT)            return alloc<int>   (((int*)           ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_UNSIGNED_BYTE)  return alloc<int>   (((unsigned char*) ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_UNSIGNED_SHORT) return alloc<int>   (((unsigned short*)ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_UNSIGNED_INT)   return alloc<int>   (((unsigned int*)  ptr->data)[i] = val_get<int>   (x));
-    else if (t == GL_FLOAT)          return alloc<double>(((float*)         ptr->data)[i] = val_get<double>(x));
-    else { neko_error(); return val_null; }
-}
-DEFINE_PRIM(hx_gl_Buffer_get_T, 2);
-DEFINE_PRIM(hx_gl_Buffer_set_T, 3);
+DEFINE_PRIM(hx_gl_allocBuffer, 2);
+DEFINE_PRIM(hx_gl_createBuffer, 2);
+DEFINE_PRIM(hx_gl_arrbuffer_resize, 2);
 
 // ================================================================================================
 // A
@@ -291,22 +187,18 @@ CONST(STATIC_COPY);
 CONST(DYNAMIC_DRAW);
 CONST(DYNAMIC_READ);
 CONST(DYNAMIC_COPY);
-void hx_gl_bufferData(value target, value data, value usage, value count) {
-    val_check_kind(data, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(data);
-    glBufferData(val_get<int>(target), byte_size(ptr->type)*val_get<int>(count), ptr->data, val_get<int>(usage));
+void hx_gl_bufferData(value target, value data, value size, value usage, value count) {
+    glBufferData(val_get<int>(target), val_get<int>(size)*val_get<int>(count), buffer_data(val_to_buffer(data)), val_get<int>(usage));
 }
-void hx_gl_bufferSubData(value target, value offset, value data, value count) {
-    val_check_kind(data, k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(data);
-    glBufferSubData(val_get<int>(target), val_get<int>(offset)*byte_size(ptr->type), val_get<int>(count)*byte_size(ptr->type), ptr->data);
+void hx_gl_bufferSubData(value target, value offset, value data, value size, value count) {
+    glBufferSubData(val_get<int>(target), val_get<int>(offset)*val_get<int>(size), val_get<int>(count)*val_get<int>(size), buffer_data(val_to_buffer(data)));
 }
 DEFINE_PRIM(hx_gl_bindBuffer,       2);
 DEFINE_PRIM(hx_gl_bindTexture,      2);
 DEFINE_PRIM(hx_gl_bindVertexArray,  1);
 DEFINE_PRIM(hx_gl_blendFunc,        2);
-DEFINE_PRIM(hx_gl_bufferData,       4);
-DEFINE_PRIM(hx_gl_bufferSubData,    4);
+DEFINE_PRIM(hx_gl_bufferData,       5);
+DEFINE_PRIM(hx_gl_bufferSubData,    5);
 
 // ================================================================================================
 // C
@@ -540,14 +432,10 @@ CONST(BGR);
 CONST(RGBA);
 CONST(BGRA);
 void hx_gl_texImage2D(value* args, int narg) {
-    val_check_kind(args[8], k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(args[8]);
-    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), ptr->data);
+    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
 }
 void hx_gl_texSubImage2D(value* args, int narg) {
-    val_check_kind(args[8], k_Buffer);
-    Buffer* ptr = (Buffer*)val_data(args[8]);
-    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), ptr->data);
+    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
 }
 CONST(TEXTURE_BASE_LEVEL);
 CONST(TEXTURE_COMPARE_FUNC);

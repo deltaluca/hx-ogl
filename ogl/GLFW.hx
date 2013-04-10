@@ -11,6 +11,7 @@ abstract Window(NativeBinding) to NativeBinding {
     public static inline function cvt(x:Dynamic):Window return new Window(x);
 
     @:op(A==B) public static inline function eq(a:Window, b:Window):Bool return a.nativeObject == b.nativeObject;
+    @:op(A!=B) public static inline function ne(a:Window, b:Window):Bool return a.nativeObject != b.nativeObject;
 }
 
 abstract Monitor(NativeBinding) to NativeBinding {
@@ -21,6 +22,7 @@ abstract Monitor(NativeBinding) to NativeBinding {
     public static inline function cvt(x:Dynamic):Monitor return new Monitor(x);
 
     @:op(A==B) public static inline function eq(a:Monitor, b:Monitor):Bool return a.nativeObject == b.nativeObject;
+    @:op(A!=B) public static inline function ne(a:Monitor, b:Monitor):Bool return a.nativeObject != b.nativeObject;
 }
 
 class GLFW implements GLConsts implements GLProcs {

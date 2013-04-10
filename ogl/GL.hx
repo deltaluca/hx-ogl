@@ -3,56 +3,68 @@ package ogl;
 import #if cpp cpp #else neko #end.Lib;
 import ogl.Macros;
 
-abstract Buffer(BufferImp) from BufferImp to BufferImp {
-    public inline function new(x:Dynamic) this = new BufferImp(x);
+import haxe.io.BytesData;
 
-    @:allow(ogl)
-    inline static function cvt(x:Dynamic):Buffer return BufferImp.cvt(x);
-
-    @:arrayAccess public inline function get<T>(index:Int):T
-        return untyped GL.load("Buffer_get_T", 2)(this.nativeObject, index);
-    @:arrayAccess public inline function set<T>(index:Int, value:T):T
-        return untyped GL.load("Buffer_set_T", 3)(this.nativeObject, index, value);
-
-    // GL type of elements.
-    public var type(get,never):Int;
-    inline function get_type() return GL.load("Buffer_get_type", 1)(this.nativeObject);
-    // Total byte size of buffer.
-    public var size(get,never):Int;
-    inline function get_size() return GL.load("Buffer_get_size", 1)(this.nativeObject);
-    // Number of elements in buffer.
-    public var count(get,never):Int;
-    inline function get_count() return GL.load("Buffer_get_count", 1)(this.nativeObject);
-    // Raw pointer to buffer data.
-    public var raw(get,never):{ref:Dynamic, raw:Dynamic};
-    inline function get_raw() return {
-        ref: this.nativeObject,
-        raw: GL.load("Buffer_get_raw", 1)(this.nativeObject)
-    };
-
-    public inline function resize(count:Int):Buffer {
-        GL.load("Buffer_resize", 2)(this.nativeObject, count);
-        return this;
+abstract UByteBuffer(ArrayBuffer) to ArrayBuffer {
+    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 1, GL.UNSIGNED_BYTE);
+    @:from public static inline function fromRaw(raw:BytesData) return new UByteBuffer(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):Int {
+        var byte = untyped __global__.__hxcpp_memory_get_byte(this.buffer, i);
+        return (byte < 0) ? (byte & 0xff) | 0x80 : byte;
     }
+    @:arrayAccess public inline function set(i:Int, x:Int):Int {
+        untyped __global__.__hxcpp_memory_set_byte(this.buffer, i, x&0xff);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
-class BufferImp extends NativeBinding {
-    @:allow(ogl)
-    public function new(x:Dynamic) super(x);
+abstract IntBuffer(ArrayBuffer) to ArrayBuffer {
+    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new IntBuffer(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):Float
+        return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
+    @:arrayAccess public inline function set(i:Int, x:Int):Float {
+        untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
 
-    @:allow(ogl)
-    static inline function cvt(x:Null<Dynamic>):Null<Buffer>
-        return if (x == null) null else new Buffer(x);
+abstract FloatBuffer(ArrayBuffer) to ArrayBuffer {
+    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new FloatBuffer(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):Float
+        return untyped __global__.__hxcpp_memory_get_float(this.buffer, i*4);
+    @:arrayAccess public inline function set<T>(i:Int, x:T):Float {
+        untyped __global__.__hxcpp_memory_set_float(this.buffer, i*4, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
 
-    inline public function toString():String {
-        var _this:Buffer = this;
-        var type = _this.type;
-        var name = (type == GL.UNSIGNED_BYTE  ? "GL_UNSIGNED_BYTE"  : type == GL.BYTE  ? "GL_BYTE"  :
-                    type == GL.UNSIGNED_SHORT ? "GL_UNSIGNED_SHORT" : type == GL.SHORT ? "GL_SHORT" :
-                    type == GL.UNSIGNED_INT   ? "GL_UNSIGNED_INT"   : type == GL.INT   ? "GL_INT"   :
-                    type == GL.FLOAT          ? "GL_FLOAT" :
-                    "UNKNOWN");
-        return '{Buffer ${name}x${_this.count}}';
+class ArrayBuffer {
+    public var size:Int;
+    public var type:Int;
+    public var buffer:BytesData;
+    public var count(get, never):Int;
+    inline function get_count() return Std.int(buffer.length / size);
+    public function new(buffer:BytesData, size:Int, type:Int) {
+        this.buffer = buffer;
+        this.size = size;
+        this.type = type;
     }
 }
 
@@ -278,13 +290,13 @@ class GL implements GLConsts implements GLProcs {
 
 
     // Haxe specific interfaces.
-// TODO: Haxe issue 1667 prevents this working nicely
-//    @:generic @:GLProc(createBuffer)    function buffer<T>(data:Array<T>, type:Int):Buffer;
-    public static inline function buffer(data:Array<Dynamic>, type:Int):Buffer
-        return Buffer.cvt(load("createBuffer", 2)(data, type));
-    @:GLProc function allocBuffer(type:Int, count:Int):Buffer;
-    @:GLProc(createBufferRaw) function rawBuffer(data:{ref:Dynamic,raw:Dynamic}, size:Int, type:Int, nogc:Bool=false):Buffer
-        return Buffer.cvt(load("createBufferRaw", 4)(data.raw, size, type, nogc));
+    @:GLProc function allocBuffer(type:Int, count:Int):BytesData {
+        return load("allocBuffer", 2)(type, count);
+    }
+    // TODO: Haxe issue 1667 prevents this working nicely without Dynamic
+    @:GLProc function buffer(data:Array<Dynamic>, type:Int):BytesData {
+        return load("createBuffer", 2)(data, type);
+    }
 
     // Vector constructors (functional)
     @:GLProc function v2(x:Float, y:Float):Vec2 return new Vec2(x,y);
@@ -347,14 +359,14 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var DYNAMIC_DRAW;
     @:GLConst var DYNAMIC_READ;
     @:GLConst var DYNAMIC_COPY;
-    @:GLProc function bufferData(target:Int, data:Buffer, usage:Int, ?count:Null<Int>) {
+    @:GLProc function bufferData(target:Int, data:ArrayBuffer, usage:Int, ?count:Null<Int>) {
         if (count == null) count = data.count;
-        load("bufferData", 4)(target, NativeBinding.native(data), usage, count);
+        load("bufferData", 5)(target, data.buffer, data.size, usage, count);
     }
     // offset measured in data count, not byte! Change in API.
-    @:GLProc function bufferSubData(target:Int, countOffset:Int, data:Buffer, ?count:Null<Int>) {
+    @:GLProc function bufferSubData(target:Int, countOffset:Int, data:ArrayBuffer, ?count:Null<Int>) {
         if (count == null) count = data.count;
-        load("bufferSubData", 4)(target, countOffset, NativeBinding.native(data), count);
+        load("bufferSubData", 5)(target, countOffset, data.buffer, data.size, count);
     }
 
     // ================================================================================================
@@ -520,8 +532,10 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var BGR;
     @:GLConst var RGBA;
     @:GLConst var BGRA;
-    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:Buffer):Void;
-    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:Buffer):Void;
+    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:ArrayBuffer):Void
+        load("texImage2D", 9)(target, level, internalFormat, width, height, border, format, type, data.buffer);
+    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBuffer):Void
+        load("texSubImage2D", 9)(target, level, xoffset, yoffset, width, height, format, type, data.buffer);
     @:GLConst var TEXTURE_BASE_LEVEL;
     @:GLConst var TEXTURE_COMPARE_FUNC;
     @:GLConst var TEXTURE_COMPARE_MODE;
