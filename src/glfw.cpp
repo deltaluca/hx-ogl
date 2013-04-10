@@ -42,6 +42,9 @@ CONST(OPENGL_FORWARD_COMPAT);
 CONST(OPENGL_DEBUG_CONTEXT);
 CONST(OPENGL_PROFILE);
 
+CONST(OPENGL_COMPAT_PROFILE);
+CONST(OPENGL_CORE_PROFILE);
+
 value hx_glfw_openWindow(value* args, int nargs) {
     return alloc<int>(
         glfwOpenWindow(val_get<int>(args[0]),

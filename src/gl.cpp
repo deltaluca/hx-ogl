@@ -2,6 +2,14 @@
 #include "utils.h"
 #define CONST(N) PCONST(gl, GL, N)
 
+
+void hx_gl_glewInit() {
+    glewExperimental = GL_TRUE;
+    glewInit();
+}
+DEFINE_PRIM(hx_gl_glewInit, 0);
+
+
 // Convert Array<Int>, Array<Float> and
 // Array<Int|Float|Vec#> into T* array based
 // on GL type
@@ -11,6 +19,10 @@ int byte_kind(int T) {
             (T == GL_UNSIGNED_INT || T == GL_INT) ? 2 :
             (T == GL_FLOAT) ? 3 : -1;
     return t;
+}
+int byte_size(int T) {
+    int t = byte_kind(t);
+    return t == 0 ? 1 : t == 1 ? 2 : 4;
 }
 int byte_array(value arr, int T, void** dat) {
     int size = val_array_size(arr);
@@ -24,7 +36,7 @@ int byte_array(value arr, int T, void** dat) {
     void* ret;
     int* ai = val_array_int(arr);
     if (ai != NULL) {
-        ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
+        ret = *dat = malloc(retval = (size * byte_size(T)));
         for (int i = 0; i < size; i++) {
             if     (t == 0) ((char *)(ret))[i] = ai[i];
             else if(t == 1) ((short*)(ret))[i] = ai[i];
@@ -36,7 +48,7 @@ int byte_array(value arr, int T, void** dat) {
 
     double* ad = val_array_double(arr);
     if (ad != NULL) {
-        ret = *dat = malloc(retval = (size * (t == 0 ? 1 : t == 1 ? 2 : 4)));
+        ret = *dat = malloc(retval = (size * byte_size(T)));
         for (int i = 0; i < size; i++) {
             if     (t == 0) ((char *)(ret))[i] = ad[i];
             else if(t == 1) ((short*)(ret))[i] = ad[i];
@@ -58,7 +70,7 @@ int byte_array(value arr, int T, void** dat) {
             j += val_array_size(d);
         }
     }
-    ret = *dat = malloc(retval = j * (t == 0 ? 1 : t == 1 ? 2 : 4));
+    ret = *dat = malloc(retval = j * byte_size(T));
 
     j = 0;
     for (int i = 0; i < size; i++) {
@@ -107,6 +119,19 @@ void finalise_Buffer_nogc(value v) {
     Buffer* ptr = (Buffer*)val_data(v);
     delete ptr;
 }
+value hx_gl_allocBuffer(value _type, value _count) {
+    int type = val_get<int>(_type);
+    int count = val_get<int>(_count);
+
+    Buffer* ret = new Buffer;
+    int t = byte_kind(type);
+    ret->data = malloc(ret->size = (count * byte_size(type)));
+    ret->type = type;
+    ret->count = count;
+    value v = alloc_abstract(k_Buffer, ret);
+    val_gc(v, finalise_Buffer);
+    return v;
+}
 value hx_gl_createBuffer(value arr, value type) {
     void* dat;
     int size = byte_array(arr, val_get<int>(type), &dat);
@@ -114,7 +139,7 @@ value hx_gl_createBuffer(value arr, value type) {
     ret->data = dat;
     ret->size = size;
     ret->type = val_get<int>(type);
-    ret->count = val_array_size(arr);
+    ret->count = ret->size / byte_size(ret->type);
     value v = alloc_abstract(k_Buffer, ret);
     val_gc(v, finalise_Buffer);
     return v;
@@ -125,14 +150,23 @@ value hx_gl_createBufferRaw(value raw, value size, value type, value nogc) {
     ret->size = val_get<int>(size);
     ret->type = val_get<int>(type);
     int t = byte_kind(ret->type);
-    ret->count = ret->size / (t == 0 ? 1 : t == 1 ? 2 : 4);
+    ret->count = ret->size / byte_size(ret->type);
     value v = alloc_abstract(k_Buffer, ret);
     if (val_get<bool>(nogc)) val_gc(v, finalise_Buffer_nogc);
     else val_gc(v, finalise_Buffer);
     return v;
 }
-DEFINE_PRIM(hx_gl_createBuffer, 2);
+void hx_gl_Buffer_resize(value v, value newCount) {
+    val_check_kind(v, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(v);
+    ptr->data = realloc(ptr->data, val_get<int>(newCount) * byte_size(ptr->type));
+    ptr->count = val_get<int>(newCount);
+    ptr->size = ptr->count * byte_size(ptr->type);
+}
+DEFINE_PRIM(hx_gl_allocBuffer,     2);
+DEFINE_PRIM(hx_gl_createBuffer,    2);
 DEFINE_PRIM(hx_gl_createBufferRaw, 4);
+DEFINE_PRIM(hx_gl_Buffer_resize,   2);
 
 value hx_gl_Buffer_get_type(value v) {
     val_check_kind(v, k_Buffer);
@@ -257,16 +291,22 @@ CONST(STATIC_COPY);
 CONST(DYNAMIC_DRAW);
 CONST(DYNAMIC_READ);
 CONST(DYNAMIC_COPY);
-void hx_gl_bufferData(value target, value data, value usage) {
+void hx_gl_bufferData(value target, value data, value usage, value count) {
     val_check_kind(data, k_Buffer);
     Buffer* ptr = (Buffer*)val_data(data);
-    glBufferData(val_get<int>(target), ptr->size, ptr->data, val_get<int>(usage));
+    glBufferData(val_get<int>(target), byte_size(ptr->type)*val_get<int>(count), ptr->data, val_get<int>(usage));
+}
+void hx_gl_bufferSubData(value target, value offset, value data, value count) {
+    val_check_kind(data, k_Buffer);
+    Buffer* ptr = (Buffer*)val_data(data);
+    glBufferSubData(val_get<int>(target), val_get<int>(offset)*byte_size(ptr->type), val_get<int>(count)*byte_size(ptr->type), ptr->data);
 }
 DEFINE_PRIM(hx_gl_bindBuffer,       2);
 DEFINE_PRIM(hx_gl_bindTexture,      2);
 DEFINE_PRIM(hx_gl_bindVertexArray,  1);
 DEFINE_PRIM(hx_gl_blendFunc,        2);
-DEFINE_PRIM(hx_gl_bufferData,       3);
+DEFINE_PRIM(hx_gl_bufferData,       4);
+DEFINE_PRIM(hx_gl_bufferSubData,    4);
 
 // ================================================================================================
 // C
@@ -566,6 +606,13 @@ DEFINE_PRIM(hx_gl_texParameterf, 3);
 void hx_gl_useProgram(value program) {
     glUseProgram(val_get<int>(program));
 }
+void hx_gl_uniformMatrix2x3fv(value location, value count, value transpose, value data) {
+    int size = val_array_size(data);
+    float* _data = new float[size];
+    for (int i = 0; i < size; i++) _data[i] = val_get<float>(val_array_i(data, i));
+    glUniformMatrix2x3fv(val_get<int>(location), val_get<int>(count), val_get<bool>(transpose), _data);
+    delete[] _data;
+}
 void hx_gl_uniformMatrix4fv(value location, value count, value transpose, value data) {
     int size = val_array_size(data);
     float* _data = new float[size];
@@ -573,8 +620,9 @@ void hx_gl_uniformMatrix4fv(value location, value count, value transpose, value 
     glUniformMatrix4fv(val_get<int>(location), val_get<int>(count), val_get<bool>(transpose), _data);
     delete[] _data;
 }
-DEFINE_PRIM(hx_gl_useProgram,       1);
-DEFINE_PRIM(hx_gl_uniformMatrix4fv, 4);
+DEFINE_PRIM(hx_gl_useProgram,         1);
+DEFINE_PRIM(hx_gl_uniformMatrix2x3fv, 4);
+DEFINE_PRIM(hx_gl_uniformMatrix4fv,   4);
 
 // ================================================================================================
 // V
@@ -621,9 +669,6 @@ DEFINE_PRIM(hx_gl_viewport, 4);
 // ================================================================================================
 
 extern "C" void gl_allocateKinds() {
-    glewExperimental = GL_TRUE;
-    glewInit();
-
     k_Buffer = alloc_kind();
 }
 

@@ -9,7 +9,7 @@ class GLFW implements GLConsts implements GLProcs {
         return Lib.load("ogl","hx_glfw_"+n, p);
 
 
-    @:GLProc function init():Bool;
+    @:GLProc function init():Void;
     @:GLProc function terminate():Void;
 
 
@@ -41,6 +41,9 @@ class GLFW implements GLConsts implements GLProcs {
     @:GLConst var OPENGL_FORWARD_COMPAT;
     @:GLConst var OPENGL_DEBUG_CONTEXT;
     @:GLConst var OPENGL_PROFILE;
+
+    @:GLConst var OPENGL_COMPAT_PROFILE;
+    @:GLConst var OPENGL_CORE_PROFILE;
 
     @:GLProc function openWindow(width:Int, height:Int, red:Int, green:Int, blue:Int, alpha:Int, depth:Int, stencil:Int, mode:Int):Bool;
     @:GLProc function openWindowHint(target:Int, value:Int):Void;

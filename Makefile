@@ -1,13 +1,13 @@
-all: lib main
-	cd bin && ./Main-debug
+all: main
+	./bin/Main
 #	cd bin && neko Main.n
 
 .PHONY: lib
 lib:
-	haxelib run hxcpp Build.xml -DHXCPP_M64 -debug
+	haxelib run hxcpp Build.xml -DHXCPP_M64
 
 main: haxelib Main.hx
-	haxe -main Main.hx -cpp bin -D HXCPP_M64 -debug -lib ogl
+	haxe -main Main.hx -cpp bin -D HXCPP_M64 -lib ogl
 
 .PHONY: haxelib
 haxelib: lib

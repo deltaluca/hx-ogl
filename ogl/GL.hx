@@ -30,6 +30,10 @@ abstract Buffer(BufferImp) from BufferImp to BufferImp {
         raw: GL.load("Buffer_get_raw", 1)(this.nativeObject)
     };
 
+    public inline function resize(count:Int):Buffer {
+        GL.load("Buffer_resize", 2)(this.nativeObject, count);
+        return this;
+    }
 }
 
 class BufferImp extends NativeBinding {
@@ -128,6 +132,32 @@ class BufferImp extends NativeBinding {
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+}
+
+abstract Mat2x3(Array<Float>) from Array<Float> to Array<Float> {
+    public inline function new() this = identity();
+
+    // array access
+    @:arrayAccess public inline function get(i:Int):Float return this[i];
+    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
+
+    public static inline function identity():Mat2x3
+        return [1.0, 0.0, 0.0,
+                0.0, 1.0, 0.0];
+
+    // (x, y) => (2*x/w - 1, 1 - 2*y/h)
+    public static inline function viewportMap(width:Float, height:Float):Mat2x3
+        return [2.0/width,  0.0, -1,
+                0.0, -2.0/height, 1];
+
+    @:op(A*B) public static inline function mul(a:Mat2x3, b:Mat2x3):Mat2x3
+        return [b[0]*a[0] + b[3]*a[1],
+                b[1]*a[0] + b[4]*a[1],
+                b[2]*a[0] + b[5]*a[1] + a[2],
+
+                b[0]*a[3] + b[3]*a[4],
+                b[1]*a[3] + b[4]*a[4],
+                b[2]*a[3] + b[5]*a[4] + a[5]];
 }
 
 abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
@@ -243,11 +273,16 @@ class GL implements GLConsts implements GLProcs {
     static inline function load(n:String, p:Int):Dynamic
         return Lib.load("ogl","hx_gl_"+n, p);
 
+
+    @:GLProc(glewInit) function init():Void;
+
+
     // Haxe specific interfaces.
 // TODO: Haxe issue 1667 prevents this working nicely
 //    @:generic @:GLProc(createBuffer)    function buffer<T>(data:Array<T>, type:Int):Buffer;
     public static inline function buffer(data:Array<Dynamic>, type:Int):Buffer
         return Buffer.cvt(load("createBuffer", 2)(data, type));
+    @:GLProc function allocBuffer(type:Int, count:Int):Buffer;
     @:GLProc(createBufferRaw) function rawBuffer(data:{ref:Dynamic,raw:Dynamic}, size:Int, type:Int, nogc:Bool=false):Buffer
         return Buffer.cvt(load("createBufferRaw", 4)(data.raw, size, type, nogc));
 
@@ -312,7 +347,15 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var DYNAMIC_DRAW;
     @:GLConst var DYNAMIC_READ;
     @:GLConst var DYNAMIC_COPY;
-    @:GLProc function bufferData(target:Int, data:Buffer, usage:Int):Void;
+    @:GLProc function bufferData(target:Int, data:Buffer, usage:Int, ?count:Null<Int>) {
+        if (count == null) count = data.count;
+        load("bufferData", 4)(target, NativeBinding.native(data), usage, count);
+    }
+    // offset measured in data count, not byte! Change in API.
+    @:GLProc function bufferSubData(target:Int, countOffset:Int, data:Buffer, ?count:Null<Int>) {
+        if (count == null) count = data.count;
+        load("bufferSubData", 4)(target, countOffset, NativeBinding.native(data), count);
+    }
 
     // ================================================================================================
     // C
@@ -526,6 +569,7 @@ class GL implements GLConsts implements GLProcs {
     // U
     // ================================================================================================
     @:GLProc function useProgram(program:Int):Void;
+    @:GLProc function uniformMatrix2x3fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
     @:GLProc function uniformMatrix4fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
 
     // ================================================================================================
