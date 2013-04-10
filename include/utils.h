@@ -3,8 +3,7 @@
 #define UTILS_H
 #include <hx/CFFI.h>
 #include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glfw.h>
+#include <GL/glfw3.h>
 
 
 
@@ -114,6 +113,28 @@ void finaliser(value v) {
     } \
     DEFINE_PRIM(hx_glfw_##N, 1)
 
+#include <map>
 
+// GLFW multiple version callbacks
+#define GLFWMULTIDECLARE(N) \
+    std::map<GLFWwindow*, AutoGCRoot*> hx_##N##_cbs
+#define GLFWMULTIFUNC(N, w) \
+    hx_##N##_cbs[w]->get()
+#define GLFWMULTIDEFINE(N, G) \
+    void hx_glfw_##N(value v, value cbfun) { \
+        GLFWwindow* w = (GLFWwindow*)val_data(v); \
+        if (hx_##N##_cbs.find(w) != hx_##N##_cbs.end()) { \
+            delete hx_##N##_cbs[w]; \
+            hx_##N##_cbs[w] = NULL; \
+        } \
+        if (val_is_null(cbfun)) { \
+            glfw##G(w, NULL); \
+        } \
+        else { \
+            hx_##N##_cbs[w] = new AutoGCRoot(cbfun); \
+            glfw##G(w, bound_##N); \
+        } \
+    } \
+    DEFINE_PRIM(hx_glfw_##N, 2)
 
 #endif

@@ -3,76 +3,240 @@ package ogl;
 import #if cpp cpp #else neko #end.Lib;
 import ogl.Macros;
 
+abstract Window(NativeBinding) to NativeBinding {
+    @:allow(ogl)
+    function new(x:Dynamic) this = new NativeBinding(x);
+
+    @:allow(ogl)
+    public static inline function cvt(x:Dynamic):Window return new Window(x);
+
+    @:op(A==B) public static inline function eq(a:Window, b:Window):Bool return a.nativeObject == b.nativeObject;
+}
+
+abstract Monitor(NativeBinding) to NativeBinding {
+    @:allow(ogl)
+    function new(x:Dynamic) this = new NativeBinding(x);
+
+    @:allow(ogl)
+    public static inline function cvt(x:Dynamic):Monitor return new Monitor(x);
+
+    @:op(A==B) public static inline function eq(a:Monitor, b:Monitor):Bool return a.nativeObject == b.nativeObject;
+}
+
 class GLFW implements GLConsts implements GLProcs {
     @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
         return Lib.load("ogl","hx_glfw_"+n, p);
 
 
+    @:GLProc function setErrorCallback(cb:Null<Int->String->Void>):Void;
+
     @:GLProc function init():Void;
     @:GLProc function terminate():Void;
 
+    @:GLProc function getMonitors():Array<Monitor> {
+        var out:Array<Monitor> = [];
+        load("getMonitors", 1)(out);
+        return out;
+    }
+    @:GLProc function getPrimaryMonitor():Monitor;
 
-    @:GLConst var WINDOW;
-    @:GLConst var FULLSCREEN;
+    @:GLProc function makeContextCurrent(window:Window):Void;
+    @:GLProc function getCurrentContext():Null<Window>;
+    @:GLProc function swapBuffers(window:Window):Void;
+    @:GLProc function swapInterval(interval:Int):Void;
 
-    @:GLConst var OPENED;
-    @:GLConst var ACTIVE;
-    @:GLConst var ICONIFIED;
-    @:GLConst var ACCELERATED;
+    @:GLProc function createWindow(width:Int, height:Int, title:String, ?monitor:Null<Monitor>, ?share:Null<Window>):Window;
+    @:GLProc function destroyWindow(window:Window):Void;
+
+    @:GLConst var STEREO;
     @:GLConst var RED_BITS;
     @:GLConst var GREEN_BITS;
     @:GLConst var BLUE_BITS;
     @:GLConst var ALPHA_BITS;
     @:GLConst var DEPTH_BITS;
     @:GLConst var STENCIL_BITS;
-
-    @:GLConst var REFRESH_RATE;
     @:GLConst var ACCUM_RED_BITS;
     @:GLConst var ACCUM_GREEN_BITS;
     @:GLConst var ACCUM_BLUE_BITS;
     @:GLConst var ACCUM_ALPHA_BITS;
     @:GLConst var AUX_BUFFERS;
-    @:GLConst var STEREO;
-    @:GLConst var WINDOW_NO_RESIZE;
-    @:GLConst var FSAA_SAMPLES;
-    @:GLConst var OPENGL_VERSION_MAJOR;
-    @:GLConst var OPENGL_VERSION_MINOR;
+    @:GLConst var SAMPLES;
+    @:GLConst var SRGB_CAPABLE;
+    @:GLConst var OPENGL_API;
+    @:GLConst var OPENGL_ES_API;
+    @:GLProc function defaultWindowHints():Void;
+    @:GLProc function windowHint(target:Int, hint:Int):Void;
+
+    @:GLConst var FOCUSED;
+    @:GLConst var ICONIFIED;
+    @:GLConst var VISIBLE;
+    @:GLConst var RESIZABLE;
+    @:GLConst var DECORATED;
+    @:GLConst var CLIENT_API;
+    @:GLConst var CONTEXT_VERSION_MAJOR;
+    @:GLConst var CONTEXT_VERSION_MINOR;
+    @:GLConst var CONTEXT_REVISION;
     @:GLConst var OPENGL_FORWARD_COMPAT;
     @:GLConst var OPENGL_DEBUG_CONTEXT;
     @:GLConst var OPENGL_PROFILE;
+    @:GLConst var CONTEXT_ROBUSTNESS;
 
-    @:GLConst var OPENGL_COMPAT_PROFILE;
     @:GLConst var OPENGL_CORE_PROFILE;
+    @:GLConst var OPENGL_COMPAT_PROFILE;
+    @:GLConst var OPENGL_NO_PROFILE;
 
-    @:GLProc function openWindow(width:Int, height:Int, red:Int, green:Int, blue:Int, alpha:Int, depth:Int, stencil:Int, mode:Int):Bool;
-    @:GLProc function openWindowHint(target:Int, value:Int):Void;
-    @:GLProc function closeWindow():Void;
-    @:GLProc function setWindowCloseCallback(cb:Null<Void->Bool>):Void;
-    @:GLProc function getWindowParam(param:Int):Int;
-    @:GLProc function setWindowTitle(title:String):Void;
-    @:GLProc function setWindowSize(width:Int, height:Int):Void;
-    @:GLProc function setWindowPos(x:Int, y:Int):Void;
-    @:GLProc function getWindowSize():{width:Int, height:Int} {
+    @:GLConst var LOSE_CONTEXT_ON_RESET;
+    @:GLConst var NO_RESET_NOTIFICATION;
+    @:GLConst var NO_ROBUSTNESS;
+
+    @:GLProc function getWindowParam(window:Window, param:Int):Int;
+
+    @:GLProc function getWindowPos(window:Window):{x:Int, y:Int} {
         var vals = [0,0];
-        load("getWindowSize", 1)(vals);
+        load("getWindowPos", 2)(NativeBinding.native(window), vals);
+        return {x:vals[0], y:vals[1]};
+    }
+    @:GLProc function getWindowSize(window:Window):{width:Int, height:Int} {
+        var vals = [0,0];
+        load("getWindowSize", 2)(NativeBinding.native(window), vals);
         return {width:vals[0], height:vals[1]};
     }
-    @:GLProc function setWindowSizeCallback(cb:Null<Int->Int->Void>):Void;
-    @:GLProc function iconifyWindow():Void;
-    @:GLProc function restoreWindow():Void;
-    @:GLProc function swapInterval(interval:Int):Void;
-    @:GLProc function setWindowRefreshCallback(cb:Null<Void->Void>):Void;
+    @:GLProc function setWindowPos(window:Window, x:Int, y:Int):Void;
+    @:GLProc function setWindowSize(window:Window, width:Int, height:Int):Void;
+    @:GLProc function setWindowTitle(window:Window, title:String):Void;
 
+    @:GLProc function hideWindow(window:Window):Void;
+    @:GLProc function showWindow(window:Window):Void;
+    @:GLProc function iconifyWindow(window:Window):Void;
+    @:GLProc function restoreWindow(window:Window):Void;
 
-    @:GLProc function swapBuffers():Void;
+    @:GLProc function windowShouldClose(window:Window):Bool;
+    @:GLProc function setWindowShouldClose(window:Window, value:Bool):Void;
+
     @:GLProc function pollEvents():Void;
+    @:GLProc function waitEvents():Void;
+
+    static inline function wrap0(w:Window, cb:Null<Window->Void>):Null<Void->Void>
+        return if (cb == null) null else function () cb(w);
+    static inline function wrap1<A>(w:Window, cb:Null<Window->A->Void>):Null<A->Void>
+        return if (cb == null) null else function (a:A) cb(w, a);
+    static inline function wrap2<A,B>(w:Window, cb:Null<Window->A->B->Void>):Null<A->B->Void>
+        return if (cb == null) null else function (a:A, b:B) cb(w, a, b);
+
+    @:GLProc function setWindowPosCallback(window:Window, cb:Null<Window->Int->Int->Void>):Void
+        load("setWindowPosCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setWindowSizeCallback(window:Window, cb:Null<Window->Int->Int->Void>):Void
+        load("setWindowSizeCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setWindowRefreshCallback(window:Window, cb:Null<Window->Void>):Void
+        load("setWindowRefreshCallback", 2)(NativeBinding.native(window), wrap0(window, cb));
+    @:GLProc function setWindowCloseCallback(window:Window, cb:Null<Window->Void>):Void
+        load("setWindowCloseCallback", 2)(NativeBinding.native(window), wrap0(window, cb));
+    @:GLProc function setWindowFocusCallback(window:Window, cb:Null<Window->Bool->Void>):Void
+        load("setWindowFocusCallback", 2)(NativeBinding.native(window), wrap1(window, cb));
+    @:GLProc function setWindowIconifyCallback(window:Window, cb:Null<Window->Bool->Void>):Void
+        load("setWindowIconifyCallback", 2)(NativeBinding.native(window), wrap1(window, cb));
 
 
-    @:GLConst var KEY_UNKNOWN;
+    // change in API, return true if GL_PRESS for key.
+    @:GLProc function getKey(window:Window, key:Int):Bool;
+    @:GLProc function getMouseButton(window:Window, button:Int):Bool;
+    @:GLProc function getCursorPos(window:Window):{x:Float, y:Float} {
+        var vals = [0.0,0.0];
+        load("getCursorPos", 2)(NativeBinding.native(window), vals);
+        return {x:vals[0], y:vals[1]};
+    }
+    @:GLProc function setCursorPos(window:Window, x:Float, y:Float):Void;
+
+    @:GLProc function setKeyCallback(window:Window, cb:Null<Window->Int->Int->Void>):Void
+        load("setKeyCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setCharCallback(window:Window, cb:Null<Window->Int->Void>):Void
+        load("setCharCallback", 2)(NativeBinding.native(window), wrap1(window, cb));
+    @:GLProc function setMouseButtonCallback(window:Window, cb:Null<Window->Int->Bool->Void>):Void
+        load("setMouseButtonCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setScrollCallback(window:Window, cb:Null<Window->Float->Float->Void>):Void
+        load("setScrollCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setCursorPosCallback(window:Window, cb:Null<Window->Float->Float->Void>):Void
+        load("setCursorPosCallback", 2)(NativeBinding.native(window), wrap2(window, cb));
+    @:GLProc function setCursorEnterCallback(window:Window, cb:Null<Window->Bool->Void>):Void
+        load("setCursorEnterCallback", 2)(NativeBinding.native(window), wrap1(window, cb));
+
+    @:GLProc function getTime():Float;
+    @:GLProc function setTime(time:Float):Void;
+
+    @:GLConst var RELEASE;
+    @:GLConst var PRESS;
+    @:GLConst var REPEAT;
+
     @:GLConst var KEY_SPACE;
-    @:GLConst var KEY_SPECIAL;
-    @:GLConst var KEY_ESC;
+    @:GLConst var KEY_APOSTROPHE;
+    @:GLConst var KEY_COMMA;
+    @:GLConst var KEY_MINUS;
+    @:GLConst var KEY_PERIOD;
+    @:GLConst var KEY_SLASH;
+    @:GLConst var KEY_0;
+    @:GLConst var KEY_1;
+    @:GLConst var KEY_2;
+    @:GLConst var KEY_3;
+    @:GLConst var KEY_4;
+    @:GLConst var KEY_5;
+    @:GLConst var KEY_6;
+    @:GLConst var KEY_7;
+    @:GLConst var KEY_8;
+    @:GLConst var KEY_9;
+    @:GLConst var KEY_SEMICOLON;
+    @:GLConst var KEY_EQUAL;
+    @:GLConst var KEY_A;
+    @:GLConst var KEY_B;
+    @:GLConst var KEY_C;
+    @:GLConst var KEY_D;
+    @:GLConst var KEY_E;
+    @:GLConst var KEY_F;
+    @:GLConst var KEY_G;
+    @:GLConst var KEY_H;
+    @:GLConst var KEY_I;
+    @:GLConst var KEY_J;
+    @:GLConst var KEY_K;
+    @:GLConst var KEY_L;
+    @:GLConst var KEY_M;
+    @:GLConst var KEY_N;
+    @:GLConst var KEY_O;
+    @:GLConst var KEY_P;
+    @:GLConst var KEY_Q;
+    @:GLConst var KEY_R;
+    @:GLConst var KEY_S;
+    @:GLConst var KEY_T;
+    @:GLConst var KEY_U;
+    @:GLConst var KEY_V;
+    @:GLConst var KEY_W;
+    @:GLConst var KEY_X;
+    @:GLConst var KEY_Y;
+    @:GLConst var KEY_Z;
+    @:GLConst var KEY_LEFT_BRACKET;
+    @:GLConst var KEY_BACKSLASH;
+    @:GLConst var KEY_RIGHT_BRACKET;
+    @:GLConst var KEY_GRAVE_ACCENT;
+    @:GLConst var KEY_WORLD_1;
+    @:GLConst var KEY_WORLD_2;
+    @:GLConst var KEY_ESCAPE;
+    @:GLConst var KEY_ENTER;
+    @:GLConst var KEY_TAB;
+    @:GLConst var KEY_BACKSPACE;
+    @:GLConst var KEY_INSERT;
+    @:GLConst var KEY_DELETE;
+    @:GLConst var KEY_RIGHT;
+    @:GLConst var KEY_LEFT;
+    @:GLConst var KEY_DOWN;
+    @:GLConst var KEY_UP;
+    @:GLConst var KEY_PAGE_UP;
+    @:GLConst var KEY_PAGE_DOWN;
+    @:GLConst var KEY_HOME;
+    @:GLConst var KEY_END;
+    @:GLConst var KEY_CAPS_LOCK;
+    @:GLConst var KEY_SCROLL_LOCK;
+    @:GLConst var KEY_NUM_LOCK;
+    @:GLConst var KEY_PRINT_SCREEN;
+    @:GLConst var KEY_PAUSE;
     @:GLConst var KEY_F1;
     @:GLConst var KEY_F2;
     @:GLConst var KEY_F3;
@@ -98,25 +262,6 @@ class GLFW implements GLConsts implements GLProcs {
     @:GLConst var KEY_F23;
     @:GLConst var KEY_F24;
     @:GLConst var KEY_F25;
-    @:GLConst var KEY_UP;
-    @:GLConst var KEY_DOWN;
-    @:GLConst var KEY_LEFT;
-    @:GLConst var KEY_RIGHT;
-    @:GLConst var KEY_LSHIFT;
-    @:GLConst var KEY_RSHIFT;
-    @:GLConst var KEY_LCTRL;
-    @:GLConst var KEY_RCTRL;
-    @:GLConst var KEY_LALT;
-    @:GLConst var KEY_RALT;
-    @:GLConst var KEY_TAB;
-    @:GLConst var KEY_ENTER;
-    @:GLConst var KEY_BACKSPACE;
-    @:GLConst var KEY_INSERT;
-    @:GLConst var KEY_DEL;
-    @:GLConst var KEY_PAGEUP;
-    @:GLConst var KEY_PAGEDOWN;
-    @:GLConst var KEY_HOME;
-    @:GLConst var KEY_END;
     @:GLConst var KEY_KP_0;
     @:GLConst var KEY_KP_1;
     @:GLConst var KEY_KP_2;
@@ -127,25 +272,23 @@ class GLFW implements GLConsts implements GLProcs {
     @:GLConst var KEY_KP_7;
     @:GLConst var KEY_KP_8;
     @:GLConst var KEY_KP_9;
+    @:GLConst var KEY_KP_DECIMAL;
     @:GLConst var KEY_KP_DIVIDE;
     @:GLConst var KEY_KP_MULTIPLY;
     @:GLConst var KEY_KP_SUBTRACT;
     @:GLConst var KEY_KP_ADD;
-    @:GLConst var KEY_KP_DECIMAL;
-    @:GLConst var KEY_KP_EQUAL;
     @:GLConst var KEY_KP_ENTER;
-    @:GLConst var KEY_KP_NUM_LOCK;
-    @:GLConst var KEY_CAPS_LOCK;
-    @:GLConst var KEY_SCROLL_LOCK;
-    @:GLConst var KEY_PAUSE;
-    @:GLConst var KEY_LSUPER;
-    @:GLConst var KEY_RSUPER;
+    @:GLConst var KEY_KP_EQUAL;
+    @:GLConst var KEY_LEFT_SHIFT;
+    @:GLConst var KEY_LEFT_CONTROL;
+    @:GLConst var KEY_LEFT_ALT;
+    @:GLConst var KEY_LEFT_SUPER;
+    @:GLConst var KEY_RIGHT_SHIFT;
+    @:GLConst var KEY_RIGHT_CONTROL;
+    @:GLConst var KEY_RIGHT_ALT;
+    @:GLConst var KEY_RIGHT_SUPER;
     @:GLConst var KEY_MENU;
     @:GLConst var KEY_LAST;
-    // Addition to API
-    @:GLProc function KEY(char:String):Int {
-        return char.toUpperCase().charCodeAt(0);
-    }
 
     @:GLConst var MOUSE_BUTTON_1;
     @:GLConst var MOUSE_BUTTON_2;
@@ -159,27 +302,4 @@ class GLFW implements GLConsts implements GLProcs {
     @:GLConst var MOUSE_BUTTON_LEFT;
     @:GLConst var MOUSE_BUTTON_RIGHT;
     @:GLConst var MOUSE_BUTTON_MIDDLE;
-
-    // Slight API change, return 'true' if pressed
-    @:GLProc function getKey(key:Int):Bool;
-    @:GLProc function getMouseButton(button:Int):Bool;
-    @:GLProc function getMousePos():{x:Int, y:Int} {
-        var vals = [0,0];
-        load("getMousePos", 1)(vals);
-        return {x:vals[0], y:vals[1]};
-    }
-    @:GLProc function setMousePos(x:Int, y:Int):Void;
-    @:GLProc function getMouseWheel():Int;
-    @:GLProc function setMouseWheel(pos:Int):Void;
-    @:GLProc function setKeyCallback(cb:Null<Int->Bool->Void>):Void;
-    @:GLProc function setCharCallback(cb:Null<Int->Bool->Void>):Void;
-    @:GLProc function setMouseButtonCallback(cb:Null<Int->Bool->Void>):Void;
-    @:GLProc function setMousePosCallback(cb:Null<Int->Int->Void>):Void;
-    @:GLProc function setMouseWheelCallback(cb:Null<Int->Void>):Void;
-
-
-    @:GLProc function getTime():Float;
-    @:GLProc function setTime(time:Float):Void;
-    @:GLProc function sleep(time:Float):Void;
-
 }
