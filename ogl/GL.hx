@@ -575,6 +575,8 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // W
     // ================================================================================================
+    @:GLProc function waitSync(sync:Sync, flags:Int, timeout:haxe.Int64):Void
+        load("waitSync", 4)(NativeBinding.native(sync), flags, haxe.Int64.getLow(timeout), haxe.Int64.getHigh(timeout));
 
     // ================================================================================================
     // X

@@ -721,6 +721,15 @@ DEFINE_PRIM(hx_gl_viewport, 4);
 // ================================================================================================
 // W
 // ================================================================================================
+void hx_gl_waitSync(value sync, value flags, value timeLow, value timeHigh) {
+    val_check_kind(sync, k_Sync);
+    GLsync syncVal = (GLsync)val_data(sync);
+    GLuint64 val;
+    ((int*)&val)[0] = val_get<int>(timeLow);
+    ((int*)&val)[1] = val_get<int>(timeHigh);
+    glWaitSync(syncVal, val_get<int>(flags), val);
+}
+DEFINE_PRIM(hx_gl_waitSync, 4);
 
 // ================================================================================================
 // X
