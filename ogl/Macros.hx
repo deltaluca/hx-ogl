@@ -16,6 +16,29 @@ import haxe.macro.Expr;
 //
 class GLConstsImpl {
 #if macro
+
+    static function params(f:Field):Array<Expr> {
+        for (m in f.meta) {
+            if (m.name == ":GLConst") {
+                return m.params;
+            }
+        }
+        return [];
+    }
+    static function paramName(f:Field):Null<Expr> {
+        for (p in params(f)) {
+            switch (p.expr) {
+            case EConst(CIdent(n)):
+                p.expr = EConst(CString(n));
+                return p;
+            case EConst(CString(_)):
+                return p;
+            default:
+            }
+        }
+        return null;
+    }
+
     static function isConst(f:Metadata) {
         for (m in f) {
             if (m.name == ":GLConst") return true;
@@ -36,11 +59,14 @@ class GLConstsImpl {
                 f.access.push(AStatic);
                 f.access.push(APublic);
 
+                var name = paramName(f);
+                if (name == null) name = macro $v{f.name};
+
                 var kind = FFun({
                     ret:    macro :Int,
                     params: [],
                     args:   [],
-                    expr:   macro return load($v{f.name}, 0)()
+                    expr:   macro return load($name, 0)()
                 });
                 fields.push({
                     pos:    f.pos,
