@@ -23,6 +23,22 @@ abstract UByteBuffer(ArrayBuffer) to ArrayBuffer {
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
+abstract UIntBuffer(ArrayBuffer) to ArrayBuffer {
+    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.UNSIGNED_INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new UIntBuffer(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):Int
+        return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
+    @:arrayAccess public inline function set(i:Int, x:Int):Int {
+        untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
+
 abstract IntBuffer(ArrayBuffer) to ArrayBuffer {
     inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.INT);
     @:from public static inline function fromRaw(raw:BytesData) return new IntBuffer(raw);
@@ -30,9 +46,9 @@ abstract IntBuffer(ArrayBuffer) to ArrayBuffer {
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
     inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):Float
+    @:arrayAccess public inline function get(i:Int):Int
         return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
-    @:arrayAccess public inline function set(i:Int, x:Int):Float {
+    @:arrayAccess public inline function set(i:Int, x:Int):Int {
         untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
         return get(this, i);
     }
@@ -345,8 +361,18 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // C
     // ================================================================================================
+    @:GLProc function checkFramebufferStatus(target:Int):Void;
+    @:GLProc function clampColor(target:Int, clamp:Int):Void;
     @:GLProc function clear(mask:Int):Void;
+    @:GLProc function clearBufferiv(buffer:Int, drawBuffer:Int, value:IntBuffer):Void
+        load("clearBufferiv", 3)(buffer, drawBuffer, value.raw);
+    @:GLProc function clearBufferuiv(buffer:Int, drawBuffer:Int, value:UIntBuffer):Void
+        load("clearBufferuiv", 3)(buffer, drawBuffer, value.raw);
+    @:GLProc function clearBufferfv(buffer:Int, drawBuffer:Int, value:FloatBuffer):Void
+        load("clearBufferfv", 3)(buffer, drawBuffer, value.raw);
+    @:GLProc function clearBufferfi(buffer:Int, drawBuffer:Int, depth:Int, stencil:Int):Void;
     @:GLProc function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
+    @:GLProc function clearDepth(depth:Float):Void;
     @:GLProc function compileShader(shader:Int):Void {
         var err:Null<String> = load("compileShader", 1)(shader);
         if (err != null) throw err;

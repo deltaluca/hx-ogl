@@ -239,11 +239,35 @@ DEFINE_PRIM(hx_gl_bufferSubData,          5);
 // ================================================================================================
 // C
 // ================================================================================================
+value hx_gl_checkFramebufferStatus(value target) {
+    return alloc<int>(glCheckFramebufferStatus(val_get<int>(target)));
+}
+void hx_gl_clampColor(value target, value clamp) {
+    glClampColor(val_get<int>(target), val_get<int>(clamp));
+}
 void hx_gl_clear(value mask) {
     glClear(val_get<int>(mask));
 }
+void hx_gl_clearBufferiv(value _buffer, value drawBuffer, value _value) {
+    glClearBufferiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLint*)buffer_data(val_to_buffer(_value)));
+}
+void hx_gl_clearBufferuiv(value _buffer, value drawBuffer, value _value) {
+    glClearBufferuiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLuint*)buffer_data(val_to_buffer(_value)));
+}
+void hx_gl_clearBufferfv(value _buffer, value drawBuffer, value _value) {
+    glClearBufferfv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLfloat*)buffer_data(val_to_buffer(_value)));
+}
+void hx_gl_clearBufferfi(value _buffer, value drawBuffer, value depth, value stencil) {
+    glClearBufferfi(val_get<int>(_buffer), val_get<int>(drawBuffer), val_get<double>(depth), val_get<int>(stencil));
+}
 void hx_gl_clearColor(value r, value g, value b, value a) {
     glClearColor(val_get<float>(r), val_get<float>(g), val_get<float>(b), val_get<float>(a));
+}
+void hx_gl_clearDepth(value depth) {
+    glClearDepth(val_get<double>(depth));
+}
+void hx_gl_clearStencil(value stencil) {
+    glClearStencil(val_get<int>(stencil));
 }
 value hx_gl_compileShader(value shader) {
     glCompileShader(val_get<int>(shader));
@@ -267,11 +291,19 @@ value hx_gl_createShader(value type) {
 value hx_gl_createProgram() {
     return alloc<int>(glCreateProgram());
 }
-DEFINE_PRIM(hx_gl_clear,         1);
-DEFINE_PRIM(hx_gl_clearColor,    4);
-DEFINE_PRIM(hx_gl_compileShader, 1);
-DEFINE_PRIM(hx_gl_createShader,  1);
-DEFINE_PRIM(hx_gl_createProgram, 0);
+DEFINE_PRIM(hx_gl_checkFramebufferStatus, 1);
+DEFINE_PRIM(hx_gl_clampColor,             2);
+DEFINE_PRIM(hx_gl_clear,                  1);
+DEFINE_PRIM(hx_gl_clearBufferiv,          3);
+DEFINE_PRIM(hx_gl_clearBufferuiv,         3);
+DEFINE_PRIM(hx_gl_clearBufferfv,          3);
+DEFINE_PRIM(hx_gl_clearBufferfi,          4);
+DEFINE_PRIM(hx_gl_clearColor,             4);
+DEFINE_PRIM(hx_gl_clearDepth,             1);
+DEFINE_PRIM(hx_gl_clearStencil,           1);
+DEFINE_PRIM(hx_gl_compileShader,          1);
+DEFINE_PRIM(hx_gl_createShader,           1);
+DEFINE_PRIM(hx_gl_createProgram,          0);
 
 // ================================================================================================
 // D
