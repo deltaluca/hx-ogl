@@ -5,75 +5,94 @@ import ogl.Macros;
 
 import haxe.io.BytesData;
 
-abstract UByteBuffer(ArrayBuffer) to ArrayBuffer {
-    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 1, GL.UNSIGNED_BYTE);
-    @:from public static inline function fromRaw(raw:BytesData) return new UByteBuffer(raw);
+typedef GLbyte     = Int;
+typedef GLubyte    = Int;
+typedef GLshort    = Int;
+typedef GLushort   = Int;
+typedef GLint      = Int;
+typedef GLuint     = Int;
+typedef GLfloat    = Float;
+typedef GLdouble   = Float;
+typedef GLenum     = Int;
+typedef GLbitfield = Int;
+typedef GLint64    = haxe.Int64;
+typedef GLuint64   = haxe.Int64;
+typedef GLsizeiptr = Int;
+typedef GLsizei    = Int;
+typedef GLintptr   = Int;
+typedef GLclampf   = Float;
+typedef GLclampd   = Float;
+typedef GLboolean  = Bool;
+
+abstract GLubyteArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLubyteArray(raw);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
     inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):Int {
+    @:arrayAccess public inline function get(i:Int):GLubyte {
         var byte = untyped __global__.__hxcpp_memory_get_byte(this.buffer, i);
         return (byte < 0) ? (byte & 0xff) | 0x80 : byte;
     }
-    @:arrayAccess public inline function set(i:Int, x:Int):Int {
+    @:arrayAccess public inline function set(i:Int, x:GLubyte):GLubyte {
         untyped __global__.__hxcpp_memory_set_byte(this.buffer, i, x&0xff);
         return get(this, i);
     }
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
-abstract UIntBuffer(ArrayBuffer) to ArrayBuffer {
-    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.UNSIGNED_INT);
-    @:from public static inline function fromRaw(raw:BytesData) return new UIntBuffer(raw);
+abstract GLuintArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLuintArray(raw);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
     inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):Int
+    @:arrayAccess public inline function get(i:Int):GLuint
         return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
-    @:arrayAccess public inline function set(i:Int, x:Int):Int {
+    @:arrayAccess public inline function set(i:Int, x:GLuint):GLuint {
         untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
         return get(this, i);
     }
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
-abstract IntBuffer(ArrayBuffer) to ArrayBuffer {
-    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.INT);
-    @:from public static inline function fromRaw(raw:BytesData) return new IntBuffer(raw);
+abstract GLintArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLintArray(raw);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
     inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):Int
+    @:arrayAccess public inline function get(i:Int):GLint
         return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
-    @:arrayAccess public inline function set(i:Int, x:Int):Int {
+    @:arrayAccess public inline function set(i:Int, x:GLint):GLint {
         untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
         return get(this, i);
     }
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
-abstract FloatBuffer(ArrayBuffer) to ArrayBuffer {
-    inline public function new(raw:BytesData) this = new ArrayBuffer(raw, 4, GL.INT);
-    @:from public static inline function fromRaw(raw:BytesData) return new FloatBuffer(raw);
+abstract GLfloatArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLfloatArray(raw);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
     inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):Float
+    @:arrayAccess public inline function get(i:Int):GLfloat
         return untyped __global__.__hxcpp_memory_get_float(this.buffer, i*4);
-    @:arrayAccess public inline function set<T>(i:Int, x:T):Float {
+    @:arrayAccess public inline function set<T>(i:Int, x:T):GLfloat {
         untyped __global__.__hxcpp_memory_set_float(this.buffer, i*4, x);
         return get(this, i);
     }
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
-class ArrayBuffer {
+class GLArray {
     public var size:Int;
-    public var type:Int;
+    public var type:GLenum;
     public var buffer:BytesData;
     public var count(get, never):Int;
     inline function get_count() return Std.int(buffer.length / size);
@@ -296,12 +315,12 @@ abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
                 b[3]*a[12] + b[7]*a[13] + b[11]*a[14] + b[15]*a[15]];
 }
 
-class Sync extends NativeBinding {
+class GLsync extends NativeBinding {
     @:allow(ogl)
     function new(x:Dynamic) super(x);
 
     @:allow(ogl)
-    inline static function cvt(x:Dynamic) return if (x == null) null else new Sync(x);
+    inline static function cvt(x:Dynamic) return if (x == null) null else new GLsync(x);
 }
 
 class GL implements GLConsts implements GLProcs {
@@ -314,11 +333,11 @@ class GL implements GLConsts implements GLProcs {
 
 
     // Haxe specific interfaces.
-    @:GLProc function allocBuffer(type:Int, count:Int):BytesData {
+    @:GLProc function allocBuffer(type:GLenum, count:Int):BytesData {
         return load("allocBuffer", 2)(type, count);
     }
     // TODO: Haxe issue 1667 prevents this working nicely without Dynamic
-    @:GLProc function buffer(data:Array<Dynamic>, type:Int):BytesData {
+    @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):BytesData {
         return load("createBuffer", 2)(data, type);
     }
 
@@ -330,149 +349,148 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // A
     // ================================================================================================
-    @:GLProc function activeTexture(texture:Int):Void;
-    @:GLProc function attachShader(program:Int, shader:Int):Void;
+    @:GLProc function activeTexture(texture:GLenum):Void;
+    @:GLProc function attachShader(program:GLuint, shader:GLuint):Void;
 
     // ================================================================================================
     // B
     // ================================================================================================
-    @:GLProc function beginConditionalRender(id:Int, mode:Int):Void;
-    @:GLProc function beginQuery(target:Int, id:Int):Void;
-    @:GLProc function beginTransformFeedback(primitiveMode:Int):Void;
-    @:GLProc function bindAttribLocation(program:Int, index:Int, name:String):Void;
-    @:GLProc function bindBuffer(target:Int, buffer:Int):Void;
-    @:GLProc function bindBufferBase(target:Int, index:Int, buffer:Int):Void;
-    @:GLProc function bindBufferRange(target:Int, index:Int, buffer:Int, offset:Int, size:Int):Void;
-    @:GLProc function bindFragDataLocation(program:Int, colorNumber:Int, name:String):Void;
-    @:GLProc function bindFragDataLocationIndexed(program:Int, colorNumber:Int, index:Int, name:String):Void;
-    @:GLProc function bindFramebuffer(target:Int, framebuffer:Int):Void;
-    @:GLProc function bindRenderbuffer(target:Int, renderbuffer:Int):Void;
-    @:GLProc function bindSampler(target:Int, sampler:Int):Void;
-    @:GLProc function bindTexture(target:Int, texture:Int):Void;
-    @:GLProc function bindVertexArray(array:Int):Void;
-    @:GLProc function blendColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
-    @:GLProc function blendEquation(mode:Int):Void;
-    @:GLProc function blendEquationSeparate(modeRGB:Int, modeAlpha:Int):Void;
-    @:GLProc function blendFunc(sfactor:Int, dfactor:Int):Void;
-    @:GLProc function blendFuncSeparate(srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
-    @:GLProc function blitFrameBuffer(srcx0:Int, srcy0:Int, srcx1:Int, srcy1:Int, dstx0:Int, dsty0:Int, dstx1:Int, dsty1:Int, mask:Int, filter:Int):Void;
-    @:GLProc function bufferData(target:Int, data:ArrayBuffer, usage:Int, ?count:Null<Int>) {
+    @:GLProc function beginConditionalRender(id:GLuint, mode:GLenum):Void;
+    @:GLProc function beginQuery(target:GLenum, id:GLuint):Void;
+    @:GLProc function beginTransformFeedback(primitiveMode:GLenum):Void;
+    @:GLProc function bindAttribLocation(program:GLuint, index:GLuint, name:String):Void;
+    @:GLProc function bindBuffer(target:GLenum, buffer:GLuint):Void;
+    @:GLProc function bindBufferBase(target:GLenum, index:GLuint, buffer:GLuint):Void;
+    @:GLProc function bindBufferRange(target:GLenum, index:GLuint, buffer:GLuint, offset:GLintptr, size:GLsizeiptr):Void;
+    @:GLProc function bindFragDataLocation(program:GLuint, colorNumber:GLuint, name:String):Void;
+    @:GLProc function bindFragDataLocationIndexed(program:GLuint, colorNumber:GLuint, index:GLuint, name:String):Void;
+    @:GLProc function bindFramebuffer(target:GLenum, framebuffer:GLuint):Void;
+    @:GLProc function bindRenderbuffer(target:GLenum, renderbuffer:GLuint):Void;
+    @:GLProc function bindSampler(target:GLuint, sampler:GLuint):Void;
+    @:GLProc function bindTexture(target:GLenum, texture:GLuint):Void;
+    @:GLProc function bindVertexArray(array:GLuint):Void;
+    @:GLProc function blendColor(red:GLclampf, green:GLclampf, blue:GLclampf, alpha:GLclampf):Void;
+    @:GLProc function blendEquation(mode:GLenum):Void;
+    @:GLProc function blendEquationSeparate(modeRGB:GLenum, modeAlpha:GLenum):Void;
+    @:GLProc function blendFunc(sfactor:GLenum, dfactor:GLenum):Void;
+    @:GLProc function blendFuncSeparate(srcRGB:GLenum, dstRGB:GLenum, srcAlpha:GLenum, dstAlpha:GLenum):Void;
+    @:GLProc function blitFrameBuffer(srcx0:GLint, srcy0:GLint, srcx1:GLint, srcy1:GLint, dstx0:GLint, dsty0:GLint, dstx1:GLint, dsty1:GLint, mask:GLbitfield, filter:GLenum):Void;
+    @:GLProc function bufferData(target:GLenum, data:GLArray, usage:GLenum, ?count:Null<Int>) {
         if (count == null) count = data.count;
-        load("bufferData", 5)(target, data.buffer, data.size, usage, count);
+        load("bufferData", 4)(target, data.size*count, data.buffer, usage);
     }
-    // offset measured in data count, not byte! Change in API.
-    @:GLProc function bufferSubData(target:Int, countOffset:Int, data:ArrayBuffer, ?count:Null<Int>) {
+    @:GLProc function bufferSubData(target:GLenum, countOffset:Int, data:GLArray, ?count:Null<Int>) {
         if (count == null) count = data.count;
-        load("bufferSubData", 5)(target, countOffset, data.buffer, data.size, count);
+        load("bufferSubData", 4)(target, countOffset*data.size, data.buffer, count*data.size);
     }
 
     // ================================================================================================
     // C
     // ================================================================================================
-    @:GLProc function checkFramebufferStatus(target:Int):Void;
-    @:GLProc function clampColor(target:Int, clamp:Int):Void;
-    @:GLProc function clear(mask:Int):Void;
-    @:GLProc function clearBufferiv(buffer:Int, drawBuffer:Int, value:IntBuffer):Void
+    @:GLProc function checkFramebufferStatus(target:GLenum):Void;
+    @:GLProc function clampColor(target:GLenum, clamp:GLenum):Void;
+    @:GLProc function clear(mask:GLbitfield):Void;
+    @:GLProc function clearBufferiv(buffer:GLenum, drawBuffer:GLint, value:GLintArray):Void
         load("clearBufferiv", 3)(buffer, drawBuffer, value.raw);
-    @:GLProc function clearBufferuiv(buffer:Int, drawBuffer:Int, value:UIntBuffer):Void
+    @:GLProc function clearBufferuiv(buffer:GLenum, drawBuffer:GLint, value:GLuintArray):Void
         load("clearBufferuiv", 3)(buffer, drawBuffer, value.raw);
-    @:GLProc function clearBufferfv(buffer:Int, drawBuffer:Int, value:FloatBuffer):Void
+    @:GLProc function clearBufferfv(buffer:GLenum, drawBuffer:GLint, value:GLfloatArray):Void
         load("clearBufferfv", 3)(buffer, drawBuffer, value.raw);
-    @:GLProc function clearBufferfi(buffer:Int, drawBuffer:Int, depth:Int, stencil:Int):Void;
-    @:GLProc function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
-    @:GLProc function clearDepth(depth:Float):Void;
-    @:GLProc function clearStencil(stencil:Int):Void;
-    @:GLProc function clientWaitSync(sync:Sync, flags:Int, timeout:haxe.Int64):Int
+    @:GLProc function clearBufferfi(buffer:GLenum, drawBuffer:GLint, depth:GLfloat, stencil:GLint):Void;
+    @:GLProc function clearColor(red:GLclampf, green:GLclampf, blue:GLclampf, alpha:GLclampf):Void;
+    @:GLProc function clearDepth(depth:GLclampd):Void;
+    @:GLProc function clearStencil(stencil:GLint):Void;
+    @:GLProc function clientWaitSync(sync:GLsync, flags:GLbitfield, timeout:GLuint64):GLenum
         return load("clientWaitSync", 4)(NativeBinding.native(sync), flags, haxe.Int64.getLow(timeout), haxe.Int64.getHigh(timeout));
-    @:GLProc function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-    @:GLProc function colorMaski(buf:Int, red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
-    @:GLProc function compileShader(shader:Int):Void {
+    @:GLProc function colorMask(red:GLboolean, green:GLboolean, blue:GLboolean, alpha:GLboolean):Void;
+    @:GLProc function colorMaski(buf:GLuint, red:GLboolean, green:GLboolean, blue:GLboolean, alpha:GLboolean):Void;
+    @:GLProc function compileShader(shader:GLuint):Void {
         var err:Null<String> = load("compileShader", 1)(shader);
         if (err != null) throw err;
     }
-    @:GLProc function compressedTexImage1D(target:Int, level:Int, width:Int, border:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexImage1D(target:GLenum, level:GLint, width:GLsizei, border:GLint, data:GLArray):Void
         load("compressedTexImage1D", 7)(target, level, data.type, width, border, data.buffer.length, data.buffer);
-    @:GLProc function compressedTexImage2D(target:Int, level:Int, width:Int, height:Int, border:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexImage2D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, border:GLint, data:GLArray):Void
         load("compressedTexImage2D", 8)(target, level, data.type, width, height, border, data.buffer.length, data.buffer);
-    @:GLProc function compressedTexImage3D(target:Int, level:Int, width:Int, height:Int, depth:Int, border:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexImage3D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, data:GLArray):Void
         load("compressedTexImage3D", 9)(target, level, data.type, width, height, depth, border, data.buffer.length, data.buffer);
-    @:GLProc function compressedTexSubImage1D(target:Int, level:Int, xOffset:Int, width:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, data:GLArray):Void
         load("compressedTexSubImage1D", 7)(target, level, xOffset, width, data.type, data.buffer.length, data.buffer);
-    @:GLProc function compressedTexSubImage2D(target:Int, level:Int, xOffset:Int, yOffset:Int, width:Int, height:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, data:GLArray):Void
         load("compressedTexSubImage2D", 9)(target, level, xOffset, yOffset, width, height, data.type, data.buffer.length, data.buffer);
-    @:GLProc function compressedTexSubImage3D(target:Int, level:Int, xOffset:Int, yOffset:Int, zOffset:Int, width:Int, height:Int, depth:Int, data:ArrayBuffer):Void
+    @:GLProc function compressedTexSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, data:GLArray):Void
         load("compressedTexSubImage3D", 11)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, data.buffer.length, data.buffer);
-    @:GLProc function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:Int, writeOffset:Int, size:Int):Void;
-    @:GLProc function copyTexImage1D(target:Int, level:Int, internalFormat:Int, x:Int, y:Int, width:Int, border:Int):Void;
-    @:GLProc function copyTexImage2D(target:Int, level:Int, internalFormat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
-    @:GLProc function copyTexSubImage1D(target:Int, level:Int, xOffset:Int, x:Int, y:Int, width:Int):Void;
-    @:GLProc function copyTexSubImage2D(target:Int, level:Int, xOffset:Int, yOffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-    @:GLProc function copyTexSubImage3D(target:Int, level:Int, xOffset:Int, yOffset:Int, zOffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
-    @:GLProc function createShader(shaderType:Int):Int;
-    @:GLProc function createProgram():Int;
-    @:GLProc function cullFace(mode:Int):Void;
+    @:GLProc function copyBufferSubData(readTarget:GLenum, writeTarget:GLenum, readOffset:GLintptr, writeOffset:GLintptr, size:GLsizeiptr):Void;
+    @:GLProc function copyTexImage1D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, border:GLint):Void;
+    @:GLProc function copyTexImage2D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, height:GLsizei, border:GLint):Void;
+    @:GLProc function copyTexSubImage1D(target:GLenum, level:GLint, xOffset:GLint, x:GLint, y:GLint, width:GLsizei):Void;
+    @:GLProc function copyTexSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, x:GLint, y:GLint, width:GLsizei, height:GLsizei):Void;
+    @:GLProc function copyTexSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, x:GLint, y:GLint, width:GLsizei, height:GLsizei):Void;
+    @:GLProc function createProgram():GLuint;
+    @:GLProc function createShader(shaderType:GLenum):GLuint;
+    @:GLProc function cullFace(mode:GLenum):Void;
 
     // ================================================================================================
     // D
     // ================================================================================================
-    @:GLProc function deleteBuffers(buffers:Array<Int>):Void;
-    @:GLProc function deleteFramebuffers(framebuffers:Array<Int>):Void;
-    @:GLProc function deleteProgram(program:Int):Void;
-    @:GLProc function deleteQueries(queries:Array<Int>):Void;
-    @:GLProc function deleteRenderbuffers(renderbuffers:Array<Int>):Void;
-    @:GLProc function deleteSamplers(samplers:Array<Int>):Void;
-    @:GLProc function deleteShader(shader:Int):Void;
-    @:GLProc function deleteSync(sync:Sync):Void;
-    @:GLProc function deleteTextures(textures:Array<Int>):Void;
-    @:GLProc function deleteVertexArrays(vertexArrays:Array<Int>):Void;
-    @:GLProc function depthFunc(func:Int):Void;
-    @:GLProc function depthMask(flag:Bool):Void;
-    @:GLProc function depthRange(nearVal:Float, farVal:Float):Void;
-    @:GLProc function detatchShader(program:Int, shader:Int):Void;
-    @:GLProc function disable(cap:Int):Void;
-    @:GLProc function disableVertexAttribArray(index:Int):Void;
-    @:GLProc function disablei(cap:Int, index:Int):Void;
-    @:GLProc function drawArrays(mode:Int, first:Int, count:Int):Void;
-    @:GLProc function drawArraysInstanced(mode:Int, first:Int, count:Int, primCount:Int):Void;
-    @:GLProc function drawBuffer(mode:Int):Void;
-    @:GLProc function drawBuffers(bufs:Array<Int>):Void;
-    @:GLProc function drawElements(mode:Int, count:Int, indices:ArrayBuffer):Void
+    @:GLProc function deleteBuffers(buffers:Array<GLuint>):Void;
+    @:GLProc function deleteFramebuffers(framebuffers:Array<GLuint>):Void;
+    @:GLProc function deleteProgram(program:GLuint):Void;
+    @:GLProc function deleteQueries(queries:Array<GLuint>):Void;
+    @:GLProc function deleteRenderbuffers(renderbuffers:Array<GLuint>):Void;
+    @:GLProc function deleteSamplers(samplers:Array<GLuint>):Void;
+    @:GLProc function deleteShader(shader:GLuint):Void;
+    @:GLProc function deleteSync(sync:GLsync):Void;
+    @:GLProc function deleteTextures(textures:Array<GLuint>):Void;
+    @:GLProc function deleteVertexArrays(vertexArrays:Array<GLuint>):Void;
+    @:GLProc function depthFunc(func:GLenum):Void;
+    @:GLProc function depthMask(flag:GLboolean):Void;
+    @:GLProc function depthRange(nearVal:GLclampd, farVal:GLclampd):Void;
+    @:GLProc function detatchShader(program:GLuint, shader:GLuint):Void;
+    @:GLProc function disable(cap:GLenum):Void;
+    @:GLProc function disableVertexAttribArray(index:GLuint):Void;
+    @:GLProc function disablei(cap:GLenum, index:GLuint):Void;
+    @:GLProc function drawArrays(mode:GLenum, first:GLint, count:GLsizei):Void;
+    @:GLProc function drawArraysInstanced(mode:GLenum, first:GLint, count:GLsizei, primCount:GLsizei):Void;
+    @:GLProc function drawBuffer(mode:GLenum):Void;
+    @:GLProc function drawBuffers(bufs:Array<GLenum>):Void;
+    @:GLProc function drawElements(mode:GLenum, count:GLsizei, indices:GLArray):Void
         load("drawElements", 4)(mode, count, indices.type, indices.buffer);
-    @:GLProc function drawElementsBaseVertex(mode:Int, count:Int, indices:ArrayBuffer, baseVertex:Int):Void
+    @:GLProc function drawElementsBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
         load("drawElementsBaseVertex", 5)(mode, count, indices.type, indices.buffer, baseVertex);
-    @:GLProc function drawElementsInstanced(mode:Int, count:Int, indices:ArrayBuffer, primCount:Int):Void
+    @:GLProc function drawElementsInstanced(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei):Void
         load("drawElementsInstanced", 5)(mode, count, indices.type, indices.buffer, primCount);
-    @:GLProc function drawElementsInstancedBaseVertex(mode:Int, count:Int, indices:ArrayBuffer, primCount:Int, baseVertex:Int):Void
+    @:GLProc function drawElementsInstancedBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei, baseVertex:GLint):Void
         load("drawElementsInstancedBaseVertex", 6)(mode, count, indices.type, indices.buffer, primCount, baseVertex);
-    @:GLProc function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer):Void
+    @:GLProc function drawRangeElements(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray):Void
         load("drawRangeElements", 6)(mode, start, end, count, indices.type, indices.buffer);
-    @:GLProc function drawRangeElementsBaseVertex(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer, baseVertex:Int):Void
+    @:GLProc function drawRangeElementsBaseVertex(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
         load("drawRangeElementsBaseVertex", 7)(mode, start, end, count, indices.type, indices.buffer, baseVertex);
 
     // ================================================================================================
     // E
     // ================================================================================================
-    @:GLProc function enable(cap:Int):Void;
-    @:GLProc function enableVertexAttribArray(index:Int):Void;
-    @:GLProc function enablei(cap:Int, index:Int):Void;
+    @:GLProc function enable(cap:GLenum):Void;
+    @:GLProc function enableVertexAttribArray(index:GLuint):Void;
+    @:GLProc function enablei(cap:GLenum, index:GLuint):Void;
     @:GLProc function endConditionalRender():Void;
-    @:GLProc function endQuery(target:Int):Void;
+    @:GLProc function endQuery(target:GLenum):Void;
     @:GLProc function endTransformFeedback():Void;
 
     // ================================================================================================
     // F
     // ================================================================================================
-    @:GLProc function fenceSync(condition:Int, flags:Int):Void;
+    @:GLProc function fenceSync(condition:GLenum, flags:GLbitfield):Void;
     @:GLProc function finish():Void;
     @:GLProc function flush():Void;
-    @:GLProc function flushMappedBufferRange(target:Int, offset:Int, length:Int):Void;
-    @:GLProc function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:Int):Void;
-    @:GLProc function framebufferTexture(target:Int, attachment:Int, texture:Int, level:Int):Void;
-    @:GLProc function framebufferTexture1D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
-    @:GLProc function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
-    @:GLProc function framebufferTexture3D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int, layer:Int):Void;
-    @:GLProc function framebufferTextureLayer(target:Int, attachment:Int, texture:Int, level:Int, layer:Int):Void;
-    @:GLProc function frontFace(mode:Int):Void;
+    @:GLProc function flushMappedBufferRange(target:GLenum, offset:GLintptr, length:GLsizeiptr):Void;
+    @:GLProc function framebufferRenderbuffer(target:GLenum, attachment:GLenum, renderbuffertarget:GLenum, renderbuffer:GLuint):Void;
+    @:GLProc function framebufferTexture(target:GLenum, attachment:GLenum, texture:GLuint, level:GLint):Void;
+    @:GLProc function framebufferTexture1D(target:GLenum, attachment:GLenum, textarget:GLenum, texture:GLuint, level:GLint):Void;
+    @:GLProc function framebufferTexture2D(target:GLenum, attachment:GLenum, textarget:GLenum, texture:GLuint, level:GLint):Void;
+    @:GLProc function framebufferTexture3D(target:GLenum, attachment:GLenum, textarget:GLenum, texture:GLuint, level:GLint, layer:GLint):Void;
+    @:GLProc function framebufferTextureLayer(target:GLenum, attachment:GLenum, texture:GLuint, level:GLint, layer:GLint):Void;
+    @:GLProc function frontFace(mode:GLenum):Void;
 
     // ================================================================================================
     // G
@@ -552,9 +570,9 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // T
     // ================================================================================================
-    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:ArrayBuffer):Void
+    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:GLArray):Void
         load("texImage2D", 9)(target, level, internalFormat, width, height, border, format, type, data.buffer);
-    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBuffer):Void
+    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:GLArray):Void
         load("texSubImage2D", 9)(target, level, xoffset, yoffset, width, height, format, type, data.buffer);
     @:GLProc function texParameteri(target:Int, pname:Int, param:Int):Void;
     @:GLProc function texParameterf(target:Int, pname:Int, param:Float):Void;
@@ -569,13 +587,35 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // V
     // ================================================================================================
+    @:GLProc function vertexAttrib1f  (index:Int, v0:Float):Void;
+    @:GLProc function vertexAttrib1s  (index:Int, v0:Int  ):Void;
+    @:GLProc function vertexAttrib1d  (index:Int, v0:Float):Void;
+    @:GLProc function vertexAttribI1i (index:Int, v0:Int  ):Void;
+    @:GLProc function vertexAttribI1ui(index:Int, v0:Int  ):Void;
+    @:GLProc function vertexAttrib2f  (index:Int, v0:Float, v1:Float):Void;
+    @:GLProc function vertexAttrib2s  (index:Int, v0:Int  , v1:Int  ):Void;
+    @:GLProc function vertexAttrib2d  (index:Int, v0:Float, v1:Float):Void;
+    @:GLProc function vertexAttribI2i (index:Int, v0:Int  , v1:Int  ):Void;
+    @:GLProc function vertexAttribI2ui(index:Int, v0:Int  , v1:Int  ):Void;
+    @:GLProc function vertexAttrib3f  (index:Int, v0:Float, v1:Float, v2:Float):Void;
+    @:GLProc function vertexAttrib3s  (index:Int, v0:Int  , v1:Int  , v2:Int  ):Void;
+    @:GLProc function vertexAttrib3d  (index:Int, v0:Float, v1:Float, v2:Float):Void;
+    @:GLProc function vertexAttribI3i (index:Int, v0:Int  , v1:Int  , v2:Int  ):Void;
+    @:GLProc function vertexAttribI3ui(index:Int, v0:Int  , v1:Int  , v2:Float):Void;
+    @:GLProc function vertexAttrib4f  (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void;
+    @:GLProc function vertexAttrib4s  (index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
+    @:GLProc function vertexAttrib4d  (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void;
+    @:GLProc function vertexAttrib4Nub(index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
+    @:GLProc function vertexAttribI4i (index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
+    @:GLProc function vertexAttribI4ui(index:Int, v0:Int  , v1:Int  , v2:Float, v3:Float):Void;
+    @:GLProc function vertexAttribDivisor(index:Int, divisor:Int):Void;
     @:GLProc function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
     @:GLProc function viewport(x:Int, y:Int, width:Int, height:Int):Void;
 
     // ================================================================================================
     // W
     // ================================================================================================
-    @:GLProc function waitSync(sync:Sync, flags:Int, timeout:haxe.Int64):Void
+    @:GLProc function waitSync(sync:GLsync, flags:GLbitfield, timeout:GLuint64):Void
         load("waitSync", 4)(NativeBinding.native(sync), flags, haxe.Int64.getLow(timeout), haxe.Int64.getHigh(timeout));
 
     // ================================================================================================
@@ -592,14 +632,14 @@ class GL implements GLConsts implements GLProcs {
 
     // GL_VERSION_1_1 CONSTS
     @:GLConst var ZERO;
-    @:GLConst var FALSE;
+    @:GLConst var FALSE:GLboolean;
     @:GLConst var LOGIC_OP;
     @:GLConst var NONE;
     @:GLConst var TEXTURE_COMPONENTS;
     @:GLConst var NO_ERROR;
     @:GLConst var POINTS;
     @:GLConst var CURRENT_BIT;
-    @:GLConst var TRUE;
+    @:GLConst var TRUE:GLboolean;
     @:GLConst var ONE;
     @:GLConst var CLIENT_PIXEL_STORE_BIT;
     @:GLConst var LINES;

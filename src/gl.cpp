@@ -210,11 +210,11 @@ void hx_gl_blitFramebuffer(value* args, int nargs) {
         val_get<int>(args[9])
     );
 }
-void hx_gl_bufferData(value target, value data, value size, value usage, value count) {
-    glBufferData(val_get<int>(target), val_get<int>(size)*val_get<int>(count), buffer_data(val_to_buffer(data)), val_get<int>(usage));
+void hx_gl_bufferData(value target, value size, value data, value usage) {
+    glBufferData(val_get<int>(target), val_get<int>(size), buffer_data(val_to_buffer(data)), val_get<int>(usage));
 }
-void hx_gl_bufferSubData(value target, value offset, value data, value size, value count) {
-    glBufferSubData(val_get<int>(target), val_get<int>(offset)*val_get<int>(size), val_get<int>(count)*val_get<int>(size), buffer_data(val_to_buffer(data)));
+void hx_gl_bufferSubData(value target, value offset, value size, value data) {
+    glBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), buffer_data(val_to_buffer(data)));
 }
 DEFINE_PRIM(hx_gl_beginConditionalRender, 2);
 DEFINE_PRIM(hx_gl_beginQuery,             2);
@@ -236,8 +236,8 @@ DEFINE_PRIM(hx_gl_blendEquationSeparate,  2);
 DEFINE_PRIM(hx_gl_blendFunc,              2);
 DEFINE_PRIM(hx_gl_blendFuncSeparate,      4);
 DEFINE_PRIM_MULT(hx_gl_blitFramebuffer);
-DEFINE_PRIM(hx_gl_bufferData,             5);
-DEFINE_PRIM(hx_gl_bufferSubData,          5);
+DEFINE_PRIM(hx_gl_bufferData,             4);
+DEFINE_PRIM(hx_gl_bufferSubData,          4);
 
 // ================================================================================================
 // C
@@ -709,14 +709,60 @@ DEFINE_PRIM(hx_gl_uniformMatrix4fv,   4);
 // ================================================================================================
 // V
 // ================================================================================================
+#define VERTEXATTR1(N, T) \
+    void hx_gl_vertexAttrib##N(value index, value v0) { \
+        glVertexAttrib##N(val_get<int>(index), val_get<T>(v0)); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 2)
+VERTEXATTR1(1f, double);
+VERTEXATTR1(1s, int);
+VERTEXATTR1(1d, double);
+VERTEXATTR1(I1i, int);
+VERTEXATTR1(I1ui, int);
+#define VERTEXATTR2(N, T) \
+    void hx_gl_vertexAttrib##N(value index, value v0, value v1) { \
+        glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1)); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 3)
+VERTEXATTR2(2f, double);
+VERTEXATTR2(2s, int);
+VERTEXATTR2(2d, double);
+VERTEXATTR2(I2i, int);
+VERTEXATTR2(I2ui, int);
+#define VERTEXATTR3(N, T) \
+    void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2) { \
+        glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2)); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 4)
+VERTEXATTR3(3f, double);
+VERTEXATTR3(3s, int);
+VERTEXATTR3(3d, double);
+VERTEXATTR3(I3i, int);
+VERTEXATTR3(I3ui, int);
+#define VERTEXATTR4(N, T) \
+    void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2, value v3) { \
+        glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2), val_get<T>(v3)); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 5)
+VERTEXATTR4(4f, double);
+VERTEXATTR4(4s, int);
+VERTEXATTR4(4d, double);
+VERTEXATTR4(4Nub, int);
+VERTEXATTR4(I4i, int);
+VERTEXATTR4(I4ui, int);
+
+void hx_gl_vertexAttribDivisor(value index, value divisor) {
+    glVertexAttribDivisor(val_get<int>(index), val_get<int>(divisor));
+}
 void hx_gl_vertexAttribPointer(value* args, int narg) {
     glVertexAttribPointer(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<bool>(args[3]), val_get<int>(args[4]), (GLvoid*)val_get<int>(args[5]));
 }
 void hx_gl_viewport(value x, value y, value width, value height) {
     glViewport(val_get<int>(x), val_get<int>(y), val_get<int>(width), val_get<int>(height));
 }
+DEFINE_PRIM(hx_gl_vertexAttribDivisor, 2);
 DEFINE_PRIM_MULT(hx_gl_vertexAttribPointer);
-DEFINE_PRIM(hx_gl_viewport, 4);
+DEFINE_PRIM(hx_gl_viewport,            4);
 
 // ================================================================================================
 // W

@@ -54,8 +54,9 @@ class GLConstsImpl {
             }
 
             switch (f.kind) {
-            case FVar(_, _):
-                f.kind = FProp("get", "never", macro :Int, null);
+            case FVar(type, _):
+                if (type == null) type = macro :GLenum;
+                f.kind = FProp("get", "never", type, null);
                 f.access.push(AStatic);
                 f.access.push(APublic);
 
@@ -63,7 +64,7 @@ class GLConstsImpl {
                 if (name == null) name = macro $v{f.name};
 
                 var kind = FFun({
-                    ret:    macro :Int,
+                    ret:    type,
                     params: [],
                     args:   [],
                     expr:   macro return load($name, 0)()
@@ -131,6 +132,7 @@ class GLProcsImpl {
         case macro :Bool: true;
         case macro :Dynamic: true;
         case TPath({name:"Null"}): true;
+        case TPath({name:name}) if(name.substr(0,2)=="GL" && name != "GLsync"): true;
         default: false;
         }
     }
@@ -148,6 +150,7 @@ class GLProcsImpl {
             case macro :Float: null;
             case macro :String: null;
             case macro :Bool: null;
+            case TPath({name:name}) if (name.substr(0,2)=="GL" && name != "GLsync"): null;
             case TFunction(_,_): null;
             case TPath({name:"Array",params:[TPType(t)]}):
                 var e2 = targ(e, t);
@@ -182,6 +185,7 @@ class GLProcsImpl {
             case macro :Float: null;
             case macro :String: null;
             case macro :Bool: null;
+            case TPath({name:name}) if (name.substr(0,2)=="GL" && name != "GLsync"): null;
             case TFunction(_,_): null;
             case TPath({name:"Array",params:[TPType(_)]}):
                 Context.error("@:GLProc doesn't know how to handle generating body of Array returned methods", e.pos);
