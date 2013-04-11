@@ -445,9 +445,9 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function drawElementsInstancedBaseVertex(mode:Int, count:Int, indices:ArrayBuffer, primCount:Int, baseVertex:Int):Void
         load("drawElementsInstancedBaseVertex", 6)(mode, count, indices.type, indices.buffer, primCount, baseVertex);
     @:GLProc function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer):Void
-        load("drawRangeElements", 6)(mode, start, end, count, indices.type, indicies.buffer);
+        load("drawRangeElements", 6)(mode, start, end, count, indices.type, indices.buffer);
     @:GLProc function drawRangeElementsBaseVertex(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer, baseVertex:Int):Void
-        load("drawRangeElementsBaseVertex", 7)(mode, start, end, count, indices.type, indicies.buffer, baseVertex);
+        load("drawRangeElementsBaseVertex", 7)(mode, start, end, count, indices.type, indices.buffer, baseVertex);
 
     // ================================================================================================
     // E
@@ -462,6 +462,17 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // F
     // ================================================================================================
+    @:GLProc function fenceSync(condition:Int, flags:Int):Void;
+    @:GLProc function finish():Void;
+    @:GLProc function flush():Void;
+    @:GLProc function flushMappedBufferRange(target:Int, offset:Int, length:Int):Void;
+    @:GLProc function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:Int):Void;
+    @:GLProc function framebufferTexture(target:Int, attachment:Int, texture:Int, level:Int):Void;
+    @:GLProc function framebufferTexture1D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
+    @:GLProc function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
+    @:GLProc function framebufferTexture3D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int, layer:Int):Void;
+    @:GLProc function framebufferTextureLayer(target:Int, attachment:Int, texture:Int, level:Int, layer:Int):Void;
+    @:GLProc function frontFace(mode:Int):Void;
 
     // ================================================================================================
     // G

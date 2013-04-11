@@ -521,6 +521,50 @@ DEFINE_PRIM(hx_gl_endTransformFeedback,    0);
 // ================================================================================================
 // F
 // ================================================================================================
+void hx_gl_fenceSync(value condition, value flags) {
+    glFenceSync(val_get<int>(condition), val_get<int>(flags));
+}
+void hx_gl_finish() {
+    glFinish();
+}
+void hx_gl_flush() {
+    glFlush();
+}
+void hx_gl_flushMappedBufferRange(value target, value offset, value length) {
+    glFlushMappedBufferRange(val_get<int>(target), val_get<int>(offset), val_get<int>(length));
+}
+void hx_gl_framebufferRenderbuffer(value target, value att, value rtarget, value rbuffer) {
+    glFramebufferRenderbuffer(val_get<int>(target), val_get<int>(att), val_get<int>(rtarget), val_get<int>(rbuffer));
+}
+void hx_gl_framebufferTexture(value target, value att, value tex, value level) {
+    glFramebufferTexture(val_get<int>(target), val_get<int>(att), val_get<int>(tex), val_get<int>(level));
+}
+void hx_gl_framebufferTexture1D(value target, value att, value textarg, value tex, value level) {
+    glFramebufferTexture1D(val_get<int>(target), val_get<int>(att), val_get<int>(textarg), val_get<int>(tex), val_get<int>(level));
+}
+void hx_gl_framebufferTexture2D(value target, value att, value textarg, value tex, value level) {
+    glFramebufferTexture2D(val_get<int>(target), val_get<int>(att), val_get<int>(textarg), val_get<int>(tex), val_get<int>(level));
+}
+void hx_gl_framebufferTexture3D(value* args, int nargs) {
+    glFramebufferTexture3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]));
+}
+void hx_gl_framebufferTextureLayer(value target, value att, value texture, value level, value layer) {
+    glFramebufferTextureLayer(val_get<int>(target), val_get<int>(att), val_get<int>(texture), val_get<int>(level), val_get<int>(layer));
+}
+void hx_gl_frontFace(value mode) {
+    glFrontFace(val_get<int>(mode));
+}
+DEFINE_PRIM(hx_gl_fenceSync,               2);
+DEFINE_PRIM(hx_gl_finish,                  0);
+DEFINE_PRIM(hx_gl_flush,                   0);
+DEFINE_PRIM(hx_gl_flushMappedBufferRange,  3);
+DEFINE_PRIM(hx_gl_framebufferRenderbuffer, 4);
+DEFINE_PRIM(hx_gl_framebufferTexture,      4);
+DEFINE_PRIM(hx_gl_framebufferTexture1D,    5);
+DEFINE_PRIM(hx_gl_framebufferTexture2D,    5);
+DEFINE_PRIM_MULT(hx_gl_framebufferTexture3D);
+DEFINE_PRIM(hx_gl_framebufferTextureLayer, 5);
+DEFINE_PRIM(hx_gl_frontFace,               1);
 
 // ================================================================================================
 // G
