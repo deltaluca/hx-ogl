@@ -21,7 +21,6 @@
 
         <file name="src/main.cpp"/>
         <file name="src/gl.cpp"/>
-        <file name="src/glfw.cpp"/>
     </files>
 
     <!-- Generate the NDLL. -->
@@ -42,7 +41,6 @@
 
         <lib name="-lGL"/>
         <lib name="-lGLEW"/>
-        <lib name="-lglfw"/>
 
     </target>
 
