@@ -493,14 +493,30 @@ DEFINE_PRIM_MULT(hx_gl_drawRangeElementsBaseVertex);
 // ================================================================================================
 // E
 // ================================================================================================
-void hx_gl_enable(value flag) {
-    glEnable(val_get<int>(flag));
+void hx_gl_enable(value cap) {
+    glEnable(val_get<int>(cap));
 }
 void hx_gl_enableVertexAttribArray(value index) {
     glEnableVertexAttribArray(val_get<int>(index));
 }
+void hx_gl_enablei(value cap, value index) {
+    glEnablei(val_get<int>(cap), val_get<int>(index));
+}
+void hx_gl_endConditionalRender() {
+    glEndConditionalRender();
+}
+void hx_gl_endQuery(value target) {
+    glEndQuery(val_get<int>(target));
+}
+void hx_gl_endTransformFeedback() {
+    glEndTransformFeedback();
+}
 DEFINE_PRIM(hx_gl_enable,                  1);
 DEFINE_PRIM(hx_gl_enableVertexAttribArray, 1);
+DEFINE_PRIM(hx_gl_enablei,                 2);
+DEFINE_PRIM(hx_gl_endConditionalRender,    0);
+DEFINE_PRIM(hx_gl_endQuery,                1);
+DEFINE_PRIM(hx_gl_endTransformFeedback,    0);
 
 // ================================================================================================
 // F

@@ -452,8 +452,12 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // E
     // ================================================================================================
-    @:GLProc function enable(flag:Int):Void;
+    @:GLProc function enable(cap:Int):Void;
     @:GLProc function enableVertexAttribArray(index:Int):Void;
+    @:GLProc function enablei(cap:Int, index:Int):Void;
+    @:GLProc function endConditionalRender():Void;
+    @:GLProc function endQuery(target:Int):Void;
+    @:GLProc function endTransformFeedback():Void;
 
     // ================================================================================================
     // F
