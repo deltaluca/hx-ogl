@@ -296,6 +296,14 @@ abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
                 b[3]*a[12] + b[7]*a[13] + b[11]*a[14] + b[15]*a[15]];
 }
 
+class Sync extends NativeBinding {
+    @:allow(ogl)
+    function new(x:Dynamic) super(x);
+
+    @:allow(ogl)
+    inline static function cvt(x:Dynamic) return if (x == null) null else new Sync(x);
+}
+
 class GL implements GLConsts implements GLProcs {
     @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
@@ -373,12 +381,36 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function clearBufferfi(buffer:Int, drawBuffer:Int, depth:Int, stencil:Int):Void;
     @:GLProc function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
     @:GLProc function clearDepth(depth:Float):Void;
+    @:GLProc function clearStencil(stencil:Int):Void;
+    @:GLProc function clientWaitSync(sync:Sync, flags:Int, timeout:haxe.Int64):Int
+        return load("clientWaitSync", 4)(NativeBinding.native(sync), flags, haxe.Int64.getLow(timeout), haxe.Int64.getHigh(timeout));
+    @:GLProc function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
+    @:GLProc function colorMaski(buf:Int, red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
     @:GLProc function compileShader(shader:Int):Void {
         var err:Null<String> = load("compileShader", 1)(shader);
         if (err != null) throw err;
     }
+    @:GLProc function compressedTexImage1D(target:Int, level:Int, width:Int, border:Int, data:ArrayBuffer):Void
+        load("compressedTexImage1D", 7)(target, level, data.type, width, border, data.buffer.length, data.buffer);
+    @:GLProc function compressedTexImage2D(target:Int, level:Int, width:Int, height:Int, border:Int, data:ArrayBuffer):Void
+        load("compressedTexImage2D", 8)(target, level, data.type, width, height, border, data.buffer.length, data.buffer);
+    @:GLProc function compressedTexImage3D(target:Int, level:Int, width:Int, height:Int, depth:Int, border:Int, data:ArrayBuffer):Void
+        load("compressedTexImage3D", 9)(target, level, data.type, width, height, depth, border, data.buffer.length, data.buffer);
+    @:GLProc function compressedTexSubImage1D(target:Int, level:Int, xOffset:Int, width:Int, data:ArrayBuffer):Void
+        load("compressedTexSubImage1D", 7)(target, level, xOffset, width, data.type, data.buffer.length, data.buffer);
+    @:GLProc function compressedTexSubImage2D(target:Int, level:Int, xOffset:Int, yOffset:Int, width:Int, height:Int, data:ArrayBuffer):Void
+        load("compressedTexSubImage2D", 9)(target, level, xOffset, yOffset, width, height, data.type, data.buffer.length, data.buffer);
+    @:GLProc function compressedTexSubImage3D(target:Int, level:Int, xOffset:Int, yOffset:Int, zOffset:Int, width:Int, height:Int, depth:Int, data:ArrayBuffer):Void
+        load("compressedTexSubImage3D", 11)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, data.buffer.length, data.buffer);
+    @:GLProc function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:Int, writeOffset:Int, size:Int):Void;
+    @:GLProc function copyTexImage1D(target:Int, level:Int, internalFormat:Int, x:Int, y:Int, width:Int, border:Int):Void;
+    @:GLProc function copyTexImage2D(target:Int, level:Int, internalFormat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
+    @:GLProc function copyTexSubImage1D(target:Int, level:Int, xOffset:Int, x:Int, y:Int, width:Int):Void;
+    @:GLProc function copyTexSubImage2D(target:Int, level:Int, xOffset:Int, yOffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
+    @:GLProc function copyTexSubImage3D(target:Int, level:Int, xOffset:Int, yOffset:Int, zOffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
     @:GLProc function createShader(shaderType:Int):Int;
     @:GLProc function createProgram():Int;
+    @:GLProc function cullFace(mode:Int):Void;
 
     // ================================================================================================
     // D

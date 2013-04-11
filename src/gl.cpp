@@ -105,8 +105,6 @@ buffer buffer_array(value arr, int T) {
     return ret;
 }
 
-DECLARE_KIND(k_Buffer);
-DEFINE_KIND(k_Buffer);
 value hx_gl_allocBuffer(value type, value count) {
     return buffer_val(alloc_buffer_len(val_get<int>(count) * byte_size(val_get<int>(type))));
 }
@@ -120,6 +118,11 @@ value hx_gl_arrbuffer_resize(value buf, value size) {
 DEFINE_PRIM(hx_gl_allocBuffer, 2);
 DEFINE_PRIM(hx_gl_createBuffer, 2);
 DEFINE_PRIM(hx_gl_arrbuffer_resize, 2);
+
+
+DECLARE_KIND(k_Sync);
+DEFINE_KIND(k_Sync);
+
 
 // ================================================================================================
 // A
@@ -269,6 +272,20 @@ void hx_gl_clearDepth(value depth) {
 void hx_gl_clearStencil(value stencil) {
     glClearStencil(val_get<int>(stencil));
 }
+value hx_gl_clientWaitSync(value sync, value flags, value timeLow, value timeHigh) {
+    val_check_kind(sync, k_Sync);
+    GLsync syncVal = (GLsync)val_data(sync);
+    GLuint64 val;
+    ((int*)&val)[0] = val_get<int>(timeLow);
+    ((int*)&val)[1] = val_get<int>(timeHigh);
+    return alloc<int>(glClientWaitSync(syncVal, val_get<int>(flags), val));
+}
+void hx_gl_colorMask(value r, value g, value b, value a) {
+    glColorMask(val_get<bool>(r), val_get<bool>(g), val_get<bool>(b), val_get<bool>(a));
+}
+void hx_gl_colorMaski(value buf, value r, value g, value b, value a) {
+    glColorMaski(val_get<int>(buf), val_get<bool>(r), val_get<bool>(g), val_get<bool>(b), val_get<bool>(a));
+}
 value hx_gl_compileShader(value shader) {
     glCompileShader(val_get<int>(shader));
 
@@ -285,11 +302,50 @@ value hx_gl_compileShader(value shader) {
         return val_null;
     }
 }
+void hx_gl_compressedTexImage1D(value* args, int nargs) {
+    glCompressedTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+}
+void hx_gl_compressedTexImage2D(value* args, int nargs) {
+    glCompressedTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), buffer_data(val_to_buffer(args[7])));
+}
+void hx_gl_compressedTexImage3D(value* args, int nargs) {
+    glCompressedTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+}
+void hx_gl_compressedTexSubImage1D(value* args, int nargs) {
+    glCompressedTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+}
+void hx_gl_compressedTexSubImage2D(value* args, int nargs) {
+    glCompressedTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+}
+void hx_gl_compressedTexSubImage3D(value* args, int nargs) {
+    glCompressedTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), buffer_data(val_to_buffer(args[10])));
+}
+void hx_gl_copyBufferSubData(value readt, value writet, value reado, value writeo, value size) {
+    glCopyBufferSubData(val_get<int>(readt), val_get<int>(writet), val_get<int>(reado), val_get<int>(writeo), val_get<int>(size));
+}
+void hx_gl_copyTexImage1D(value* args, int nargs) {
+    glCopyTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]));
+}
+void hx_gl_copyTexImage2D(value* args, int nargs) {
+    glCopyTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]));
+}
+void hx_gl_copyTexSubImage1D(value* args, int nargs) {
+    glCopyTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]));
+}
+void hx_gl_copyTexSubImage2D(value* args, int nargs) {
+    glCopyTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]));
+}
+void hx_gl_copyTexSubImage3D(value* args, int nargs) {
+    glCopyTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]));
+}
 value hx_gl_createShader(value type) {
     return alloc<int>(glCreateShader(val_get<int>(type)));
 }
 value hx_gl_createProgram() {
     return alloc<int>(glCreateProgram());
+}
+void hx_gl_cullFace(value mode) {
+    glCullFace(val_get<int>(mode));
 }
 DEFINE_PRIM(hx_gl_checkFramebufferStatus, 1);
 DEFINE_PRIM(hx_gl_clampColor,             2);
@@ -301,9 +357,25 @@ DEFINE_PRIM(hx_gl_clearBufferfi,          4);
 DEFINE_PRIM(hx_gl_clearColor,             4);
 DEFINE_PRIM(hx_gl_clearDepth,             1);
 DEFINE_PRIM(hx_gl_clearStencil,           1);
+DEFINE_PRIM(hx_gl_clientWaitSync,         4);
+DEFINE_PRIM(hx_gl_colorMask,              4);
+DEFINE_PRIM(hx_gl_colorMaski,             5);
 DEFINE_PRIM(hx_gl_compileShader,          1);
+DEFINE_PRIM_MULT(hx_gl_compressedTexImage1D);
+DEFINE_PRIM_MULT(hx_gl_compressedTexImage2D);
+DEFINE_PRIM_MULT(hx_gl_compressedTexImage3D);
+DEFINE_PRIM_MULT(hx_gl_compressedTexSubImage1D);
+DEFINE_PRIM_MULT(hx_gl_compressedTexSubImage2D);
+DEFINE_PRIM_MULT(hx_gl_compressedTexSubImage3D);
+DEFINE_PRIM(hx_gl_copyBufferSubData,      5);
+DEFINE_PRIM_MULT(hx_gl_copyTexImage1D);
+DEFINE_PRIM_MULT(hx_gl_copyTexImage2D);
+DEFINE_PRIM_MULT(hx_gl_copyTexSubImage1D);
+DEFINE_PRIM_MULT(hx_gl_copyTexSubImage2D);
+DEFINE_PRIM_MULT(hx_gl_copyTexSubImage3D);
 DEFINE_PRIM(hx_gl_createShader,           1);
 DEFINE_PRIM(hx_gl_createProgram,          0);
+DEFINE_PRIM(hx_gl_cullFace,               1);
 
 // ================================================================================================
 // D
@@ -1588,5 +1660,5 @@ CONST(UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY);
 // ================================================================================================
 
 extern "C" void gl_allocateKinds() {
-    k_Buffer = alloc_kind();
+    k_Sync = alloc_kind();
 }
