@@ -415,10 +415,39 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // D
     // ================================================================================================
+    @:GLProc function deleteBuffers(buffers:Array<Int>):Void;
+    @:GLProc function deleteFramebuffers(framebuffers:Array<Int>):Void;
+    @:GLProc function deleteProgram(program:Int):Void;
+    @:GLProc function deleteQueries(queries:Array<Int>):Void;
+    @:GLProc function deleteRenderbuffers(renderbuffers:Array<Int>):Void;
+    @:GLProc function deleteSamplers(samplers:Array<Int>):Void;
     @:GLProc function deleteShader(shader:Int):Void;
+    @:GLProc function deleteSync(sync:Sync):Void;
+    @:GLProc function deleteTextures(textures:Array<Int>):Void;
+    @:GLProc function deleteVertexArrays(vertexArrays:Array<Int>):Void;
     @:GLProc function depthFunc(func:Int):Void;
+    @:GLProc function depthMask(flag:Bool):Void;
+    @:GLProc function depthRange(nearVal:Float, farVal:Float):Void;
+    @:GLProc function detatchShader(program:Int, shader:Int):Void;
+    @:GLProc function disable(cap:Int):Void;
     @:GLProc function disableVertexAttribArray(index:Int):Void;
+    @:GLProc function disablei(cap:Int, index:Int):Void;
     @:GLProc function drawArrays(mode:Int, first:Int, count:Int):Void;
+    @:GLProc function drawArraysInstanced(mode:Int, first:Int, count:Int, primCount:Int):Void;
+    @:GLProc function drawBuffer(mode:Int):Void;
+    @:GLProc function drawBuffers(bufs:Array<Int>):Void;
+    @:GLProc function drawElements(mode:Int, count:Int, indices:ArrayBuffer):Void
+        load("drawElements", 4)(mode, count, indices.type, indices.buffer);
+    @:GLProc function drawElementsBaseVertex(mode:Int, count:Int, indices:ArrayBuffer, baseVertex:Int):Void
+        load("drawElementsBaseVertex", 5)(mode, count, indices.type, indices.buffer, baseVertex);
+    @:GLProc function drawElementsInstanced(mode:Int, count:Int, indices:ArrayBuffer, primCount:Int):Void
+        load("drawElementsInstanced", 5)(mode, count, indices.type, indices.buffer, primCount);
+    @:GLProc function drawElementsInstancedBaseVertex(mode:Int, count:Int, indices:ArrayBuffer, primCount:Int, baseVertex:Int):Void
+        load("drawElementsInstancedBaseVertex", 6)(mode, count, indices.type, indices.buffer, primCount, baseVertex);
+    @:GLProc function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer):Void
+        load("drawRangeElements", 6)(mode, start, end, count, indices.type, indicies.buffer);
+    @:GLProc function drawRangeElementsBaseVertex(mode:Int, start:Int, end:Int, count:Int, indices:ArrayBuffer, baseVertex:Int):Void
+        load("drawRangeElementsBaseVertex", 7)(mode, start, end, count, indices.type, indicies.buffer, baseVertex);
 
     // ================================================================================================
     // E

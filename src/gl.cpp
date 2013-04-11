@@ -380,11 +380,48 @@ DEFINE_PRIM(hx_gl_cullFace,               1);
 // ================================================================================================
 // D
 // ================================================================================================
+void hx_gl_deleteBuffers(value buffers) {
+    glDeleteBuffers(val_array_size(buffers), (const GLuint*)val_array_int(buffers));
+}
+void hx_gl_deleteFramebuffers(value buffers) {
+    glDeleteFramebuffers(val_array_size(buffers), (const GLuint*)val_array_int(buffers));
+}
+void hx_gl_deleteProgram(value program) {
+    glDeleteProgram(val_get<int>(program));
+}
+void hx_gl_deleteQueries(value queries) {
+    glDeleteQueries(val_array_size(queries), (const GLuint*)val_array_int(queries));
+}
+void hx_gl_deleteRenderbuffers(value buffers) {
+    glDeleteRenderbuffers(val_array_size(buffers), (const GLuint*)val_array_int(buffers));
+}
+void hx_gl_deleteSamplers(value samplers) {
+    glDeleteSamplers(val_array_size(samplers), (const GLuint*)val_array_int(samplers));
+}
 void hx_gl_deleteShader(value shader) {
     glDeleteShader(val_get<int>(shader));
 }
+void hx_gl_deleteSync(value sync) {
+    val_check_kind(sync, k_Sync);
+    glDeleteSync((GLsync)val_data(sync));
+}
+void hx_gl_deleteTextures(value textures) {
+    glDeleteTextures(val_array_size(textures), (const GLuint*)val_array_int(textures));
+}
+void hx_gl_deleteVertexArrays(value vertexArrays) {
+    glDeleteVertexArrays(val_array_size(vertexArrays), (const GLuint*)val_array_int(vertexArrays));
+}
 void hx_gl_depthFunc(value func) {
     glDepthFunc(val_get<int>(func));
+}
+void hx_gl_depthMask(value flag) {
+    glDepthMask(val_get<bool>(flag));
+}
+void hx_gl_depthRange(value near, value far) {
+    glDepthRange(val_get<double>(near), val_get<double>(far));
+}
+void hx_gl_detachShader(value program, value shader) {
+    glDetachShader(val_get<int>(program), val_get<int>(shader));
 }
 void hx_gl_disable(value flag) {
     glDisable(val_get<int>(flag));
@@ -392,14 +429,66 @@ void hx_gl_disable(value flag) {
 void hx_gl_disableVertexAttribArray(value index) {
     glDisableVertexAttribArray(val_get<int>(index));
 }
+void hx_gl_disablei(value cap, value index) {
+    glDisablei(val_get<int>(cap), val_get<int>(index));
+}
 void hx_gl_drawArrays(value mode, value first, value count) {
     glDrawArrays(val_get<int>(mode), val_get<int>(first), val_get<int>(count));
 }
+void hx_gl_drawArraysInstanced(value mode, value first, value count, value primcount) {
+    glDrawArraysInstanced(val_get<int>(mode), val_get<int>(first), val_get<int>(count), val_get<int>(primcount));
+}
+void hx_gl_drawBuffer(value mode) {
+    glDrawBuffer(val_get<int>(mode));
+}
+void hx_gl_drawBuffers(value bufs) {
+    glDrawBuffers(val_array_size(bufs), (const GLenum*)val_array_int(bufs));
+}
+void hx_gl_drawElements(value mode, value count, value type, value indices) {
+    glDrawElements(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)));
+}
+void hx_gl_drawElementsBaseVertex(value mode, value count, value type, value indices, value basevertex) {
+    glDrawElementsBaseVertex(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)), val_get<int>(basevertex));
+}
+void hx_gl_drawElementsInstanced(value mode, value count, value type, value indices, value primcount) {
+    glDrawElementsInstanced(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)), val_get<int>(primcount));
+}
+void hx_gl_drawElementsInstancedBaseVertex(value* args, int nargs) {
+    glDrawElementsInstancedBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), buffer_data(val_to_buffer(args[3])), val_get<int>(args[4]), val_get<int>(args[5]));
+}
+void hx_gl_drawRangeElements(value* args, int nargs) {
+    glDrawRangeElements(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), buffer_data(val_to_buffer(args[5])));
+}
+void hx_gl_drawRangeElementsBaseVertex(value* args, int nargs) {
+    glDrawRangeElementsBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), buffer_data(val_to_buffer(args[5])), val_get<int>(args[6]));
+}
+DEFINE_PRIM(hx_gl_deleteBuffers,            1);
+DEFINE_PRIM(hx_gl_deleteFramebuffers,       1);
+DEFINE_PRIM(hx_gl_deleteProgram,            1);
+DEFINE_PRIM(hx_gl_deleteQueries,            1);
+DEFINE_PRIM(hx_gl_deleteRenderbuffers,      1);
+DEFINE_PRIM(hx_gl_deleteSamplers,           1);
 DEFINE_PRIM(hx_gl_deleteShader,             1);
+DEFINE_PRIM(hx_gl_deleteSync,               1);
+DEFINE_PRIM(hx_gl_deleteTextures,           1);
+DEFINE_PRIM(hx_gl_deleteVertexArrays,       1);
 DEFINE_PRIM(hx_gl_depthFunc,                1);
+DEFINE_PRIM(hx_gl_depthMask,                1);
+DEFINE_PRIM(hx_gl_depthRange,               2);
+DEFINE_PRIM(hx_gl_detachShader,             2);
 DEFINE_PRIM(hx_gl_disable,                  1);
+DEFINE_PRIM(hx_gl_disablei,                 2);
 DEFINE_PRIM(hx_gl_disableVertexAttribArray, 1);
 DEFINE_PRIM(hx_gl_drawArrays,               3);
+DEFINE_PRIM(hx_gl_drawArraysInstanced,      4);
+DEFINE_PRIM(hx_gl_drawBuffer,               1);
+DEFINE_PRIM(hx_gl_drawBuffers,              1);
+DEFINE_PRIM(hx_gl_drawElements,             4);
+DEFINE_PRIM(hx_gl_drawElementsBaseVertex,   5);
+DEFINE_PRIM(hx_gl_drawElementsInstanced,    5);
+DEFINE_PRIM_MULT(hx_gl_drawElementsInstancedBaseVertex);
+DEFINE_PRIM_MULT(hx_gl_drawRangeElements);
+DEFINE_PRIM_MULT(hx_gl_drawRangeElementsBaseVertex);
 
 // ================================================================================================
 // E
