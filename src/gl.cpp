@@ -573,6 +573,22 @@ void hx_gl_genBuffers(value n, value buffers) {
     val_array_set_size(buffers, val_get<int>(n));
     glGenBuffers(val_get<int>(n), (GLuint*)val_array_int(buffers));
 }
+void hx_gl_genFramebuffers(value n, value buffers) {
+    val_array_set_size(buffers, val_get<int>(n));
+    glGenFramebuffers(val_get<int>(n), (GLuint*)val_array_int(buffers));
+}
+void hx_gl_genQueries(value n, value queries) {
+    val_array_set_size(queries, val_get<int>(n));
+    glGenQueries(val_get<int>(n), (GLuint*)val_array_int(queries));
+}
+void hx_gl_genRenderbuffers(value n, value buffers) {
+    val_array_set_size(buffers, val_get<int>(n));
+    glGenRenderbuffers(val_get<int>(n), (GLuint*)val_array_int(buffers));
+}
+void hx_gl_genSamplers(value n, value samplers) {
+    val_array_set_size(samplers, val_get<int>(n));
+    glGenSamplers(val_get<int>(n), (GLuint*)val_array_int(samplers));
+}
 void hx_gl_genTextures(value n, value arrays) {
     val_array_set_size(arrays, val_get<int>(n));
     glGenTextures(val_get<int>(n), (GLuint*)val_array_int(arrays));
@@ -581,13 +597,153 @@ void hx_gl_genVertexArrays(value n, value arrays) {
     val_array_set_size(arrays, val_get<int>(n));
     glGenVertexArrays(val_get<int>(n), (GLuint*)val_array_int(arrays));
 }
+void hx_gl_generateMipmap(value target) {
+    glGenerateMipmap(val_get<int>(target));
+}
+int glGetCount(value pname) {
+    int p = val_get<int>(pname);
+    if      (p==GL_ALIASED_LINE_WIDTH_RANGE)   return 2;
+    else if (p==GL_SMOOTH_LINE_WIDTH_RANGE)    return 2;
+    else if (p==GL_BLEND_COLOR)                return 4;
+    else if (p==GL_COLOR_CLEAR_VALUE)          return 4;
+    else if (p==GL_COLOR_WRITEMASK)            return 4;
+    else if (p==GL_COMPRESSED_TEXTURE_FORMATS) return GL_NUM_COMPRESSED_TEXTURE_FORMATS;
+    else if (p==GL_DEPTH_RANGE)                return 2;
+    else if (p==GL_LINE_WIDTH_RANGE)           return 2;
+    else if (p==GL_MAX_VIEWPORT_DIMS)          return 2;
+    else if (p==GL_POINT_SIZE_RANGE)           return 2;
+    else if (p==GL_SCISSOR_BOX)                return 4;
+    else if (p==GL_VIEWPORT)                   return 4;
+    return 1;
+}
+#define GLGETV(N,T,G) \
+    void hx_gl_get##N##v(value pname, value outparams) { \
+        int count = glGetCount(pname); \
+        G* params = new G[count]; \
+        val_array_set_size(outparams, count); \
+        glGet##N##v(val_get<int>(pname), params); \
+        for (int i = 0; i < count; i++) val_array_set_i(outparams, i, alloc<T>(params[i])); \
+        delete[] params; \
+    } \
+    DEFINE_PRIM(hx_gl_get##N##v, 2)
+GLGETV(Boolean, bool, GLboolean);
+GLGETV(Double, double, GLdouble);
+GLGETV(Float, double, GLfloat);
+GLGETV(Integer, int, GLint);
+void hx_gl_getInteger64v(value pname, value outparams) {
+    int count = glGetCount(pname);
+    GLint64* params = new GLint64[count];
+    val_array_set_size(outparams, count*2);
+    glGetInteger64v(val_get<int>(pname), params);
+    for (int i = 0; i < count; i++) {
+        val_array_set_i(outparams, i*2,   alloc<int>(((int*)&params[i])[0]));
+        val_array_set_i(outparams, i*2+1, alloc<int>(((int*)&params[i])[1]));
+    }
+    delete[] params;
+}
+DEFINE_PRIM(hx_gl_getInteger64v, 2);
+#define GLGETIV(N,T,G) \
+    void hx_gl_get##N##i_v(value pname, value index, value outparams) { \
+        int count = glGetCount(pname); \
+        G* params = new G[count]; \
+        val_array_set_size(outparams, count); \
+        glGet##N##i_v(val_get<int>(pname), val_get<int>(index), params); \
+        for (int i = 0; i < count; i++) val_array_set_i(outparams, i, alloc<T>(params[i])); \
+        delete[] params; \
+    } \
+    DEFINE_PRIM(hx_gl_get##N##v, 3)
+GLGETIV(Boolean, bool, GLboolean);
+GLGETIV(Integer, int, GLint);
+void hx_gl_getInteger64i_v(value pname, value index, value outparams) {
+    int count = glGetCount(pname);
+    GLint64* params = new GLint64[count];
+    val_array_set_size(outparams, count*2);
+    glGetInteger64i_v(val_get<int>(pname), val_get<int>(index), params);
+    for (int i = 0; i < count; i++) {
+        val_array_set_i(outparams, i*2,   alloc<int>(((int*)&params[i])[0]));
+        val_array_set_i(outparams, i*2+1, alloc<int>(((int*)&params[i])[1]));
+    }
+    delete[] params;
+}
+DEFINE_PRIM(hx_gl_getInteger64i_v, 3);
+value hx_gl_getActiveAttrib(value program, value index) {
+    GLchar* name = new GLchar[1024];
+    name[0] = '\0';
+    GLint size = 0;
+    GLenum type = 0;
+    glGetActiveAttrib(val_get<int>(program), val_get<int>(index), 1024, NULL, &size, &type, name);
+
+    value v = alloc_empty_object();
+    alloc_field(v, val_id("name"), alloc<string>(name));
+    alloc_field(v, val_id("size"), alloc<int>(size));
+    alloc_field(v, val_id("type"), alloc<int>(type));
+    return v;
+}
+value hx_gl_getActiveUniform(value program, value index) {
+    GLchar* name = new GLchar[1024];
+    name[0] = '\0';
+    GLint size = 0;
+    GLenum type = 0;
+    glGetActiveUniform(val_get<int>(program), val_get<int>(index), 1024, NULL, &size, &type, name);
+
+    value v = alloc_empty_object();
+    alloc_field(v, val_id("name"), alloc<string>(name));
+    alloc_field(v, val_id("size"), alloc<int>(size));
+    alloc_field(v, val_id("type"), alloc<int>(type));
+    return v;
+}
+value hx_gl_getActiveUniformBlockiv(value program, value index, value pname) {
+    GLint ret;
+    glGetActiveUniformBlockiv(val_get<int>(program), val_get<int>(index), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getActiveUniformBlockName(value program, value index) {
+    GLchar* name = new GLchar[1024];
+    name[0] = '\0';
+    glGetActiveUniformBlockName(val_get<int>(program), val_get<int>(index), 1024, NULL, name);
+    return alloc<string>(name);
+}
+value hx_gl_getActiveUniformName(value program, value index) {
+    GLchar* name = new GLchar[1024];
+    name[0] = '\0';
+    glGetActiveUniformName(val_get<int>(program), val_get<int>(index), 1024, NULL, name);
+    return alloc<string>(name);
+}
+void hx_gl_getActiveUniformsiv(value program, value uniforms, value pname, value params) {
+    val_array_set_size(params, val_array_size(uniforms));
+    glGetActiveUniformsiv(val_get<int>(program), val_array_size(uniforms), (const GLuint*)val_array_int(uniforms), val_get<int>(pname), (GLint*)val_array_int(params));
+}
+void hx_gl_getAttachedShaders(value program, value ret) {
+    GLuint* shaders = new GLuint[0xff];
+    GLsizei count;
+    glGetAttachedShaders(val_get<int>(program), 0xff, &count, shaders);
+    val_array_set_size(ret, count);
+    for (int i = 0; i < count; i++) val_array_set_i(ret, i, alloc<int>(shaders[i]));
+    delete[] shaders;
+}
+value hx_gl_getAttribLocation(value program, value name) {
+    return alloc<int>(glGetAttribLocation(val_get<int>(program), val_get<string>(name)));
+}
 value hx_gl_getUniformLocation(value program, value name) {
     return alloc<int>(glGetUniformLocation(val_get<int>(program), val_get<string>(name)));
 }
-DEFINE_PRIM(hx_gl_genBuffers,         2);
-DEFINE_PRIM(hx_gl_genTextures,        2);
-DEFINE_PRIM(hx_gl_genVertexArrays,    2);
-DEFINE_PRIM(hx_gl_getUniformLocation, 2);
+DEFINE_PRIM(hx_gl_genBuffers,                2);
+DEFINE_PRIM(hx_gl_genFramebuffers,           2);
+DEFINE_PRIM(hx_gl_genQueries,                2);
+DEFINE_PRIM(hx_gl_genRenderbuffers,          2);
+DEFINE_PRIM(hx_gl_genSamplers,               2);
+DEFINE_PRIM(hx_gl_genTextures,               2);
+DEFINE_PRIM(hx_gl_genVertexArrays,           2);
+DEFINE_PRIM(hx_gl_generateMipmap,            1);
+DEFINE_PRIM(hx_gl_getActiveAttrib,           2);
+DEFINE_PRIM(hx_gl_getActiveUniform,          2);
+DEFINE_PRIM(hx_gl_getActiveUniformBlockiv,   3);
+DEFINE_PRIM(hx_gl_getActiveUniformBlockName, 2);
+DEFINE_PRIM(hx_gl_getActiveUniformName,      2);
+DEFINE_PRIM(hx_gl_getActiveUniformsiv,       4);
+DEFINE_PRIM(hx_gl_getAttachedShaders,        2);
+DEFINE_PRIM(hx_gl_getAttribLocation,         2);
+DEFINE_PRIM(hx_gl_getUniformLocation,        2);
 
 // ================================================================================================
 // H
@@ -685,9 +841,6 @@ DEFINE_PRIM(hx_gl_texParameterf, 3);
 // ================================================================================================
 // U
 // ================================================================================================
-void hx_gl_useProgram(value program) {
-    glUseProgram(val_get<int>(program));
-}
 void hx_gl_uniformMatrix2x3fv(value location, value count, value transpose, value data) {
     int size = val_array_size(data);
     float* _data = new float[size];
@@ -702,54 +855,114 @@ void hx_gl_uniformMatrix4fv(value location, value count, value transpose, value 
     glUniformMatrix4fv(val_get<int>(location), val_get<int>(count), val_get<bool>(transpose), _data);
     delete[] _data;
 }
-DEFINE_PRIM(hx_gl_useProgram,         1);
+void hx_gl_useProgram(value program) {
+    glUseProgram(val_get<int>(program));
+}
 DEFINE_PRIM(hx_gl_uniformMatrix2x3fv, 4);
 DEFINE_PRIM(hx_gl_uniformMatrix4fv,   4);
+DEFINE_PRIM(hx_gl_useProgram,         1);
 
 // ================================================================================================
 // V
 // ================================================================================================
-#define VERTEXATTR1(N, T) \
+value hx_gl_validateProgram(value program) {
+    glValidateProgram(val_get<int>(program));
+
+    int result;
+    glGetProgramiv(val_get<int>(program), GL_VALIDATE_STATUS, &result);
+    if (!result) {
+        int length;
+        glGetProgramiv(val_get<int>(program), GL_INFO_LOG_LENGTH, &length);
+        char* err = new char[length];
+        glGetProgramInfoLog(val_get<int>(program), length, NULL, err);
+        return alloc<string>(err);
+    }
+    else {
+        return val_null;
+    }
+}
+DEFINE_PRIM(hx_gl_validateProgram, 1);
+
+#define VERTEXATTRv(N, G) \
+    void hx_gl_vertexAttrib##N##v(value index, value v) { \
+        glVertexAttrib##N##v(val_get<int>(index), (const G*)buffer_data(val_to_buffer(v))); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N##v, 2)
+#define VERTEXATTR1(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 2)
-VERTEXATTR1(1f, double);
-VERTEXATTR1(1s, int);
-VERTEXATTR1(1d, double);
-VERTEXATTR1(I1i, int);
-VERTEXATTR1(I1ui, int);
-#define VERTEXATTR2(N, T) \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 2); \
+    VERTEXATTRv(N, G)
+VERTEXATTR1(1f,   double, GLfloat);
+VERTEXATTR1(1s,   int,    GLshort);
+VERTEXATTR1(1d,   double, GLdouble);
+VERTEXATTR1(I1i,  int,    GLint);
+VERTEXATTR1(I1ui, int,    GLuint);
+#define VERTEXATTR2(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 3)
-VERTEXATTR2(2f, double);
-VERTEXATTR2(2s, int);
-VERTEXATTR2(2d, double);
-VERTEXATTR2(I2i, int);
-VERTEXATTR2(I2ui, int);
-#define VERTEXATTR3(N, T) \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 3); \
+    VERTEXATTRv(N, G)
+VERTEXATTR2(2f,   double, GLfloat);
+VERTEXATTR2(2s,   int,    GLshort);
+VERTEXATTR2(2d,   double, GLdouble);
+VERTEXATTR2(I2i,  int,    GLint);
+VERTEXATTR2(I2ui, int,    GLuint);
+#define VERTEXATTR3(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 4)
-VERTEXATTR3(3f, double);
-VERTEXATTR3(3s, int);
-VERTEXATTR3(3d, double);
-VERTEXATTR3(I3i, int);
-VERTEXATTR3(I3ui, int);
-#define VERTEXATTR4(N, T) \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 4); \
+    VERTEXATTRv(N, G)
+VERTEXATTR3(3f,   double, GLfloat);
+VERTEXATTR3(3s,   int,    GLshort);
+VERTEXATTR3(3d,   double, GLdouble);
+VERTEXATTR3(I3i,  int,    GLint);
+VERTEXATTR3(I3ui, int,    GLuint);
+#define VERTEXATTR4(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2, value v3) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2), val_get<T>(v3)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 5)
-VERTEXATTR4(4f, double);
-VERTEXATTR4(4s, int);
-VERTEXATTR4(4d, double);
-VERTEXATTR4(4Nub, int);
-VERTEXATTR4(I4i, int);
-VERTEXATTR4(I4ui, int);
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 5); \
+    VERTEXATTRv(N, G)
+VERTEXATTR4(4f,   double, GLfloat);
+VERTEXATTR4(4s,   int,    GLshort);
+VERTEXATTR4(4d,   double, GLdouble);
+VERTEXATTR4(4Nub, int,    GLubyte);
+VERTEXATTR4(I4i,  int,    GLint);
+VERTEXATTR4(I4ui, int,    GLuint);
+VERTEXATTRv(4i,   GLint);
+VERTEXATTRv(4b,   GLbyte);
+VERTEXATTRv(4ub,  GLubyte);
+VERTEXATTRv(4us,  GLushort);
+VERTEXATTRv(4ui,  GLuint);
+VERTEXATTRv(4Nb,  GLbyte);
+VERTEXATTRv(4Ns,  GLshort);
+VERTEXATTRv(4Ni,  GLint);
+VERTEXATTRv(4Nus, GLushort);
+VERTEXATTRv(4Nui, GLuint);
+VERTEXATTRv(I4b,  GLbyte);
+VERTEXATTRv(I4ub, GLubyte);
+VERTEXATTRv(I4s,  GLshort);
+
+void hx_gl_vertexAttribP1ui(value index, value type, value normalized, value value) {
+    glVertexAttribP1ui(val_get<int>(index), val_get<int>(type), val_get<bool>(normalized), val_get<int>(value));
+}
+void hx_gl_vertexAttribP2ui(value index, value type, value normalized, value value) {
+    glVertexAttribP2ui(val_get<int>(index), val_get<int>(type), val_get<bool>(normalized), val_get<int>(value));
+}
+void hx_gl_vertexAttribP3ui(value index, value type, value normalized, value value) {
+    glVertexAttribP3ui(val_get<int>(index), val_get<int>(type), val_get<bool>(normalized), val_get<int>(value));
+}
+void hx_gl_vertexAttribP4ui(value index, value type, value normalized, value value) {
+    glVertexAttribP4ui(val_get<int>(index), val_get<int>(type), val_get<bool>(normalized), val_get<int>(value));
+}
+DEFINE_PRIM(hx_gl_vertexAttribP1ui, 4);
+DEFINE_PRIM(hx_gl_vertexAttribP2ui, 4);
+DEFINE_PRIM(hx_gl_vertexAttribP3ui, 4);
+DEFINE_PRIM(hx_gl_vertexAttribP4ui, 4);
 
 void hx_gl_vertexAttribDivisor(value index, value divisor) {
     glVertexAttribDivisor(val_get<int>(index), val_get<int>(divisor));
@@ -757,11 +970,15 @@ void hx_gl_vertexAttribDivisor(value index, value divisor) {
 void hx_gl_vertexAttribPointer(value* args, int narg) {
     glVertexAttribPointer(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<bool>(args[3]), val_get<int>(args[4]), (GLvoid*)val_get<int>(args[5]));
 }
+void hx_gl_vertexAttribIPointer(value index, value size, value type, value stride, value offset) {
+    glVertexAttribIPointer(val_get<int>(index), val_get<int>(size), val_get<int>(type), val_get<int>(stride), (GLvoid*)val_get<int>(offset));
+}
 void hx_gl_viewport(value x, value y, value width, value height) {
     glViewport(val_get<int>(x), val_get<int>(y), val_get<int>(width), val_get<int>(height));
 }
 DEFINE_PRIM(hx_gl_vertexAttribDivisor, 2);
 DEFINE_PRIM_MULT(hx_gl_vertexAttribPointer);
+DEFINE_PRIM(hx_gl_vertexAttribIPointer, 5);
 DEFINE_PRIM(hx_gl_viewport,            4);
 
 // ================================================================================================
@@ -776,18 +993,6 @@ void hx_gl_waitSync(value sync, value flags, value timeLow, value timeHigh) {
     glWaitSync(syncVal, val_get<int>(flags), val);
 }
 DEFINE_PRIM(hx_gl_waitSync, 4);
-
-// ================================================================================================
-// X
-// ================================================================================================
-
-// ================================================================================================
-// Y
-// ================================================================================================
-
-// ================================================================================================
-// Z
-// ================================================================================================
 
 // ================================================================================================
 // GL_VERSION_1_1 CONSTS

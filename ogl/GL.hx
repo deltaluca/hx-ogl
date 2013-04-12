@@ -42,6 +42,56 @@ abstract GLubyteArray(GLArray) to GLArray {
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
 }
 
+abstract GLbyteArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.BYTE);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLbyteArray(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):GLbyte {
+        var byte = untyped __global__.__hxcpp_memory_get_byte(this.buffer, i);
+        return (byte < 0) ? (byte & 0xff) | 0x80 : byte;
+    }
+    @:arrayAccess public inline function set(i:Int, x:GLbyte):GLbyte {
+        untyped __global__.__hxcpp_memory_set_byte(this.buffer, i, x&0xff);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
+
+abstract GLushortArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLushortArray(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):GLushort
+        return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, i*2);
+    @:arrayAccess public inline function set(i:Int, x:GLushort):GLushort {
+        untyped __global__.__hxcpp_memory_set_i16(this.buffer, i*2, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
+
+abstract GLshortArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.SHORT);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLshortArray(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):GLshort
+        return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, i*2);
+    @:arrayAccess public inline function set(i:Int, x:GLshort):GLshort {
+        untyped __global__.__hxcpp_memory_set_i16(this.buffer, i*2, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
+
 abstract GLuintArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLuintArray(raw);
@@ -75,7 +125,7 @@ abstract GLintArray(GLArray) to GLArray {
 }
 
 abstract GLfloatArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
+    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.FLOAT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLfloatArray(raw);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
@@ -85,6 +135,22 @@ abstract GLfloatArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_float(this.buffer, i*4);
     @:arrayAccess public inline function set<T>(i:Int, x:T):GLfloat {
         untyped __global__.__hxcpp_memory_set_float(this.buffer, i*4, x);
+        return get(this, i);
+    }
+    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
+}
+
+abstract GLdoubleArray(GLArray) to GLArray {
+    inline public function new(raw:BytesData) this = new GLArray(raw, 8, GL.DOUBLE);
+    @:from public static inline function fromRaw(raw:BytesData) return new GLdoubleArray(raw);
+    public var raw(get, never):BytesData;
+    inline function get_raw() return this.buffer;
+    public var count(get, never):Int;
+    inline function get_count() return this.count;
+    @:arrayAccess public inline function get(i:Int):GLdouble
+        return untyped __global__.__hxcpp_memory_get_double(this.buffer, i*8);
+    @:arrayAccess public inline function set<T>(i:Int, x:T):GLdouble {
+        untyped __global__.__hxcpp_memory_set_double(this.buffer, i*8, x);
         return get(this, i);
     }
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -495,22 +561,104 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // G
     // ================================================================================================
-    @:GLProc function genBuffers(n:Int):Array<Int> {
-        var buffers = [];
+    @:GLProc function genBuffers(n:GLsizei):Array<GLuint> {
+        var buffers:Array<GLuint> = [];
         load("genBuffers", 2)(n, buffers);
         return buffers;
     }
-    @:GLProc function genTextures(n:Int):Array<Int> {
-        var textures = [];
+    @:GLProc function genFramebuffers(n:GLsizei):Array<GLuint> {
+        var buffers:Array<GLuint> = [];
+        load("genFramebuffers", 2)(n, buffers);
+        return buffers;
+    }
+    @:GLProc function genQueries(n:GLsizei):Array<GLuint> {
+        var queries:Array<GLuint> = [];
+        load("genQueries", 2)(n, queries);
+        return queries;
+    }
+    @:GLProc function genRenderbuffers(n:GLsizei):Array<GLuint> {
+        var buffers:Array<GLuint> = [];
+        load("genRenderbuffers", 2)(n, buffers);
+        return buffers;
+    }
+    @:GLProc function genSamplers(n:GLsizei):Array<GLuint> {
+        var samplers:Array<GLuint> = [];
+        load("genSamplers", 2)(n, samplers);
+        return samplers;
+    }
+    @:GLProc function genTextures(n:GLsizei):Array<GLuint> {
+        var textures:Array<GLuint> = [];
         load("genTextures", 2)(n, textures);
         return textures;
     }
-    @:GLProc function genVertexArrays(n:Int):Array<Int> {
-        var arrays = [];
+    @:GLProc function genVertexArrays(n:GLsizei):Array<GLuint> {
+        var arrays:Array<GLuint> = [];
         load("genVertexArrays", 2)(n, arrays);
         return arrays;
     }
-    @:GLProc function getUniformLocation(program:Int, name:String):Int;
+    @:GLProc function generateMipmap(target:GLenum):Void;
+    @:GLProc function getBooleanv(pname:GLenum):Array<GLboolean> {
+        var ret:Array<GLboolean> = [];
+        load("getBooleanv", 2)(pname, ret);
+        return ret;
+    }
+    @:GLProc function getDoublev(pname:GLenum):Array<GLdouble> {
+        var ret:Array<GLdouble> = [];
+        load("getDoublev", 2)(pname, ret);
+        return ret;
+    }
+    @:GLProc function getFloatv(pname:GLenum):Array<GLfloat> {
+        var ret:Array<GLfloat> = [];
+        load("getFloatv", 2)(pname, ret);
+        return ret;
+    }
+    @:GLProc function getIntegerv(pname:GLenum):Array<GLint> {
+        var ret:Array<GLint> = [];
+        load("getIntegerv", 2)(pname, ret);
+        return ret;
+    }
+    @:GLProc function getInteger64v(pname:GLenum):Array<GLint64> {
+        var ret:Array<GLint64> = [];
+        var vals:Array<GLint> = [];
+        load("getInteger64v", 2)(pname, vals);
+        for (i in 0...(vals.length>>1)) ret[i] = GLint64.make(vals[i*2+1], vals[i*2]);
+        return ret;
+    }
+    @:GLProc function getBooleani_v(pname:GLenum, index:GLuint):Array<GLboolean> {
+        var ret:Array<GLboolean> = [];
+        load("getBooleani_v", 3)(pname, index, ret);
+        return ret;
+    }
+    @:GLProc function getIntegeri_v(pname:GLenum, index:GLuint):Array<GLint> {
+        var ret:Array<GLint> = [];
+        load("getIntegeri_v", 3)(pname, index, ret);
+        return ret;
+    }
+    @:GLProc function getInteger64i_v(pname:GLenum, index:GLuint):Array<GLint64> {
+        var ret:Array<GLint64> = [];
+        var vals:Array<GLint> = [];
+        load("getInteger64i_v", 3)(pname, index, vals);
+        for (i in 0...(vals.length>>1)) ret[i] = GLint64.make(vals[i*2+1], vals[i*2]);
+        return ret;
+    }
+    @:GLProc function getActiveAttrib(program:GLuint, index:GLuint):{name:String, size:GLint, type:GLenum}
+        return load("getActiveAttrib", 2)(program, index);
+    @:GLProc function getActiveUniform(program:GLuint, index:GLuint):{name:String, size:GLint, type:GLenum}
+        return load("getActiveUniform", 2)(program, index);
+    @:GLProc function getActiveUniformBlockiv(program:GLuint, uniformBlockIndex:GLuint, pname:GLenum):GLint;
+    @:GLProc function getActiveUniformBlockName(program:GLuint, uniformBlockIndex:GLuint):String;
+    @:GLProc function getActiveUniformName(program:GLuint, uniformIndex:GLuint):String;
+    @:GLProc function getActiveUniformsiv(program:GLuint, uniformIndices:Array<GLuint>, pname:GLenum):Array<GLint> {
+        var ret:Array<GLint> = [];
+        load("getActiveUniformsiv", 4)(program, uniformIndices, pname, ret);
+        return ret;
+    }
+    @:GLProc function getAttachedShaders(program:GLuint):Array<GLuint> {
+        var ret:Array<GLuint> = [];
+        load("getAttachedShaders", 2)(program, ret);
+        return ret;
+    }
+    @:GLProc function getUniformLocation(program:GLuint, name:String):GLint;
 
     // ================================================================================================
     // H
@@ -580,37 +728,76 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // U
     // ================================================================================================
-    @:GLProc function useProgram(program:Int):Void;
     @:GLProc function uniformMatrix2x3fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
     @:GLProc function uniformMatrix4fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
+    @:GLProc function useProgram(program:GLuint):Void;
 
     // ================================================================================================
     // V
     // ================================================================================================
-    @:GLProc function vertexAttrib1f  (index:Int, v0:Float):Void;
-    @:GLProc function vertexAttrib1s  (index:Int, v0:Int  ):Void;
-    @:GLProc function vertexAttrib1d  (index:Int, v0:Float):Void;
-    @:GLProc function vertexAttribI1i (index:Int, v0:Int  ):Void;
-    @:GLProc function vertexAttribI1ui(index:Int, v0:Int  ):Void;
-    @:GLProc function vertexAttrib2f  (index:Int, v0:Float, v1:Float):Void;
-    @:GLProc function vertexAttrib2s  (index:Int, v0:Int  , v1:Int  ):Void;
-    @:GLProc function vertexAttrib2d  (index:Int, v0:Float, v1:Float):Void;
-    @:GLProc function vertexAttribI2i (index:Int, v0:Int  , v1:Int  ):Void;
-    @:GLProc function vertexAttribI2ui(index:Int, v0:Int  , v1:Int  ):Void;
-    @:GLProc function vertexAttrib3f  (index:Int, v0:Float, v1:Float, v2:Float):Void;
-    @:GLProc function vertexAttrib3s  (index:Int, v0:Int  , v1:Int  , v2:Int  ):Void;
-    @:GLProc function vertexAttrib3d  (index:Int, v0:Float, v1:Float, v2:Float):Void;
-    @:GLProc function vertexAttribI3i (index:Int, v0:Int  , v1:Int  , v2:Int  ):Void;
-    @:GLProc function vertexAttribI3ui(index:Int, v0:Int  , v1:Int  , v2:Float):Void;
-    @:GLProc function vertexAttrib4f  (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void;
-    @:GLProc function vertexAttrib4s  (index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
-    @:GLProc function vertexAttrib4d  (index:Int, v0:Float, v1:Float, v2:Float, v3:Float):Void;
-    @:GLProc function vertexAttrib4Nub(index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
-    @:GLProc function vertexAttribI4i (index:Int, v0:Int  , v1:Int  , v2:Int  , v3:Int  ):Void;
-    @:GLProc function vertexAttribI4ui(index:Int, v0:Int  , v1:Int  , v2:Float, v3:Float):Void;
-    @:GLProc function vertexAttribDivisor(index:Int, divisor:Int):Void;
-    @:GLProc function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
-    @:GLProc function viewport(x:Int, y:Int, width:Int, height:Int):Void;
+    @:GLProc function validateProgram(program:GLuint):Void {
+        var err:Null<String> = load("validateProgram", 1)(program);
+        if (err != null) throw err;
+    }
+    @:GLProc function vertexAttrib1f   (index:GLuint, v0:GLfloat ):Void;
+    @:GLProc function vertexAttrib1s   (index:GLuint, v0:GLshort ):Void;
+    @:GLProc function vertexAttrib1d   (index:GLuint, v0:GLdouble):Void;
+    @:GLProc function vertexAttribI1i  (index:GLuint, v0:GLint   ):Void;
+    @:GLProc function vertexAttribI1ui (index:GLuint, v0:GLuint  ):Void;
+    @:GLProc function vertexAttrib2f   (index:GLuint, v0:GLfloat , v1:GLfloat ):Void;
+    @:GLProc function vertexAttrib2s   (index:GLuint, v0:GLshort , v1:GLshort ):Void;
+    @:GLProc function vertexAttrib2d   (index:GLuint, v0:GLdouble, v1:GLdouble):Void;
+    @:GLProc function vertexAttribI2i  (index:GLuint, v0:GLint   , v1:GLint   ):Void;
+    @:GLProc function vertexAttribI2ui (index:GLuint, v0:GLuint  , v1:GLuint  ):Void;
+    @:GLProc function vertexAttrib3f   (index:GLuint, v0:GLfloat , v1:GLfloat , v2:GLfloat ):Void;
+    @:GLProc function vertexAttrib3s   (index:GLuint, v0:GLshort , v1:GLshort , v2:GLshort ):Void;
+    @:GLProc function vertexAttrib3d   (index:GLuint, v0:GLdouble, v1:GLdouble, v2:GLdouble):Void;
+    @:GLProc function vertexAttribI3i  (index:GLuint, v0:GLint   , v1:GLint   , v2:GLint   ):Void;
+    @:GLProc function vertexAttribI3ui (index:GLuint, v0:GLuint  , v1:GLuint  , v2:GLuint  ):Void;
+    @:GLProc function vertexAttrib4f   (index:GLuint, v0:GLfloat , v1:GLfloat , v2:GLfloat , v3:GLfloat ):Void;
+    @:GLProc function vertexAttrib4s   (index:GLuint, v0:GLshort , v1:GLshort , v2:GLshort , v3:GLshort ):Void;
+    @:GLProc function vertexAttrib4d   (index:GLuint, v0:GLdouble, v1:GLdouble, v2:GLdouble, v3:GLdouble):Void;
+    @:GLProc function vertexAttrib4Nub (index:GLuint, v0:GLubyte , v1:GLubyte , v2:GLubyte , v3:GLubyte ):Void;
+    @:GLProc function vertexAttribI4i  (index:GLuint, v0:GLint   , v1:GLint   , v2:GLint   , v3:GLint   ):Void;
+    @:GLProc function vertexAttribI4ui (index:GLuint, v0:GLuint  , v1:GLuint  , v2:GLuint  , v3:GLuint  ):Void;
+    @:GLProc function vertexAttrib1fv  (index:GLuint, v:GLfloatArray ):Void;
+    @:GLProc function vertexAttrib1sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib1dv  (index:GLuint, v:GLdoubleArray):Void;
+    @:GLProc function vertexAttribI1iv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttribI1uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib2fv  (index:GLuint, v:GLfloatArray ):Void;
+    @:GLProc function vertexAttrib2sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib2dv  (index:GLuint, v:GLdoubleArray):Void;
+    @:GLProc function vertexAttribI2iv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttribI2uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib3fv  (index:GLuint, v:GLfloatArray ):Void;
+    @:GLProc function vertexAttrib3sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib3dv  (index:GLuint, v:GLdoubleArray):Void;
+    @:GLProc function vertexAttribI3iv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttribI3uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib4fv  (index:GLuint, v:GLfloatArray ):Void;
+    @:GLProc function vertexAttrib4sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib4dv  (index:GLuint, v:GLdoubleArray):Void;
+    @:GLProc function vertexAttrib4Nubv(index:GLuint, v:GLubyteArray ):Void;
+    @:GLProc function vertexAttribI4iv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttribI4uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib4iv  (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttrib4bv  (index:GLuint, v:GLbyteArray  ):Void;
+    @:GLProc function vertexAttrib4ubv (index:GLuint, v:GLubyteArray ):Void;
+    @:GLProc function vertexAttrib4usv (index:GLuint, v:GLushortArray):Void;
+    @:GLProc function vertexAttrib4uiv (index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib4Nbv (index:GLuint, v:GLbyteArray  ):Void;
+    @:GLProc function vertexAttrib4Nsv (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib4Niv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttrib4Nusv(index:GLuint, v:GLushortArray):Void;
+    @:GLProc function vertexAttrib4Nuiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttribI4bv (index:GLuint, v:GLbyteArray  ):Void;
+    @:GLProc function vertexAttribI4ubv(index:GLuint, v:GLubyteArray ):Void;
+    @:GLProc function vertexAttribI4sv (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttribDivisor(index:GLuint, divisor:GLuint):Void;
+    @:GLProc function vertexAttribPointer(index:GLuint, size:GLint, type:GLenum, normalized:GLboolean, stride:GLsizei, offset:GLsizei):Void;
+    @:GLProc function vertexAttribIPointer(index:GLuint, size:GLint, type:GLenum, stride:GLsizei, offset:GLsizei):Void;
+    @:GLProc function viewport(x:GLint, y:GLint, width:GLsizei, height:GLsizei):Void;
 
     // ================================================================================================
     // W
@@ -618,28 +805,16 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function waitSync(sync:GLsync, flags:GLbitfield, timeout:GLuint64):Void
         load("waitSync", 4)(NativeBinding.native(sync), flags, haxe.Int64.getLow(timeout), haxe.Int64.getHigh(timeout));
 
-    // ================================================================================================
-    // X
-    // ================================================================================================
-
-    // ================================================================================================
-    // Y
-    // ================================================================================================
-
-    // ================================================================================================
-    // Z
-    // ================================================================================================
-
     // GL_VERSION_1_1 CONSTS
     @:GLConst var ZERO;
-    @:GLConst var FALSE:GLboolean;
+    @:GLConst var FALSE;
     @:GLConst var LOGIC_OP;
     @:GLConst var NONE;
     @:GLConst var TEXTURE_COMPONENTS;
     @:GLConst var NO_ERROR;
     @:GLConst var POINTS;
     @:GLConst var CURRENT_BIT;
-    @:GLConst var TRUE:GLboolean;
+    @:GLConst var TRUE;
     @:GLConst var ONE;
     @:GLConst var CLIENT_PIXEL_STORE_BIT;
     @:GLConst var LINES;
