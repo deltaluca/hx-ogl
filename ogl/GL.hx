@@ -447,7 +447,7 @@ class GL implements GLConsts implements GLProcs {
     }
     @:GLProc function bufferSubData(target:GLenum, countOffset:Int, data:GLArray, ?count:Null<Int>) {
         if (count == null) count = data.count;
-        load("bufferSubData", 4)(target, countOffset*data.size, data.buffer, count*data.size);
+        load("bufferSubData", 4)(target, countOffset*data.size, count*data.size, data.buffer);
     }
 
     // ================================================================================================
@@ -658,6 +658,8 @@ class GL implements GLConsts implements GLProcs {
         load("getAttachedShaders", 2)(program, ret);
         return ret;
     }
+    @:GLProc function getBufferParameteriv(target:GLenum, value:GLenum):GLint;
+    @:GLProc function getError():GLenum;
     @:GLProc function getUniformLocation(program:GLuint, name:String):GLint;
 
     // ================================================================================================
@@ -1873,4 +1875,6 @@ class GL implements GLConsts implements GLProcs {
     @:GLConst var SAMPLER_CUBE_MAP_ARRAY_SHADOW;
     @:GLConst var INT_SAMPLER_CUBE_MAP_ARRAY;
     @:GLConst var UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY;
+    // GL_ARB_FRAMEBUFFER_OBJECT
+    @:GLConst var INVALID_FRAMEBUFFER_OPERATION;
 }

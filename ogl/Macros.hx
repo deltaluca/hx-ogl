@@ -116,6 +116,9 @@ class GLConstsImpl {
 // with any default check on parameter disregarded
 // and the message prepended by "x :: "
 //
+// @:GLProc(cname) modifies the C lib name used in the ndll loading
+// if the haxe name differs.
+//
 class GLProcsImpl {
 #if macro
     static function isProc(f:Metadata) {
@@ -310,6 +313,31 @@ class GLProcsImpl {
         field.access.push(AStatic);
         field.access.push(APublic);
         field.access.push(AInline);
+
+        if (Context.defined("ogl-dont-check-errors")) return;
+        if (field.name == "getError") return; //!!!!
+
+        var check = macro {
+            var errs = [];
+            var err;
+            while ((err = GL.getError()) != GL.NO_ERROR) errs.push(
+                if     (err == GL.INVALID_ENUM) "INVALID_ENUM"
+                else if(err == GL.INVALID_VALUE) "INVALID_VALUE"
+                else if(err == GL.INVALID_OPERATION) "INVALID_OPERATION"
+                else if(err == GL.INVALID_FRAMEBUFFER_OPERATION) "INVALID_FRAMEBUFFER_OPERATION"
+                else if(err == GL.OUT_OF_MEMORY) "OUT_OF_MEMORY"
+                else "???"
+            );
+            if (errs.length != 0) {
+                errs.unshift("GL."+$v{field.name});
+                throw errs;
+            }
+        };
+
+        if (f.ret != null && !switch(f.ret) { case macro :Void: true; default: false; })
+            f.expr = macro { var ret = (function () ${f.expr})(); $check; return ret; };
+        else
+            f.expr = macro { ${f.expr}; $check; };
     }
 
     static function run() {
