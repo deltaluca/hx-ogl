@@ -1248,22 +1248,58 @@ DEFINE_PRIM(hx_gl_stencilOpSeparate,   4);
 // ================================================================================================
 // T
 // ================================================================================================
+void hx_gl_texBuffer(value target, value format, value buf) {
+    glTexBuffer(val_get<int>(target), val_get<int>(format), val_get<int>(buf));
+}
+void hx_gl_texImage1D(value* args, int narg) {
+    glTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), buffer_data(val_to_buffer(args[7])));
+}
 void hx_gl_texImage2D(value* args, int narg) {
     glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
 }
-void hx_gl_texSubImage2D(value* args, int narg) {
-    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+void hx_gl_texImage2DMultisample(value* args, int narg) {
+    glTexImage2DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<bool>(args[5]));
 }
-void hx_gl_texParameteri(value target, value pname, value param) {
-    glTexParameteri(val_get<int>(target), val_get<int>(pname), val_get<int>(param));
+void hx_gl_texImage3D(value* args, int narg) {
+    glTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), buffer_data(val_to_buffer(args[9])));
+}
+void hx_gl_texImage3DMultisample(value* args, int narg) {
+    glTexImage3DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<bool>(args[6]));
 }
 void hx_gl_texParameterf(value target, value pname, value param) {
     glTexParameterf(val_get<int>(target), val_get<int>(pname), val_get<float>(param));
 }
+void hx_gl_texParameteri(value target, value pname, value param) {
+    glTexParameteri(val_get<int>(target), val_get<int>(pname), val_get<int>(param));
+}
+void hx_gl_texSubImage1D(value* args, int narg) {
+    glTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+}
+void hx_gl_texSubImage2D(value* args, int narg) {
+    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+}
+void hx_gl_texSubImage3D(value* args, int narg) {
+    glTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), buffer_data(val_to_buffer(args[10])));
+}
+void hx_gl_transformFeedbackVaryings(value program, value varyings, value bufferMode) {
+    int cnt = val_array_size(varyings);
+    const char** cstrings = new const char*[cnt];
+    for (int i = 0; i < cnt; i++) cstrings[i] = val_get<string>(val_array_i(varyings, i));
+    glTransformFeedbackVaryings(val_get<int>(program), cnt, cstrings, val_get<int>(bufferMode));
+    delete[] cstrings;
+}
+DEFINE_PRIM(hx_gl_texBuffer, 3);
+DEFINE_PRIM_MULT(hx_gl_texImage1D);
 DEFINE_PRIM_MULT(hx_gl_texImage2D);
-DEFINE_PRIM_MULT(hx_gl_texSubImage2D);
-DEFINE_PRIM(hx_gl_texParameteri, 3);
+DEFINE_PRIM_MULT(hx_gl_texImage2DMultisample);
+DEFINE_PRIM_MULT(hx_gl_texImage3D);
+DEFINE_PRIM_MULT(hx_gl_texImage3DMultisample);
 DEFINE_PRIM(hx_gl_texParameterf, 3);
+DEFINE_PRIM(hx_gl_texParameteri, 3);
+DEFINE_PRIM_MULT(hx_gl_texSubImage1D);
+DEFINE_PRIM_MULT(hx_gl_texSubImage2D);
+DEFINE_PRIM_MULT(hx_gl_texSubImage3D);
+DEFINE_PRIM(hx_gl_transformFeedbackVaryings, 3);
 
 // ================================================================================================
 // U

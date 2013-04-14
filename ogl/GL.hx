@@ -868,12 +868,24 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // T
     // ================================================================================================
-    @:GLProc function texImage2D(target:Int, level:Int, internalFormat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:GLArray):Void
-        load("texImage2D", 9)(target, level, internalFormat, width, height, border, format, type, data.buffer);
-    @:GLProc function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:GLArray):Void
-        load("texSubImage2D", 9)(target, level, xoffset, yoffset, width, height, format, type, data.buffer);
-    @:GLProc function texParameteri(target:Int, pname:Int, param:Int):Void;
-    @:GLProc function texParameterf(target:Int, pname:Int, param:Float):Void;
+    @:GLProc function texBuffer(target:GLenum, internalFormat:GLenum, buffer:GLuint):Void;
+    @:GLProc function texImage1D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, border:GLint, format:GLint, data:GLArray):Void
+        load("texImage1D", 8)(target, level, internalFormat, width, border, format, data.type, data.buffer);
+    @:GLProc function texImage2D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, border:GLint, format:GLint, data:GLArray):Void
+        load("texImage2D", 9)(target, level, internalFormat, width, height, border, format, data.type, data.buffer);
+    @:GLProc function texImage2DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, fixedsamplelocations:GLboolean):Void;
+    @:GLProc function texImage3D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, format:GLint, data:GLArray):Void
+        load("texImage3D", 10)(target, level, internalFormat, width, height, depth, border, format, data.type, data.buffer);
+    @:GLProc function texImage3DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, fixedsamplelocations:GLboolean):Void;
+    @:GLProc function texParameterf(target:GLenum, pname:GLenum, param:GLfloat):Void;
+    @:GLProc function texParameteri(target:GLenum, pname:GLenum, param:GLint):Void;
+    @:GLProc function texSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, format:GLenum, data:GLArray):Void
+        load("texSubImage1D", 7)(target, level, xOffset, width, format, data.type, data.buffer);
+    @:GLProc function texSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
+        load("texSubImage2D", 9)(target, level, xOffset, yOffset, width, height, format, data.type, data.buffer);
+    @:GLProc function texSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, format:GLenum, data:GLArray):Void
+        load("texSubImage3D", 11)(target, level, xOffset, yOffset, zOffset, width, height, depth, format, data.type, data.buffer);
+    @:GLProc function transformFeedbackVaryings(program:GLuint, varyings:Array<String>, bufferMode:GLenum):Void;
 
     // ================================================================================================
     // U
