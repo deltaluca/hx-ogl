@@ -255,10 +255,10 @@ void hx_gl_clear(value mask) {
     glClear(val_get<int>(mask));
 }
 void hx_gl_clearBufferiv(value _buffer, value drawBuffer, value _value) {
-    glClearBufferiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLint*)buffer_data(val_to_buffer(_value)));
+    glClearBufferiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLint*)val_array_int(_value));
 }
 void hx_gl_clearBufferuiv(value _buffer, value drawBuffer, value _value) {
-    glClearBufferuiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLuint*)buffer_data(val_to_buffer(_value)));
+    glClearBufferuiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLuint*)val_array_int(_value));
 }
 void hx_gl_clearBufferfv(value _buffer, value drawBuffer, value _value) {
     glClearBufferfv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLfloat*)buffer_data(val_to_buffer(_value)));
@@ -1406,61 +1406,62 @@ DEFINE_PRIM(hx_gl_validateProgram, 1);
         glVertexAttrib##N##v(val_get<int>(index), (const G*)buffer_data(val_to_buffer(v))); \
     } \
     DEFINE_PRIM(hx_gl_vertexAttrib##N##v, 2)
+#define VERTEXATTRa(N, T, G) \
+    void hx_gl_vertexAttrib##N##v(value index, value v) { \
+        glVertexAttrib##N##v(val_get<int>(index), (const G*)val_array_##T(v)); \
+    } \
+    DEFINE_PRIM(hx_gl_vertexAttrib##N##v, 2)
+
 #define VERTEXATTR1(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 2); \
-    VERTEXATTRv(N, G)
-VERTEXATTR1(1f,   double, GLfloat);
-VERTEXATTR1(1s,   int,    GLshort);
-VERTEXATTR1(1d,   double, GLdouble);
-VERTEXATTR1(I1i,  int,    GLint);
-VERTEXATTR1(I1ui, int,    GLuint);
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 2)
+VERTEXATTR1(1f,   double, GLfloat);  VERTEXATTRv(1f,   GLfloat);
+VERTEXATTR1(1s,   int,    GLshort);  VERTEXATTRv(1s,   GLshort);
+VERTEXATTR1(1d,   double, GLdouble); VERTEXATTRa(1d,   double, GLdouble);
+VERTEXATTR1(I1i,  int,    GLint);    VERTEXATTRa(I1i,  int,    GLint);
+VERTEXATTR1(I1ui, int,    GLuint);   VERTEXATTRa(I1ui, int,    GLuint);
 #define VERTEXATTR2(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 3); \
-    VERTEXATTRv(N, G)
-VERTEXATTR2(2f,   double, GLfloat);
-VERTEXATTR2(2s,   int,    GLshort);
-VERTEXATTR2(2d,   double, GLdouble);
-VERTEXATTR2(I2i,  int,    GLint);
-VERTEXATTR2(I2ui, int,    GLuint);
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 3)
+VERTEXATTR2(2f,   double, GLfloat);  VERTEXATTRv(2f,   GLfloat);
+VERTEXATTR2(2s,   int,    GLshort);  VERTEXATTRv(2s,   GLshort);
+VERTEXATTR2(2d,   double, GLdouble); VERTEXATTRa(2d,   double, GLdouble);
+VERTEXATTR2(I2i,  int,    GLint);    VERTEXATTRa(I2i,  int,    GLint);
+VERTEXATTR2(I2ui, int,    GLuint);   VERTEXATTRa(I2ui, int,    GLuint);
 #define VERTEXATTR3(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 4); \
-    VERTEXATTRv(N, G)
-VERTEXATTR3(3f,   double, GLfloat);
-VERTEXATTR3(3s,   int,    GLshort);
-VERTEXATTR3(3d,   double, GLdouble);
-VERTEXATTR3(I3i,  int,    GLint);
-VERTEXATTR3(I3ui, int,    GLuint);
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 4)
+VERTEXATTR3(3f,   double, GLfloat);  VERTEXATTRv(3f,   GLfloat);
+VERTEXATTR3(3s,   int,    GLshort);  VERTEXATTRv(3s,   GLshort);
+VERTEXATTR3(3d,   double, GLdouble); VERTEXATTRa(3d,   double, GLdouble);
+VERTEXATTR3(I3i,  int,    GLint);    VERTEXATTRa(I3i,  int,    GLint);
+VERTEXATTR3(I3ui, int,    GLuint);   VERTEXATTRa(I3ui, int,    GLuint);
 #define VERTEXATTR4(N, T, G) \
     void hx_gl_vertexAttrib##N(value index, value v0, value v1, value v2, value v3) { \
         glVertexAttrib##N(val_get<int>(index), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2), val_get<T>(v3)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N, 5); \
-    VERTEXATTRv(N, G)
-VERTEXATTR4(4f,   double, GLfloat);
-VERTEXATTR4(4s,   int,    GLshort);
-VERTEXATTR4(4d,   double, GLdouble);
-VERTEXATTR4(4Nub, int,    GLubyte);
-VERTEXATTR4(I4i,  int,    GLint);
-VERTEXATTR4(I4ui, int,    GLuint);
-VERTEXATTRv(4i,   GLint);
+    DEFINE_PRIM(hx_gl_vertexAttrib##N, 5)
+VERTEXATTR4(4f,   double, GLfloat);  VERTEXATTRv(4f,   GLfloat);
+VERTEXATTR4(4s,   int,    GLshort);  VERTEXATTRv(4s,   GLshort);
+VERTEXATTR4(4d,   double, GLdouble); VERTEXATTRa(4d,   double, GLdouble);
+VERTEXATTR4(I4i,  int,    GLint);    VERTEXATTRa(I4i,  int,    GLint);
+VERTEXATTR4(I4ui, int,    GLuint);   VERTEXATTRa(I4ui, int,    GLuint);
+VERTEXATTRa(4i,   int, GLint);
 VERTEXATTRv(4b,   GLbyte);
 VERTEXATTRv(4ub,  GLubyte);
 VERTEXATTRv(4us,  GLushort);
-VERTEXATTRv(4ui,  GLuint);
+VERTEXATTRa(4ui,  int, GLuint);
 VERTEXATTRv(4Nb,  GLbyte);
 VERTEXATTRv(4Ns,  GLshort);
-VERTEXATTRv(4Ni,  GLint);
+VERTEXATTRa(4Ni,  int, GLint);
 VERTEXATTRv(4Nus, GLushort);
-VERTEXATTRv(4Nui, GLuint);
+VERTEXATTRa(4Nui, int, GLuint);
 VERTEXATTRv(I4b,  GLbyte);
 VERTEXATTRv(I4ub, GLubyte);
 VERTEXATTRv(I4s,  GLshort);

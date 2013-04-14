@@ -456,10 +456,10 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function checkFramebufferStatus(target:GLenum):Void;
     @:GLProc function clampColor(target:GLenum, clamp:GLenum):Void;
     @:GLProc function clear(mask:GLbitfield):Void;
-    @:GLProc function clearBufferiv(buffer:GLenum, drawBuffer:GLint, value:GLintArray):Void
-        load("clearBufferiv", 3)(buffer, drawBuffer, value.raw);
-    @:GLProc function clearBufferuiv(buffer:GLenum, drawBuffer:GLint, value:GLuintArray):Void
-        load("clearBufferuiv", 3)(buffer, drawBuffer, value.raw);
+    @:GLProc function clearBufferiv(buffer:GLenum, drawBuffer:GLint, value:Array<GLint>):Void
+        load("clearBufferiv", 3)(buffer, drawBuffer, value);
+    @:GLProc function clearBufferuiv(buffer:GLenum, drawBuffer:GLint, value:Array<GLuint>):Void
+        load("clearBufferuiv", 3)(buffer, drawBuffer, value);
     @:GLProc function clearBufferfv(buffer:GLenum, drawBuffer:GLint, value:GLfloatArray):Void
         load("clearBufferfv", 3)(buffer, drawBuffer, value.raw);
     @:GLProc function clearBufferfi(buffer:GLenum, drawBuffer:GLint, depth:GLfloat, stencil:GLint):Void;
@@ -1016,35 +1016,35 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function vertexAttribI4ui (index:GLuint, v0:GLuint  , v1:GLuint  , v2:GLuint  , v3:GLuint  ):Void;
     @:GLProc function vertexAttrib1fv  (index:GLuint, v:GLfloatArray ):Void;
     @:GLProc function vertexAttrib1sv  (index:GLuint, v:GLshortArray ):Void;
-    @:GLProc function vertexAttrib1dv  (index:GLuint, v:GLdoubleArray):Void;
-    @:GLProc function vertexAttribI1iv (index:GLuint, v:GLintArray   ):Void;
-    @:GLProc function vertexAttribI1uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib1dv  (index:GLuint, v:Array<GLdouble>):Void;
+    @:GLProc function vertexAttribI1iv (index:GLuint, v:Array<GLint> ):Void;
+    @:GLProc function vertexAttribI1uiv(index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttrib2fv  (index:GLuint, v:GLfloatArray ):Void;
     @:GLProc function vertexAttrib2sv  (index:GLuint, v:GLshortArray ):Void;
-    @:GLProc function vertexAttrib2dv  (index:GLuint, v:GLdoubleArray):Void;
-    @:GLProc function vertexAttribI2iv (index:GLuint, v:GLintArray   ):Void;
-    @:GLProc function vertexAttribI2uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib2dv  (index:GLuint, v:Array<GLdouble>):Void;
+    @:GLProc function vertexAttribI2iv (index:GLuint, v:Array<GLint> ):Void;
+    @:GLProc function vertexAttribI2uiv(index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttrib3fv  (index:GLuint, v:GLfloatArray ):Void;
     @:GLProc function vertexAttrib3sv  (index:GLuint, v:GLshortArray ):Void;
-    @:GLProc function vertexAttrib3dv  (index:GLuint, v:GLdoubleArray):Void;
-    @:GLProc function vertexAttribI3iv (index:GLuint, v:GLintArray   ):Void;
-    @:GLProc function vertexAttribI3uiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib3dv  (index:GLuint, v:Array<GLdouble>):Void;
+    @:GLProc function vertexAttribI3iv (index:GLuint, v:Array<GLint> ):Void;
+    @:GLProc function vertexAttribI3uiv(index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttrib4fv  (index:GLuint, v:GLfloatArray ):Void;
     @:GLProc function vertexAttrib4sv  (index:GLuint, v:GLshortArray ):Void;
-    @:GLProc function vertexAttrib4dv  (index:GLuint, v:GLdoubleArray):Void;
+    @:GLProc function vertexAttrib4dv  (index:GLuint, v:Array<GLdouble>):Void;
     @:GLProc function vertexAttrib4Nubv(index:GLuint, v:GLubyteArray ):Void;
-    @:GLProc function vertexAttribI4iv (index:GLuint, v:GLintArray   ):Void;
-    @:GLProc function vertexAttribI4uiv(index:GLuint, v:GLuintArray  ):Void;
-    @:GLProc function vertexAttrib4iv  (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttribI4iv (index:GLuint, v:Array<GLint> ):Void;
+    @:GLProc function vertexAttribI4uiv(index:GLuint, v:Array<GLuint>):Void;
+    @:GLProc function vertexAttrib4iv  (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttrib4bv  (index:GLuint, v:GLbyteArray  ):Void;
     @:GLProc function vertexAttrib4ubv (index:GLuint, v:GLubyteArray ):Void;
     @:GLProc function vertexAttrib4usv (index:GLuint, v:GLushortArray):Void;
-    @:GLProc function vertexAttrib4uiv (index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib4uiv (index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttrib4Nbv (index:GLuint, v:GLbyteArray  ):Void;
     @:GLProc function vertexAttrib4Nsv (index:GLuint, v:GLshortArray ):Void;
-    @:GLProc function vertexAttrib4Niv (index:GLuint, v:GLintArray   ):Void;
+    @:GLProc function vertexAttrib4Niv (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttrib4Nusv(index:GLuint, v:GLushortArray):Void;
-    @:GLProc function vertexAttrib4Nuiv(index:GLuint, v:GLuintArray  ):Void;
+    @:GLProc function vertexAttrib4Nuiv(index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttribI4bv (index:GLuint, v:GLbyteArray  ):Void;
     @:GLProc function vertexAttribI4ubv(index:GLuint, v:GLubyteArray ):Void;
     @:GLProc function vertexAttribI4sv (index:GLuint, v:GLshortArray ):Void;
