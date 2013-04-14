@@ -659,32 +659,121 @@ class GL implements GLConsts implements GLProcs {
         return ret;
     }
     @:GLProc function getBufferParameteriv(target:GLenum, value:GLenum):GLint;
+    @:GLProc function getBufferSubData(target:GLenum, offset:GLintptr, size:GLsizeiptr, data:GLArray):Void
+        load("getBufferSubData", 4)(target, offset, size, data.buffer);
+    @:GLProc function getCompressedTexImage(target:GLenum, lod:GLint, img:GLArray):Void
+        load("getCompressedTexImage", 3)(target, lod, img.buffer);
     @:GLProc function getError():GLenum;
+    @:GLProc function getFragDataIndex(program:GLuint, name:String):GLint;
+    @:GLProc function getFragDataLocation(program:GLuint, name:String):GLint;
+    @:GLProc function getFramebufferAttachmentParameteriv(target:GLenum, attachment:GLenum, pname:GLenum):GLint;
+    @:GLProc function getMultisamplefv(pname:GLenum, index:GLuint):{x:GLfloat, y:GLfloat}
+        return load("getMultisamplefv", 2)(pname, index);
+    @:GLProc function getProgramiv(program:GLuint, pname:GLenum):GLint;
+    @:GLProc function getQueryObjectiv(program:GLuint, pname:GLenum):GLint;
+    @:GLProc function getQueryObjectuiv(program:GLuint, pname:GLenum):GLuint;
+    @:GLProc function getQueryObjecti64v(program:GLuint, pname:GLenum):GLint64 {
+        var ret:Array<Int> = [0,0];
+        load("getQueryObjecti64v", 3)(program, pname, ret);
+        return GLint64.make(ret[1], ret[0]);
+    }
+    @:GLProc function getQueryObjectui64v(program:GLuint, pname:GLenum):GLuint64 {
+        var ret:Array<Int> = [0,0];
+        load("getQueryObjectui64v", 3)(program, pname, ret);
+        return GLuint64.make(ret[1], ret[0]);
+    }
+    @:GLProc function getQueryiv(program:GLuint, pname:GLenum):GLint;
+    @:GLProc function getRenderbufferParameteriv(target:GLenum, pname:GLenum):GLint;
+    @:GLProc function getSamplerParameterfv(sampler:GLuint, pname:GLenum):Array<GLfloat>
+        return load("getSamplerParameterfv", 3)(sampler, pname, []);
+    @:GLProc function getSamplerParameteriv(sampler:GLuint, pname:GLenum):Array<GLint>
+        return load("getSamplerParameteriv", 3)(sampler, pname, []);
+    @:GLProc function getSamplerParameterIiv(sampler:GLuint, pname:GLenum):Array<GLint>
+        return load("getSamplerParameterIiv", 3)(sampler, pname, []);
+    @:GLProc function getSamplerParameterIuiv(sampler:GLuint, pname:GLenum):Array<GLuint>
+        return load("getSamplerParameterIuiv", 3)(sampler, pname, []);
+    @:GLProc function getShaderiv(shader:GLuint, pname:GLenum):GLint;
+    @:GLProc function getShaderSource(shader:GLuint):String;
+    @:GLProc function getString(name:GLenum):String;
+    @:GLProc function getStringi(name:GLenum, index:GLuint):String;
+    @:GLProc function getSynciv(sync:GLsync, pname:GLenum):GLint;
+    @:GLProc function getTexImage(target:GLenum, level:GLint, format:GLenum, img:GLArray):Void
+        load("getTexImage", 5)(target, level, format, img.type, img.buffer);
+    @:GLProc function getTexLevelParameterfv(target:GLenum, level:GLint, pname:GLenum):GLfloat;
+    @:GLProc function getTexLevelParameteriv(target:GLenum, level:GLint, pname:GLenum):GLint;
+    @:GLProc function getTexParameterfv(target:GLenum, pname:GLenum):Array<GLfloat>
+        return load("getTexParameterfv", 3)(target, pname, []);
+    @:GLProc function getTexParameteriv(target:GLenum, pname:GLenum):Array<GLint>
+        return load("getTexParameteriv", 3)(target, pname, []);
+    @:GLProc function getTexParameterIiv(target:GLenum, pname:GLenum):Array<GLint>
+        return load("getTexParameterIiv", 3)(target, pname, []);
+    @:GLProc function getTexParameterIuiv(target:GLenum, pname:GLenum):Array<GLuint>
+        return load("getTexParameterIuiv", 3)(target, pname, []);
+    @:GLProc function getTransformFeedbackVarying(program:GLuint, index:GLuint):{name:String, size:GLsizei, type:GLenum}
+        return load("getTransformFeedbackVarying", 2)(program, index);
+    @:GLProc function getUniformParameterfv(program:GLuint, location:GLint):Array<GLfloat> {
+        var vals = []; for (i in 0...16) vals[i] = Math.NaN;
+        load("getUniformParameterfv", 3)(program, location, vals);
+        while (Math.isNaN(vals[vals.length-1])) vals.pop();
+        return vals;
+    }
+    @:GLProc function getUniformParameteriv(program:GLuint, location:GLint):Array<GLint> {
+        var vals = []; for (i in 0...16) vals[i] = 0xfedcba98;
+        load("getUniformParameteriv", 3)(program, location, vals);
+        while (vals[vals.length-1] == 0xfedcba98) vals.pop();
+        return vals;
+    }
+    @:GLProc function getUniformParameteruiv(program:GLuint, location:GLint):Array<GLuint> {
+        var vals = []; for (i in 0...16) vals[i] = 0xfedcba98;
+        load("getUniformParameteruiv", 3)(program, location, vals);
+        while (vals[vals.length-1] == 0xfedcba98) vals.pop();
+        return vals;
+    }
+    @:GLProc function getUniformBlockIndex(program:GLuint, uniformBlockName:String):GLuint;
+    @:GLProc function getUniformIndices(program:GLuint, uniformNames:Array<String>):Array<GLuint>
+        return load("getUniformIndices", 3)(program, uniformNames, []);
     @:GLProc function getUniformLocation(program:GLuint, name:String):GLint;
+    @:GLProc function getVertexAttribfv(index:GLuint, pname:GLenum):Array<GLfloat>
+        return load("getVertexAttribfv", 3)(index, pname, []);
+    @:GLProc function getVertexAttribdv(index:GLuint, pname:GLenum):Array<GLdouble>
+        return load("getVertexAttribdv", 3)(index, pname, []);
+    @:GLProc function getVertexAttribiv(index:GLuint, pname:GLenum):Array<GLint>
+        return load("getVertexAttribiv", 3)(index, pname, []);
+    @:GLProc function getVertexAttribIiv(index:GLuint, pname:GLenum):Array<GLint>
+        return load("getVertexAttribIiv", 3)(index, pname, []);
+    @:GLProc function getVertexAttribIuiv(index:GLuint, pname:GLenum):Array<GLuint>
+        return load("getVertexAttribIuiv", 3)(index, pname, []);
 
     // ================================================================================================
     // H
     // ================================================================================================
+    @:GLProc function hint(target:GLenum, mode:GLenum):Void;
 
     // ================================================================================================
     // I
     // ================================================================================================
-
-    // ================================================================================================
-    // J
-    // ================================================================================================
-
-    // ================================================================================================
-    // K
-    // ================================================================================================
+    @:GLProc function isBuffer(buffer:GLuint):GLboolean;
+    @:GLProc function isEnabled(cap:GLenum):GLboolean;
+    @:GLProc function isEnabledi(cap:GLenum, index:GLuint):GLboolean;
+    @:GLProc function isFramebuffer(framebuffer:GLuint):GLboolean;
+    @:GLProc function isProgram(program:GLuint):GLboolean;
+    @:GLProc function isQuery(id:GLuint):GLboolean;
+    @:GLProc function isRenderbuffer(renderbuffer:GLuint):GLboolean;
+    @:GLProc function isSampler(id:GLuint):GLboolean;
+    @:GLProc function isShader(shader:GLuint):GLboolean;
+    @:GLProc function isSync(sync:GLsync):GLboolean;
+    @:GLProc function isTexture(texture:GLuint):GLboolean;
+    @:GLProc function isVertexArray(array:GLuint):GLboolean;
 
     // ================================================================================================
     // L
     // ================================================================================================
+    @:GLProc function lineWidth(width:Float):Void;
     @:GLProc function linkProgram(program:Int):Void {
         var err:Null<String> = load("linkProgram", 1)(program);
         if (err != null) throw err;
     }
+    @:GLProc function logicOp(opcode:GLenum):Void;
 
     // ================================================================================================
     // M

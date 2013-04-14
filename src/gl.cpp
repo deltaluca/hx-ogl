@@ -1,4 +1,5 @@
 #include <hx/CFFI.h>
+#include <cstring>
 #include "utils.h"
 #define CONST(N) PCONST(gl, GL, N)
 
@@ -602,7 +603,7 @@ void hx_gl_genVertexArrays(value n, value arrays) {
 void hx_gl_generateMipmap(value target) {
     glGenerateMipmap(val_get<int>(target));
 }
-int glGetCount(value pname) {
+int glGetICount(value pname) {
     int p = val_get<int>(pname);
     if      (p==GL_ALIASED_LINE_WIDTH_RANGE)   return 2;
     else if (p==GL_SMOOTH_LINE_WIDTH_RANGE)    return 2;
@@ -620,7 +621,7 @@ int glGetCount(value pname) {
 }
 #define GLGETV(N,T,G) \
     void hx_gl_get##N##v(value pname, value outparams) { \
-        int count = glGetCount(pname); \
+        int count = glGetICount(pname); \
         G* params = new G[count]; \
         val_array_set_size(outparams, count); \
         glGet##N##v(val_get<int>(pname), params); \
@@ -633,7 +634,7 @@ GLGETV(Double, double, GLdouble);
 GLGETV(Float, double, GLfloat);
 GLGETV(Integer, int, GLint);
 void hx_gl_getInteger64v(value pname, value outparams) {
-    int count = glGetCount(pname);
+    int count = glGetICount(pname);
     GLint64* params = new GLint64[count];
     val_array_set_size(outparams, count*2);
     glGetInteger64v(val_get<int>(pname), params);
@@ -646,7 +647,7 @@ void hx_gl_getInteger64v(value pname, value outparams) {
 DEFINE_PRIM(hx_gl_getInteger64v, 2);
 #define GLGETIV(N,T,G) \
     void hx_gl_get##N##i_v(value pname, value index, value outparams) { \
-        int count = glGetCount(pname); \
+        int count = glGetICount(pname); \
         G* params = new G[count]; \
         val_array_set_size(outparams, count); \
         glGet##N##i_v(val_get<int>(pname), val_get<int>(index), params); \
@@ -657,7 +658,7 @@ DEFINE_PRIM(hx_gl_getInteger64v, 2);
 GLGETIV(Boolean, bool, GLboolean);
 GLGETIV(Integer, int, GLint);
 void hx_gl_getInteger64i_v(value pname, value index, value outparams) {
-    int count = glGetCount(pname);
+    int count = glGetICount(pname);
     GLint64* params = new GLint64[count];
     val_array_set_size(outparams, count*2);
     glGetInteger64i_v(val_get<int>(pname), val_get<int>(index), params);
@@ -731,51 +732,348 @@ value hx_gl_getBufferParameteriv(value target, value value) {
     glGetBufferParameteriv(val_get<int>(target), val_get<int>(value), &ret);
     return alloc<int>(ret);
 }
+void hx_gl_getBufferSubData(value target, value offset, value size, value data) {
+    glGetBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), (GLvoid*)buffer_data(val_to_buffer(data)));
+}
+void hx_gl_getCompressedTexImage(value target, value lod, value img) {
+    glGetCompressedTexImage(val_get<int>(target), val_get<int>(lod), (GLvoid*)buffer_data(val_to_buffer(img)));
+}
 value hx_gl_getError() {
     return alloc<int>(glGetError());
 }
+value hx_gl_getFragDataIndex(value program, value name) {
+    return alloc<int>(glGetFragDataIndex(val_get<int>(program), val_get<string>(name)));
+}
+value hx_gl_getFragDataLocation(value program, value name) {
+    return alloc<int>(glGetFragDataLocation(val_get<int>(program), val_get<string>(name)));
+}
+value hx_gl_getFramebufferAttachmentParameteriv(value target, value attachment, value pname) {
+    GLint ret;
+    glGetFramebufferAttachmentParameteriv(val_get<int>(target), val_get<int>(attachment), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getMultisamplefv(value pname, value index) {
+    GLfloat val[2];
+    glGetMultisamplefv(val_get<int>(pname), val_get<int>(index), val);
+    value v = alloc_empty_object();
+    alloc_field(v, val_id("x"), alloc<double>(val[0]));
+    alloc_field(v, val_id("y"), alloc<double>(val[1]));
+    return v;
+}
+value hx_gl_getProgramiv(value program, value pname) {
+    GLint ret;
+    glGetProgramiv(val_get<int>(program), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getQueryObjectiv(value id, value pname) {
+    GLint ret;
+    glGetQueryObjectiv(val_get<int>(id), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getQueryObjectuiv(value id, value pname) {
+    GLuint ret;
+    glGetQueryObjectuiv(val_get<int>(id), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+void hx_gl_getQueryObjecti64v(value id, value pname, value out) {
+    GLint64 ret;
+    glGetQueryObjecti64v(val_get<int>(id), val_get<int>(pname), &ret);
+    val_array_set_i(out, 0, alloc<int>(((int*)&ret)[0]));
+    val_array_set_i(out, 1, alloc<int>(((int*)&ret)[1]));
+}
+void hx_gl_getQueryObjectui64v(value id, value pname, value out) {
+    GLuint64 ret;
+    glGetQueryObjectui64v(val_get<int>(id), val_get<int>(pname), &ret);
+    val_array_set_i(out, 0, alloc<int>(((int*)&ret)[0]));
+    val_array_set_i(out, 1, alloc<int>(((int*)&ret)[1]));
+}
+value hx_gl_getQueryiv(value target, value pname) {
+    GLint ret;
+    glGetQueryiv(val_get<int>(target), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getRenderbufferParameteriv(value target, value pname) {
+    GLint ret;
+    glGetRenderbufferParameteriv(val_get<int>(target), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+
+int glGetSamplerPCount(value pname) {
+    int p = val_get<int>(pname);
+    if (p == GL_TEXTURE_BORDER_COLOR) return 4;
+    return 1;
+}
+#define GETSAMPLEP(N,T,G) \
+    value hx_gl_getSamplerParameter##N##v(value sampler, value pname, value params) { \
+        int cnt = glGetSamplerPCount(pname); \
+        val_array_set_size(params, cnt); \
+        glGetSamplerParameter##N##v(val_get<int>(sampler), val_get<int>(pname), (G*)val_array_##T(params)); \
+        return params; \
+    } \
+    DEFINE_PRIM(hx_gl_getSamplerParameter##N##v, 3)
+value hx_gl_getSamplerParameterfv(value sampler, value pname, value params) {
+    int cnt = glGetSamplerPCount(pname);
+    val_array_set_size(params, cnt);
+    GLfloat outs[4];
+    glGetSamplerParameterfv(val_get<int>(sampler), val_get<int>(pname), outs);
+    for (int i = 0; i < cnt; i++) val_array_set_i(params, i, alloc<double>(outs[i]));
+    return params;
+}
+DEFINE_PRIM(hx_gl_getSamplerParameterfv, 3);
+GETSAMPLEP(i, int, GLint);
+GETSAMPLEP(Ii, int, GLint);
+GETSAMPLEP(Iui, int, GLuint);
+
+value hx_gl_getShaderiv(value shader, value pname) {
+    GLint ret;
+    glGetShaderiv(val_get<int>(shader), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+value hx_gl_getShaderSource(value shader) {
+    GLchar* source = new GLchar[0xffff];
+    source[0] = '\0';
+    glGetShaderSource(val_get<int>(shader), 0xffff, NULL, source);
+    return alloc<string>(source);
+}
+value hx_gl_getString(value name) {
+    const GLubyte* str = glGetString(val_get<int>(name));
+    char* ret = new GLchar[strlen((const char*)str)];
+    strcpy(ret, (const char*)str);
+    return alloc<string>(ret);
+}
+value hx_gl_getStringi(value name, value index) {
+    const GLubyte* str = glGetStringi(val_get<int>(name), val_get<int>(index));
+    char* ret = new GLchar[strlen((const char*)str)];
+    strcpy(ret, (const char*)str);
+    return alloc<string>(ret);
+}
+value hx_gl_getSynciv(value sync, value pname) {
+    GLint ret;
+    glGetSynciv((GLsync)val_data(sync), val_get<int>(pname), 1, NULL, &ret);
+    return alloc<int>(ret);
+}
+void hx_gl_getTexImage(value target, value level, value format, value type, value img) {
+    glGetTexImage(val_get<int>(target), val_get<int>(level), val_get<int>(format), val_get<int>(type), buffer_data(val_to_buffer(img)));
+}
+value hx_gl_getTexLevelParameterfv(value target, value level, value pname) {
+    GLfloat ret;
+    glGetTexLevelParameterfv(val_get<int>(target), val_get<int>(level), val_get<int>(pname), &ret);
+    return alloc<double>(ret);
+}
+value hx_gl_getTexLevelParameteriv(value target, value level, value pname) {
+    GLint ret;
+    glGetTexLevelParameteriv(val_get<int>(target), val_get<int>(level), val_get<int>(pname), &ret);
+    return alloc<int>(ret);
+}
+
+int glGetTexPCount(value pname) {
+    int p = val_get<int>(pname);
+    if (p == GL_TEXTURE_BORDER_COLOR) return 4;
+    return 1;
+}
+#define GETTEXP(N,T,G) \
+    value hx_gl_getTexParameter##N##v(value texture, value pname, value params) { \
+        int cnt = glGetTexPCount(pname); \
+        val_array_set_size(params, cnt); \
+        glGetTexParameter##N##v(val_get<int>(texture), val_get<int>(pname), (G*)val_array_##T(params)); \
+        return params; \
+    } \
+    DEFINE_PRIM(hx_gl_getTexParameter##N##v, 3)
+value hx_gl_getTexParameterfv(value texture, value pname, value params) {
+    int cnt = glGetTexPCount(pname);
+    val_array_set_size(params, cnt);
+    GLfloat outs[4];
+    glGetTexParameterfv(val_get<int>(texture), val_get<int>(pname), outs);
+    for (int i = 0; i < cnt; i++) val_array_set_i(params, i, alloc<double>(outs[i]));
+    return params;
+}
+DEFINE_PRIM(hx_gl_getTexParameterfv, 3);
+GETTEXP(i, int, GLint);
+GETTEXP(Ii, int, GLint);
+GETTEXP(Iui, int, GLuint);
+
+value hx_gl_getTransformFeedbackVarying(value program, value index) {
+    char* name = new char[0xff];
+    GLsizei size;
+    GLenum type;
+    glGetTransformFeedbackVarying(val_get<int>(program), val_get<int>(index), 0xff, NULL, &size, &type, name);
+    value v = alloc_empty_object();
+    alloc_field(v, val_id("name"), alloc<string>(name));
+    alloc_field(v, val_id("size"), alloc<int>(size));
+    alloc_field(v, val_id("type"), alloc<int>(type));
+    return v;
+}
+
+#define GETUNIFORMP(N,T,G) \
+    value hx_gl_getUniform##N##v(value program, value location, value params) { \
+        val_array_set_size(params, 16); \
+        glGetUniform##N##v(val_get<int>(program), val_get<int>(location), (G*)val_array_##T(params)); \
+        return params; \
+    } \
+    DEFINE_PRIM(hx_gl_getUniform##N##v, 3)
+value hx_gl_getUniformfv(value program, value location, value params) {
+    val_array_set_size(params, 16); //m4x4
+    GLfloat outs[16];
+    glGetUniformfv(val_get<int>(program), val_get<int>(location), outs);
+    for (int i = 0; i < 16; i++) val_array_set_i(params, i, alloc<double>(outs[i]));
+    return params;
+}
+DEFINE_PRIM(hx_gl_getUniformfv, 3);
+GETUNIFORMP(i, int, GLint);
+GETUNIFORMP(ui, int, GLuint);
+
+value hx_gl_getUniformBlockIndex(value program, value name) {
+    return alloc<int>(glGetUniformBlockIndex(val_get<int>(program), val_get<string>(name)));
+}
+value hx_gl_getUniformIndices(value program, value names, value indices) {
+    int cnt = val_array_size(names);
+    const char** cnames = new const char*[cnt];
+    for (int i = 0; i < cnt; i++) cnames[i] = val_get<string>(val_array_i(names, i));
+    glGetUniformIndices(val_get<int>(program), cnt, cnames, (GLuint*)val_array_int(indices));
+    delete[] cnames;
+    return indices;
+}
+
+int glGetVertexPCount(value pname) {
+    int p = val_get<int>(pname);
+    if (p == GL_CURRENT_VERTEX_ATTRIB) return 4;
+    return 1;
+}
+#define GETVERTP(N,T,G) \
+    value hx_gl_getVertexAttrib##N##v(value index, value pname, value params) { \
+        int cnt = glGetVertexPCount(pname); \
+        val_array_set_size(params, cnt); \
+        glGetVertexAttrib##N##v(val_get<int>(index), val_get<int>(pname), (G*)val_array_##T(params)); \
+        return params; \
+    } \
+    DEFINE_PRIM(hx_gl_getVertexAttrib##N##v, 3)
+value hx_gl_getVertexAttribfv(value index, value pname, value params) {
+    int cnt = glGetVertexPCount(pname);
+    val_array_set_size(params, cnt);
+    GLfloat outs[4];
+    glGetVertexAttribfv(val_get<int>(index), val_get<int>(pname), outs);
+    for (int i = 0; i < cnt; i++) val_array_set_i(params, i, alloc<double>(outs[i]));
+    return params;
+}
+DEFINE_PRIM(hx_gl_getVertexAttribfv, 3);
+GETVERTP(d, double, GLdouble);
+GETVERTP(i, int, GLint);
+GETVERTP(Ii, int, GLint);
+GETVERTP(Iui, int, GLuint);
+
 value hx_gl_getUniformLocation(value program, value name) {
     return alloc<int>(glGetUniformLocation(val_get<int>(program), val_get<string>(name)));
 }
-DEFINE_PRIM(hx_gl_genBuffers,                2);
-DEFINE_PRIM(hx_gl_genFramebuffers,           2);
-DEFINE_PRIM(hx_gl_genQueries,                2);
-DEFINE_PRIM(hx_gl_genRenderbuffers,          2);
-DEFINE_PRIM(hx_gl_genSamplers,               2);
-DEFINE_PRIM(hx_gl_genTextures,               2);
-DEFINE_PRIM(hx_gl_genVertexArrays,           2);
-DEFINE_PRIM(hx_gl_generateMipmap,            1);
-DEFINE_PRIM(hx_gl_getActiveAttrib,           2);
-DEFINE_PRIM(hx_gl_getActiveUniform,          2);
-DEFINE_PRIM(hx_gl_getActiveUniformBlockiv,   3);
-DEFINE_PRIM(hx_gl_getActiveUniformBlockName, 2);
-DEFINE_PRIM(hx_gl_getActiveUniformName,      2);
-DEFINE_PRIM(hx_gl_getActiveUniformsiv,       4);
-DEFINE_PRIM(hx_gl_getAttachedShaders,        2);
-DEFINE_PRIM(hx_gl_getAttribLocation,         2);
-DEFINE_PRIM(hx_gl_getBufferParameteriv,      2);
-DEFINE_PRIM(hx_gl_getError,                  0);
-DEFINE_PRIM(hx_gl_getUniformLocation,        2);
+DEFINE_PRIM(hx_gl_genBuffers,                  2);
+DEFINE_PRIM(hx_gl_genFramebuffers,             2);
+DEFINE_PRIM(hx_gl_genQueries,                  2);
+DEFINE_PRIM(hx_gl_genRenderbuffers,            2);
+DEFINE_PRIM(hx_gl_genSamplers,                 2);
+DEFINE_PRIM(hx_gl_genTextures,                 2);
+DEFINE_PRIM(hx_gl_genVertexArrays,             2);
+DEFINE_PRIM(hx_gl_generateMipmap,              1);
+DEFINE_PRIM(hx_gl_getActiveAttrib,             2);
+DEFINE_PRIM(hx_gl_getActiveUniform,            2);
+DEFINE_PRIM(hx_gl_getActiveUniformBlockiv,     3);
+DEFINE_PRIM(hx_gl_getActiveUniformBlockName,   2);
+DEFINE_PRIM(hx_gl_getActiveUniformName,        2);
+DEFINE_PRIM(hx_gl_getActiveUniformsiv,         4);
+DEFINE_PRIM(hx_gl_getAttachedShaders,          2);
+DEFINE_PRIM(hx_gl_getAttribLocation,           2);
+DEFINE_PRIM(hx_gl_getBufferParameteriv,        2);
+DEFINE_PRIM(hx_gl_getBufferSubData,            4);
+DEFINE_PRIM(hx_gl_getCompressedTexImage,       3);
+DEFINE_PRIM(hx_gl_getError,                    0);
+DEFINE_PRIM(hx_gl_getFragDataIndex,            2);
+DEFINE_PRIM(hx_gl_getFragDataLocation,         2);
+DEFINE_PRIM(hx_gl_getFramebufferAttachmentParameteriv, 3);
+DEFINE_PRIM(hx_gl_getMultisamplefv,            2);
+DEFINE_PRIM(hx_gl_getProgramiv,                2);
+DEFINE_PRIM(hx_gl_getQueryObjectiv,            2);
+DEFINE_PRIM(hx_gl_getQueryObjectuiv,           2);
+DEFINE_PRIM(hx_gl_getQueryObjecti64v,          3);
+DEFINE_PRIM(hx_gl_getQueryObjectui64v,         3);
+DEFINE_PRIM(hx_gl_getQueryiv,                  2);
+DEFINE_PRIM(hx_gl_getRenderbufferParameteriv,  2);
+DEFINE_PRIM(hx_gl_getShaderiv,                 2);
+DEFINE_PRIM(hx_gl_getShaderSource,             1);
+DEFINE_PRIM(hx_gl_getString,                   1);
+DEFINE_PRIM(hx_gl_getStringi,                  2);
+DEFINE_PRIM(hx_gl_getSynciv,                   2);
+DEFINE_PRIM(hx_gl_getTexImage,                 5);
+DEFINE_PRIM(hx_gl_getTexLevelParameterfv,      3);
+DEFINE_PRIM(hx_gl_getTexLevelParameteriv,      3);
+DEFINE_PRIM(hx_gl_getTransformFeedbackVarying, 2);
+DEFINE_PRIM(hx_gl_getUniformBlockIndex,        2);
+DEFINE_PRIM(hx_gl_getUniformIndices,           3);
+DEFINE_PRIM(hx_gl_getUniformLocation,          2);
 
 // ================================================================================================
 // H
 // ================================================================================================
+void hx_gl_hint(value target, value mode) {
+    glHint(val_get<int>(target), val_get<int>(mode));
+}
+DEFINE_PRIM(hx_gl_hint, 2);
 
 // ================================================================================================
 // I
 // ================================================================================================
-
-// ================================================================================================
-// J
-// ================================================================================================
-
-// ================================================================================================
-// K
-// ================================================================================================
+value hx_gl_isBuffer(value buffer) {
+    return alloc<bool>(glIsBuffer(val_get<int>(buffer)));
+}
+value hx_gl_isEnabled(value cap) {
+    return alloc<bool>(glIsEnabled(val_get<int>(cap)));
+}
+value hx_gl_isEnabledi(value cap, value index) {
+    return alloc<bool>(glIsEnabledi(val_get<int>(cap), val_get<int>(index)));
+}
+value hx_gl_isFramebuffer(value buf) {
+    return alloc<bool>(glIsFramebuffer(val_get<int>(buf)));
+}
+value hx_gl_isProgram(value program) {
+    return alloc<bool>(glIsProgram(val_get<int>(program)));
+}
+value hx_gl_isQuery(value id) {
+    return alloc<bool>(glIsQuery(val_get<int>(id)));
+}
+value hx_gl_isRenderbuffer(value buf) {
+    return alloc<bool>(glIsRenderbuffer(val_get<int>(buf)));
+}
+value hx_gl_isSampler(value id) {
+    return alloc<bool>(glIsSampler(val_get<int>(id)));
+}
+value hx_gl_isShader(value shader) {
+    return alloc<bool>(glIsShader(val_get<int>(shader)));
+}
+value hx_gl_isSync(value sync) {
+    return alloc<bool>(glIsSync((GLsync)val_data(sync)));
+}
+value hx_gl_isTexture(value texture) {
+    return alloc<bool>(glIsTexture(val_get<int>(texture)));
+}
+value hx_gl_isVertexArray(value array) {
+    return alloc<bool>(glIsVertexArray(val_get<int>(array)));
+}
+DEFINE_PRIM(hx_gl_isBuffer, 1);
+DEFINE_PRIM(hx_gl_isEnabled, 1);
+DEFINE_PRIM(hx_gl_isEnabledi, 2);
+DEFINE_PRIM(hx_gl_isFramebuffer, 1);
+DEFINE_PRIM(hx_gl_isProgram, 1);
+DEFINE_PRIM(hx_gl_isQuery, 1);
+DEFINE_PRIM(hx_gl_isRenderbuffer, 1);
+DEFINE_PRIM(hx_gl_isSampler, 1);
+DEFINE_PRIM(hx_gl_isShader, 1);
+DEFINE_PRIM(hx_gl_isSync, 1);
+DEFINE_PRIM(hx_gl_isTexture, 1);
+DEFINE_PRIM(hx_gl_isVertexArray, 1);
 
 // ================================================================================================
 // L
 // ================================================================================================
+void hx_gl_lineWidth(value width) {
+    glLineWidth(val_get<double>(width));
+}
 value hx_gl_linkProgram(value program) {
     glLinkProgram(val_get<int>(program));
 
@@ -792,7 +1090,12 @@ value hx_gl_linkProgram(value program) {
         return val_null;
     }
 }
+void hx_gl_logicOp(value op) {
+    glLogicOp(val_get<int>(op));
+}
+DEFINE_PRIM(hx_gl_lineWidth,   1);
 DEFINE_PRIM(hx_gl_linkProgram, 1);
+DEFINE_PRIM(hx_gl_logicOp,     1);
 
 // ================================================================================================
 // M
