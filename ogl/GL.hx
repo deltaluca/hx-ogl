@@ -841,6 +841,11 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // R
     // ================================================================================================
+    @:GLProc function readBuffer(mode:GLenum):Void;
+    @:GLProc function readPixels(x:GLint, y:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
+        load("readPixels", 7)(x, y, width, height, format, data.type, data.buffer);
+    @:GLProc function renderbufferStorage(target:GLenum, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
+    @:GLProc function renderbufferStorageMultisample(target:GLenum, samples:GLsizei, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
 
     // ================================================================================================
     // S

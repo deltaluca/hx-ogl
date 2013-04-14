@@ -1172,6 +1172,22 @@ DEFINE_PRIM(hx_gl_queryCounter, 2);
 // ================================================================================================
 // R
 // ================================================================================================
+void hx_gl_readBuffer(value mode) {
+    glReadBuffer(val_get<int>(mode));
+}
+void hx_gl_readPixels(value* args, int nargs) {
+    glReadPixels(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+}
+void hx_gl_renderbufferStorage(value target, value internalFormat, value width, value height) {
+    glRenderbufferStorage(val_get<int>(target), val_get<int>(internalFormat), val_get<int>(width), val_get<int>(height));
+}
+void hx_gl_renderbufferStorageMultisample(value target, value samples, value internalFormat, value width, value height) {
+    glRenderbufferStorageMultisample(val_get<int>(target), val_get<int>(samples), val_get<int>(internalFormat), val_get<int>(width), val_get<int>(height));
+}
+DEFINE_PRIM(hx_gl_readBuffer, 1);
+DEFINE_PRIM_MULT(hx_gl_readPixels);
+DEFINE_PRIM(hx_gl_renderbufferStorage, 4);
+DEFINE_PRIM(hx_gl_renderbufferStorageMultisample, 5);
 
 // ================================================================================================
 // S
