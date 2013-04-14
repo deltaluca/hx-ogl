@@ -1117,21 +1117,49 @@ void hx_gl_multiDrawElementsBaseVertex(value mode, value count, value type, valu
     glMultiDrawElementsBaseVertex(val_get<int>(mode), val_array_int(count), val_get<int>(type), cindices, cnt, val_array_int(baseVertex));
     delete[] cindices;
 }
-DEFINE_PRIM(hx_gl_multiDrawArrays, 3);
-DEFINE_PRIM(hx_gl_multiDrawElements, 4);
+DEFINE_PRIM(hx_gl_multiDrawArrays,             3);
+DEFINE_PRIM(hx_gl_multiDrawElements,           4);
 DEFINE_PRIM(hx_gl_multiDrawElementsBaseVertex, 5);
-
-// ================================================================================================
-// N
-// ================================================================================================
-
-// ================================================================================================
-// O
-// ================================================================================================
 
 // ================================================================================================
 // P
 // ================================================================================================
+void hx_gl_pixelStoref(value pname, value param) {
+    glPixelStoref(val_get<int>(pname), val_get<double>(param));
+}
+void hx_gl_pixelStorei(value pname, value param) {
+    glPixelStorei(val_get<int>(pname), val_get<int>(param));
+}
+void hx_gl_pointParameterf(value pname, value param) {
+    glPixelStoref(val_get<int>(pname), val_get<double>(param));
+}
+void hx_gl_pointParameteri(value pname, value param) {
+    glPixelStorei(val_get<int>(pname), val_get<int>(param));
+}
+void hx_gl_pointSize(value size) {
+    glPointSize(val_get<double>(size));
+}
+void hx_gl_polygonMode(value face, value mode) {
+    glPolygonMode(val_get<int>(face), val_get<int>(mode));
+}
+void hx_gl_polygonOffset(value factor, value units) {
+    glPolygonOffset(val_get<double>(factor), val_get<double>(units));
+}
+void hx_gl_primitiveRestartIndex(value index) {
+    glPrimitiveRestartIndex(val_get<int>(index));
+}
+void hx_gl_provokingVertex(value provokeMode) {
+    glProvokingVertex(val_get<int>(provokeMode));
+}
+DEFINE_PRIM(hx_gl_pixelStoref,           2);
+DEFINE_PRIM(hx_gl_pixelStorei,           2);
+DEFINE_PRIM(hx_gl_pointParameterf,       2);
+DEFINE_PRIM(hx_gl_pointParameteri,       2);
+DEFINE_PRIM(hx_gl_pointSize,             1);
+DEFINE_PRIM(hx_gl_polygonMode,           2);
+DEFINE_PRIM(hx_gl_polygonOffset,         2);
+DEFINE_PRIM(hx_gl_primitiveRestartIndex, 1);
+DEFINE_PRIM(hx_gl_provokingVertex,       1);
 
 // ================================================================================================
 // Q

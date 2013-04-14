@@ -821,16 +821,17 @@ class GL implements GLConsts implements GLProcs {
     }
 
     // ================================================================================================
-    // N
-    // ================================================================================================
-
-    // ================================================================================================
-    // O
-    // ================================================================================================
-
-    // ================================================================================================
     // P
     // ================================================================================================
+    @:GLProc function pixelStoref(pname:GLenum, param:GLfloat):Void;
+    @:GLProc function pixelStorei(pname:GLenum, param:GLint):Void;
+    @:GLProc function pointParameterf(pname:GLenum, param:GLfloat):Void;
+    @:GLProc function pointParameteri(pname:GLenum, param:GLint):Void;
+    @:GLProc function pointSize(size:GLfloat):Void;
+    @:GLProc function polygonMode(face:GLenum, mode:GLenum):Void;
+    @:GLProc function polygonOffset(factor:GLfloat, units:GLfloat):Void;
+    @:GLProc function primitiveRestartIndex(index:GLuint):Void;
+    @:GLProc function provokingVertex(provokeMode:GLenum):Void;
 
     // ================================================================================================
     // Q
