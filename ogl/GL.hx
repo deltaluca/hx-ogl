@@ -890,8 +890,100 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // U
     // ================================================================================================
-    @:GLProc function uniformMatrix2x3fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
-    @:GLProc function uniformMatrix4fv(location:Int, count:Int, transpose:Bool, data:Array<Float>):Void;
+    @:GLProc function uniform1f (location:GLint, v0:GLfloat):Void;
+    @:GLProc function uniform1i (location:GLint, v0:GLint  ):Void;
+    @:GLProc function uniform1ui(location:GLint, v0:GLuint ):Void;
+    @:GLProc function uniform2f (location:GLint, v0:GLfloat, v1:GLfloat):Void;
+    @:GLProc function uniform2i (location:GLint, v0:GLint  , v1:GLint  ):Void;
+    @:GLProc function uniform2ui(location:GLint, v0:GLuint , v1:GLuint ):Void;
+    @:GLProc function uniform3f (location:GLint, v0:GLfloat, v1:GLfloat, v2:GLfloat):Void;
+    @:GLProc function uniform3i (location:GLint, v0:GLint  , v1:GLint  , v2:GLint  ):Void;
+    @:GLProc function uniform3ui(location:GLint, v0:GLuint , v1:GLuint , v2:GLuint ):Void;
+    @:GLProc function uniform4f (location:GLint, v0:GLfloat, v1:GLfloat, v2:GLfloat, v3:GLfloat):Void;
+    @:GLProc function uniform4i (location:GLint, v0:GLint  , v1:GLint  , v2:GLint  , v3:GLint  ):Void;
+    @:GLProc function uniform4ui(location:GLint, v0:GLuint , v1:GLuint , v2:GLuint , v3:GLuint ):Void;
+
+    @:GLProc function uniform1fv(location:GLint, data:GLfloatArray):Void
+        load("uniform1fv", 3)(location, data.count, data.raw);
+    @:GLProc function uniform2fv(location:GLint, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%2 != 0) throw "Data should have length as multiple of 2";
+        load("uniform2fv", 3)(location, data.count, data.raw);
+    }
+    @:GLProc function uniform3fv(location:GLint, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%3 != 0) throw "Data should have length as multiple of 3";
+        load("uniform3fv", 3)(location, data.count, data.raw);
+    }
+    @:GLProc function uniform4fv(location:GLint, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%4 != 0) throw "Data should have length as multiple of 4";
+        load("uniform4fv", 3)(location, data.count, data.raw);
+    }
+
+    @:GLProc function uniform1iv(location:GLint, data:Array<GLint>):Void;
+    @:GLProc function uniform2iv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%2 != 0) throw "Data should have length as multiple of 2";
+        load("uniform2iv", 2)(location, data);
+    }
+    @:GLProc function uniform3iv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%3 != 0) throw "Data should have length as multiple of 3";
+        load("uniform3iv", 3)(location, data);
+    }
+    @:GLProc function uniform4iv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%4 != 0) throw "Data should have length as multiple of 4";
+        load("uniform4iv", 4)(location, data);
+    }
+
+    @:GLProc function uniform1uiv(location:GLint, data:Array<GLuint>):Void;
+    @:GLProc function uniform2uiv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%2 != 0) throw "Data should have length as multiple of 2";
+        load("uniform2uiv", 2)(location, data);
+    }
+    @:GLProc function uniform3uiv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%3 != 0) throw "Data should have length as multiple of 3";
+        load("uniform3uiv", 3)(location, data);
+    }
+    @:GLProc function uniform4uiv(location:GLint, data:Array<GLint>):Void {
+        @:GLCheck if (data.length%4 != 0) throw "Data should have length as multiple of 4";
+        load("uniform4uiv", 4)(location, data);
+    }
+
+    @:GLProc function uniformMatrix2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%4 != 0) throw "Data should have size multiple of 4";
+        load("uniformMatrix2fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%9 != 0) throw "Data should have size multiple of 9";
+        load("uniformMatrix3fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%16 != 0) throw "Data should have size multiple of 16";
+        load("uniformMatrix4fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix2x3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%6 != 0) throw "Data should have size multiple of 6";
+        load("uniformMatrix2x3fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix3x2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%6 != 0) throw "Data should have size multiple of 6";
+        load("uniformMatrix3x2fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix2x4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%8 != 0) throw "Data should have size multiple of 8";
+        load("uniformMatrix2x4fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix4x2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%8 != 0) throw "Data should have size multiple of 8";
+        load("uniformMatrix4x2fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix3x4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%12 != 0) throw "Data should have size multiple of 12";
+        load("uniformMatrix3x4fv", 4)(location, data.count, transpose, data.raw);
+    }
+    @:GLProc function uniformMatrix4x3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
+        @:GLCheck if (data.count%12 != 0) throw "Data should have size multiple of 12";
+        load("uniformMatrix4x3fv", 4)(location, data.count, transpose, data.raw);
+    }
+
+    @:GLProc function uniformBlockBinding(program:GLuint, uniformBlockIndex:GLuint, uniformBlockBinding:GLuint):Void;
     @:GLProc function useProgram(program:GLuint):Void;
 
     // ================================================================================================

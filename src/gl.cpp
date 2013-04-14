@@ -1304,26 +1304,81 @@ DEFINE_PRIM(hx_gl_transformFeedbackVaryings, 3);
 // ================================================================================================
 // U
 // ================================================================================================
-void hx_gl_uniformMatrix2x3fv(value location, value count, value transpose, value data) {
-    int size = val_array_size(data);
-    float* _data = new float[size];
-    for (int i = 0; i < size; i++) _data[i] = val_get<float>(val_array_i(data, i));
-    glUniformMatrix2x3fv(val_get<int>(location), val_get<int>(count), val_get<bool>(transpose), _data);
-    delete[] _data;
-}
-void hx_gl_uniformMatrix4fv(value location, value count, value transpose, value data) {
-    int size = val_array_size(data);
-    float* _data = new float[size];
-    for (int i = 0; i < size; i++) _data[i] = val_get<float>(val_array_i(data, i));
-    glUniformMatrix4fv(val_get<int>(location), val_get<int>(count), val_get<bool>(transpose), _data);
-    delete[] _data;
+#define UNIFORM1(N, T) \
+    void hx_gl_uniform1##N(value loc, value v0) { \
+        glUniform1##N(val_get<int>(loc), val_get<T>(v0)); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform1##N, 2)
+UNIFORM1(f, double);
+UNIFORM1(i, int);
+UNIFORM1(ui, int);
+#define UNIFORM2(N, T) \
+    void hx_gl_uniform2##N(value loc, value v0, value v1) { \
+        glUniform2##N(val_get<int>(loc), val_get<T>(v0), val_get<T>(v1)); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform2##N, 3)
+UNIFORM2(f, double);
+UNIFORM2(i, int);
+UNIFORM2(ui, int);
+#define UNIFORM3(N, T) \
+    void hx_gl_uniform3##N(value loc, value v0, value v1, value v2) { \
+        glUniform3##N(val_get<int>(loc), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2)); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform3##N, 4)
+UNIFORM3(f, double);
+UNIFORM3(i, int);
+UNIFORM3(ui, int);
+#define UNIFORM4(N, T) \
+    void hx_gl_uniform4##N(value loc, value v0, value v1, value v2, value v3) { \
+        glUniform4##N(val_get<int>(loc), val_get<T>(v0), val_get<T>(v1), val_get<T>(v2), val_get<T>(v3)); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform4##N, 5)
+UNIFORM4(f, double);
+UNIFORM4(i, int);
+UNIFORM4(ui, int);
+
+#define UNIFORMF(N) \
+    void hx_gl_uniform##N##fv(value loc, value cnt, value val) { \
+        glUniform##N##fv(val_get<int>(loc), val_get<int>(cnt)/N, (const GLfloat*)buffer_data(val_to_buffer(val))); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform##N##fv, 3)
+UNIFORMF(1);
+UNIFORMF(2);
+UNIFORMF(3);
+UNIFORMF(4);
+#define UNIFORMI(N, G, T) \
+    void hx_gl_uniform##N##G##v(value loc, value val) { \
+        glUniform##N##G##v(val_get<int>(loc), val_array_size(val)/N, (const T*)val_array_int(val)); \
+    } \
+    DEFINE_PRIM(hx_gl_uniform##N##G##v, 3)
+UNIFORMI(1, i, GLint); UNIFORMI(1, ui, GLuint);
+UNIFORMI(2, i, GLint); UNIFORMI(2, ui, GLuint);
+UNIFORMI(3, i, GLint); UNIFORMI(3, ui, GLuint);
+UNIFORMI(4, i, GLint); UNIFORMI(4, ui, GLuint);
+
+#define UNIFORMMAT(N, T) \
+    void hx_gl_uniformMatrix##N##fv(value loc, value cnt, value transpose, value val) { \
+        glUniformMatrix##N##fv(val_get<int>(loc), val_get<int>(cnt)/T, val_get<bool>(transpose), (const GLfloat*)buffer_data(val_to_buffer(val))); \
+    } \
+    DEFINE_PRIM(hx_gl_uniformMatrix##N##fv, 4)
+UNIFORMMAT(2, 4);
+UNIFORMMAT(3, 9);
+UNIFORMMAT(4, 16);
+UNIFORMMAT(2x3, 6);
+UNIFORMMAT(3x2, 6);
+UNIFORMMAT(2x4, 8);
+UNIFORMMAT(4x2, 8);
+UNIFORMMAT(3x4, 12);
+UNIFORMMAT(4x3, 12);
+
+void hx_gl_uniformBlockBinding(value program, value ind, value bind) {
+    glUniformBlockBinding(val_get<int>(program), val_get<int>(ind), val_get<int>(bind));
 }
 void hx_gl_useProgram(value program) {
     glUseProgram(val_get<int>(program));
 }
-DEFINE_PRIM(hx_gl_uniformMatrix2x3fv, 4);
-DEFINE_PRIM(hx_gl_uniformMatrix4fv,   4);
-DEFINE_PRIM(hx_gl_useProgram,         1);
+DEFINE_PRIM(hx_gl_uniformBlockBinding, 3);
+DEFINE_PRIM(hx_gl_useProgram,          1);
 
 // ================================================================================================
 // V
