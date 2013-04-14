@@ -1100,6 +1100,26 @@ DEFINE_PRIM(hx_gl_logicOp,     1);
 // ================================================================================================
 // M
 // ================================================================================================
+void hx_gl_multiDrawArrays(value mode, value first, value count) {
+    glMultiDrawArrays(val_get<int>(mode), val_array_int(first), val_array_int(count), val_array_size(first));
+}
+void hx_gl_multiDrawElements(value mode, value count, value type, value indices) {
+    int cnt = val_array_size(indices);
+    const GLvoid** cindices = new const GLvoid*[cnt];
+    for (int i = 0; i < cnt; i++) cindices[i] = (const GLvoid*)buffer_data(val_to_buffer(val_array_i(indices, i)));
+    glMultiDrawElements(val_get<int>(mode), val_array_int(count), val_get<int>(type), cindices, cnt);
+    delete[] cindices;
+}
+void hx_gl_multiDrawElementsBaseVertex(value mode, value count, value type, value indices, value baseVertex) {
+    int cnt = val_array_size(indices);
+    GLvoid** cindices = new GLvoid*[cnt];
+    for (int i = 0; i < cnt; i++) cindices[i] = (GLvoid*)buffer_data(val_to_buffer(val_array_i(indices, i)));
+    glMultiDrawElementsBaseVertex(val_get<int>(mode), val_array_int(count), val_get<int>(type), cindices, cnt, val_array_int(baseVertex));
+    delete[] cindices;
+}
+DEFINE_PRIM(hx_gl_multiDrawArrays, 3);
+DEFINE_PRIM(hx_gl_multiDrawElements, 4);
+DEFINE_PRIM(hx_gl_multiDrawElementsBaseVertex, 5);
 
 // ================================================================================================
 // N

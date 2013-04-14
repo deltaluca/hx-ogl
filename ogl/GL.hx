@@ -778,6 +778,47 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // M
     // ================================================================================================
+    @:GLProc function multiDrawArrays(mode:GLenum, first:Array<GLint>, count:Array<GLsizei>):Void {
+        @:GLCheck if (first.length == 0) throw "Cannot draw 0 arrays";
+        @:GLCheck if (first.length != count.length) throw "First and Count should have equal sizes";
+        load("multiDrawArrays", 3)(mode, first, count);
+    }
+    @:GLProc function multiDrawElements(mode:GLenum, count:Array<GLsizei>, indices:Array<GLArray>):Void {
+        @:GLCheck if (count.length == 0) throw "Cannot draw 0 elements";
+        @:GLCheck if (count.length != indices.length) throw "Count and Indices should have equal sizes";
+        @:GLCheck if (!({
+            var same = true;
+            var type = indices[0].type;
+            for (i in 1...indices.length) {
+                if (indices[i].type != type) {
+                    same = false;
+                    break;
+                }
+            }
+            same;
+        })) throw "Indices arrays must all be of the same GL type";
+        var cindices = [];
+        for (i in indices) cindices.push(i.buffer);
+        load("multiDrawElements", 4)(mode, count, indices[0].type, cindices);
+    }
+    @:GLProc function multiDrawElementsBaseVertex(mode:GLenum, count:Array<GLsizei>, indices:Array<GLArray>, baseVertex:Array<GLint>):Void {
+        @:GLCheck if (count.length == 0) throw "Cannot draw 0 elements";
+        @:GLCheck if (count.length != indices.length || count.length != baseVertex.length) throw "Count, Indices and BaseVertex should have equal sizes";
+        @:GLCheck if (!({
+            var same = true;
+            var type = indices[0].type;
+            for (i in 1...indices.length) {
+                if (indices[i].type != type) {
+                    same = false;
+                    break;
+                }
+            }
+            same;
+        })) throw "Indices arrays must all be of the same GL type";
+        var cindices = [];
+        for (i in indices) cindices.push(i.buffer);
+        load("multiDrawElementsBaseVertex", 5)(mode, count, indices[0].type, cindices, baseVertex);
+    }
 
     // ================================================================================================
     // N
