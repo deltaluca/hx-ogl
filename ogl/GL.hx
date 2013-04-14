@@ -850,7 +850,18 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     // S
     // ================================================================================================
-    @:GLProc function shaderSource(shader:Int, source:String):Void {
+    @:GLProc function sampleCoverage(value:GLclampf, invert:GLboolean):Void;
+    @:GLProc function sampleMaski(maskNumber:GLuint, mask:GLbitfield):Void;
+    @:GLProc function samplerParameterf(sampler:GLuint, pname:GLenum, param:GLfloat):Void;
+    @:GLProc function samplerParameteri(sampler:GLuint, pname:GLenum, param:GLint):Void;
+    @:GLProc function scissor(x:GLint, y:GLint, width:GLsizei, height:GLsizei):Void;
+    @:GLProc function stencilFunc(func:GLenum, ref:GLint, mask:GLuint):Void;
+    @:GLProc function stencilFuncSeparate(face:GLenum, func:GLenum, ref:GLint, mask:GLuint):Void;
+    @:GLProc function stencilMask(mask:GLuint):Void;
+    @:GLProc function stencilMaskSeparate(face:GLenum, mask:GLuint):Void;
+    @:GLProc function stencilOp(sfail:GLenum, dpfail:GLenum, dppass:GLenum):Void;
+    @:GLProc function stencilOpSeparate(face:GLenum, sfail:GLenum, dpfail:GLenum, dppass:GLenum):Void;
+    @:GLProc function shaderSource(shader:GLuint, source:String):Void {
         load("shaderSource", 2)(shader, [source]);
     }
 

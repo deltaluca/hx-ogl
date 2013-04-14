@@ -1192,6 +1192,21 @@ DEFINE_PRIM(hx_gl_renderbufferStorageMultisample, 5);
 // ================================================================================================
 // S
 // ================================================================================================
+void hx_gl_sampleCoverage(value val, value invert) {
+    glSampleCoverage(val_get<double>(val), val_get<bool>(invert));
+}
+void hx_gl_sampleMaski(value maskn, value mask) {
+    glSampleMaski(val_get<int>(maskn), val_get<int>(mask));
+}
+void hx_gl_samplerParameterf(value sampler, value pname, value param) {
+    glSamplerParameterf(val_get<int>(sampler), val_get<int>(pname), val_get<double>(param));
+}
+void hx_gl_samplerParameteri(value sampler, value pname, value param) {
+    glSamplerParameteri(val_get<int>(sampler), val_get<int>(pname), val_get<int>(param));
+}
+void hx_gl_scissor(value x, value y, value width, value height) {
+    glScissor(val_get<int>(x), val_get<int>(y), val_get<int>(width), val_get<int>(height));
+}
 void hx_gl_shaderSource(value shader, value strings) {
     string* _strings = new string[val_array_size(strings)];
     for (int i = 0; i < val_array_size(strings); i++)
@@ -1199,7 +1214,36 @@ void hx_gl_shaderSource(value shader, value strings) {
     glShaderSource(val_get<int>(shader), val_array_size(strings), _strings, NULL);
     delete[] _strings;
 }
-DEFINE_PRIM(hx_gl_shaderSource, 2);
+void hx_gl_stencilFunc(value func, value ref, value mask) {
+    glStencilFunc(val_get<int>(func), val_get<int>(ref), val_get<int>(mask));
+}
+void hx_gl_stencilFuncSeparate(value face, value func, value ref, value mask) {
+    glStencilFuncSeparate(val_get<int>(face), val_get<int>(func), val_get<int>(ref), val_get<int>(mask));
+}
+void hx_gl_stencilMask(value mask) {
+    glStencilMask(val_get<int>(mask));
+}
+void hx_gl_stencilMaskSeparate(value face, value mask) {
+    glStencilMaskSeparate(val_get<int>(face), val_get<int>(mask));
+}
+void hx_gl_stencilOp(value sfail, value dpfail, value dppass) {
+    glStencilOp(val_get<int>(sfail), val_get<int>(dpfail), val_get<int>(dppass));
+}
+void hx_gl_stencilOpSeparate(value face, value sfail, value dpfail, value dppass) {
+    glStencilOpSeparate(val_get<int>(face), val_get<int>(sfail), val_get<int>(dpfail), val_get<int>(dppass));
+}
+DEFINE_PRIM(hx_gl_sampleCoverage,      2);
+DEFINE_PRIM(hx_gl_sampleMaski,         2);
+DEFINE_PRIM(hx_gl_samplerParameterf,   3);
+DEFINE_PRIM(hx_gl_samplerParameteri,   3);
+DEFINE_PRIM(hx_gl_scissor,             4);
+DEFINE_PRIM(hx_gl_shaderSource,        2);
+DEFINE_PRIM(hx_gl_stencilFunc,         3);
+DEFINE_PRIM(hx_gl_stencilFuncSeparate, 4);
+DEFINE_PRIM(hx_gl_stencilMask,         1);
+DEFINE_PRIM(hx_gl_stencilMaskSeparate, 2);
+DEFINE_PRIM(hx_gl_stencilOp,           3);
+DEFINE_PRIM(hx_gl_stencilOpSeparate,   4);
 
 // ================================================================================================
 // T
