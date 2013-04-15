@@ -85,25 +85,26 @@ import ogl.GLArray;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-abstract Mat2x3(GLfloatArray) to GLfloatArray {
+abstract Mat3x2(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Mat2x3(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Mat2x3(x);
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Mat3x2(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Mat3x2(x);
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
     @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
 
-    public static inline function identity():Mat2x3
+    public static inline function identity():Mat3x2
         return [1.0, 0.0, 0.0,
                 0.0, 1.0, 0.0];
 
     // (x, y) => (2*x/w - 1, 1 - 2*y/h)
-    public static inline function viewportMap(width:Float, height:Float):Mat2x3
-        return [2.0/width,  0.0, -1,
-                0.0, -2.0/height, 1];
+    public static inline function viewportMap(width:Float, height:Float):Mat3x2
+        return [2.0/width,  0.0,
+                   0.0, -2.0/height,
+                  -1.0,     1.0    ];
 
-    @:op(A*B) public static inline function mul(a:Mat2x3, b:Mat2x3):Mat2x3
+    @:op(A*B) public static inline function mul(b:Mat3x2, a:Mat3x2):Mat3x2
         return [b[0]*a[0] + b[3]*a[1],
                 b[1]*a[0] + b[4]*a[1],
                 b[2]*a[0] + b[5]*a[1] + a[2],

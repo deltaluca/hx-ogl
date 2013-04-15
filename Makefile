@@ -12,5 +12,5 @@ main: haxelib Main.hx
 .PHONY: haxelib
 haxelib: lib
 	rm -f ogl.zip
-	zip -r ogl src ogl include ndll Build.xml haxelib.xml
+	zip -r ogl src ogl include ndll Build.xml haxelib.xml samples -x \*samples/bin\*
 	haxelib test ogl.zip
