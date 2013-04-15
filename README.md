@@ -10,6 +10,10 @@ should consider testing and submitting pull requests :)
 
 #### API Changes to OpenGL.
 
+Major change, is that unless -D ogl-dont-check-errors is set, every GL call will call glGetError to look for errors
+and if found, will be thrown in Haxe. This is also true of things like glCompileShader, glLinkProgram which will check
+for success and throw with the error message given otherwise.
+
 Most of the API is unchanged, the most common change is replacing instances of an 'out' pointer argument with a return value.
 
 eg:
