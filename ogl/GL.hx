@@ -26,7 +26,8 @@ typedef GLboolean  = Bool;
 
 abstract GLubyteArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLubyteArray(raw);
+    @:from public static inline function fromRaw(raw:BytesData):GLubyteArray return new GLubyteArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLubyte>):GLubyteArray return GL.buffer(arr, GL.UNSIGNED_BYTE);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -45,6 +46,7 @@ abstract GLubyteArray(GLArray) to GLArray {
 abstract GLbyteArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.BYTE);
     @:from public static inline function fromRaw(raw:BytesData) return new GLbyteArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLbyte>):GLbyteArray return GL.buffer(arr, GL.BYTE);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -63,6 +65,7 @@ abstract GLbyteArray(GLArray) to GLArray {
 abstract GLushortArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLushortArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLushort>):GLushortArray return GL.buffer(arr, GL.UNSIGNED_SHORT);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -79,6 +82,7 @@ abstract GLushortArray(GLArray) to GLArray {
 abstract GLshortArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.SHORT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLshortArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLshort>):GLshortArray return GL.buffer(arr, GL.SHORT);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -95,6 +99,7 @@ abstract GLshortArray(GLArray) to GLArray {
 abstract GLuintArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLuintArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLuint>):GLuintArray return GL.buffer(arr, GL.UNSIGNED_INT);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -111,6 +116,7 @@ abstract GLuintArray(GLArray) to GLArray {
 abstract GLintArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLintArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLint>):GLintArray return GL.buffer(arr, GL.INT);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -127,6 +133,7 @@ abstract GLintArray(GLArray) to GLArray {
 abstract GLfloatArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.FLOAT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLfloatArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLfloat>):GLfloatArray return GL.buffer(arr, GL.FLOAT);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -143,6 +150,7 @@ abstract GLfloatArray(GLArray) to GLArray {
 abstract GLdoubleArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 8, GL.DOUBLE);
     @:from public static inline function fromRaw(raw:BytesData) return new GLdoubleArray(raw);
+    @:from public static inline function fromArr(arr:Array<GLdouble>):GLdoubleArray return GL.buffer(arr, GL.DOUBLE);
     public var raw(get, never):BytesData;
     inline function get_raw() return this.buffer;
     public var count(get, never):Int;
@@ -167,11 +175,13 @@ class GLArray {
         this.size = size;
         this.type = type;
     }
+    inline public function toString() { return 'GLArray ($type/$size) x $count'; }
 }
 
-@:build(ogl.GLVector.run(2)) abstract Vec2(Array<Float>) from Array<Float> to Array<Float> {
-    public inline function new(x:Float, y:Float) this = [x, y];
-    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec2(xs[0],xs[1]);
+@:build(ogl.GLVector.run(2)) abstract Vec2(GLfloatArray) to GLfloatArray {
+    public inline function new(x:GLfloatArray) this = x;
+    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec2(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec2(x);
 
     // .xy
     public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
@@ -192,9 +202,10 @@ class GLArray {
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-@:build(ogl.GLVector.run(3)) abstract Vec3(Array<Float>) from Array<Float> to Array<Float> {
-    public inline function new(x:Float, y:Float, z:Float) this = [x, y, z];
-    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec3(xs[0],xs[1],xs[2]);
+@:build(ogl.GLVector.run(3)) abstract Vec3(GLfloatArray) to GLfloatArray {
+    public inline function new(x:GLfloatArray) this = x;
+    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec3(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec3(x);
 
     // .xyz
     public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
@@ -218,9 +229,10 @@ class GLArray {
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-@:build(ogl.GLVector.run(4)) abstract Vec4(Array<Float>) from Array<Float> to Array<Float> {
-    public inline function new(x:Float, y:Float, z:Float, w:Float) this = [x, y, z, w];
-    @:from public static inline function fromIntArray(xs:Array<Int>) return new Vec4(xs[0],xs[1],xs[2],xs[3]);
+@:build(ogl.GLVector.run(4)) abstract Vec4(GLfloatArray) to GLfloatArray {
+    public inline function new(x:GLfloatArray) this = x;
+    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec4(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec4(x);
 
     // .xyzw
     public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
@@ -247,8 +259,10 @@ class GLArray {
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 }
 
-abstract Mat2x3(Array<Float>) from Array<Float> to Array<Float> {
-    public inline function new() this = identity();
+abstract Mat2x3(GLfloatArray) to GLfloatArray {
+    public inline function new(x:GLfloatArray) this = x;
+    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat2x3(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Mat2x3(x);
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
@@ -273,8 +287,10 @@ abstract Mat2x3(Array<Float>) from Array<Float> to Array<Float> {
                 b[2]*a[3] + b[5]*a[4] + a[5]];
 }
 
-abstract Mat4(Array<Float>) from Array<Float> to Array<Float> {
-    public inline function new() this = identity();
+abstract Mat4(GLfloatArray) from GLfloatArray {
+    public inline function new(x:GLfloatArray) this = x;
+    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat4(GLfloatArray.fromArr(x));
+    @:from public static inline function fromGL(x:GLfloatArray) return new Mat4(x);
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
@@ -408,9 +424,9 @@ class GL implements GLConsts implements GLProcs {
     }
 
     // Vector constructors (functional)
-    @:GLProc function v2(x:Float, y:Float):Vec2 return new Vec2(x,y);
-    @:GLProc function v3(x:Float, y:Float, z:Float):Vec3 return new Vec3(x,y,z);
-    @:GLProc function v4(x:Float, y:Float, z:Float, w:Float):Vec4 return new Vec4(x,y,z,w);
+    @:GLProc function v2(x:Float, y:Float):Vec2 return [x,y];
+    @:GLProc function v3(x:Float, y:Float, z:Float):Vec3 return [x,y,z];
+    @:GLProc function v4(x:Float, y:Float, z:Float, w:Float):Vec4 return [x,y,z,w];
 
     // ================================================================================================
     // A
