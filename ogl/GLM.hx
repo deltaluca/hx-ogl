@@ -6,7 +6,7 @@ import ogl.GLArray;
 
 @:build(ogl.GLVector.run(2)) abstract Vec2(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec2(GLfloatArray.fromArr(x));
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Vec2(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Vec2(x);
 
     // .xy
@@ -30,7 +30,7 @@ import ogl.GLArray;
 
 @:build(ogl.GLVector.run(3)) abstract Vec3(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec3(GLfloatArray.fromArr(x));
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Vec3(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Vec3(x);
 
     // .xyz
@@ -57,7 +57,7 @@ import ogl.GLArray;
 
 @:build(ogl.GLVector.run(4)) abstract Vec4(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec4(GLfloatArray.fromArr(x));
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Vec4(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Vec4(x);
 
     // .xyzw
@@ -87,7 +87,7 @@ import ogl.GLArray;
 
 abstract Mat2x3(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat2x3(GLfloatArray.fromArr(x));
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Mat2x3(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Mat2x3(x);
 
     // array access
@@ -115,58 +115,58 @@ abstract Mat2x3(GLfloatArray) to GLfloatArray {
 
 abstract Mat4(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat4(GLfloatArray.fromArr(x));
+    @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Mat4(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Mat4(x);
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
     @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
 
-    public static inline function identity():Mat4
+    public static function identity():Mat4
         return [1.0, 0.0, 0.0, 0.0,
                 0.0, 1.0, 0.0, 0.0,
                 0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0];
-    public static inline function translate(x:Float, y:Float, z:Float):Mat4
-        return [1.0, 0.0, 0.0,  x,
-                0.0, 1.0, 0.0,  y,
-                0.0, 0.0, 1.0,  z,
-                0.0, 0.0, 0.0, 1.0];
-    public static inline function scale(x:Float, y:Float, z:Float):Mat4
+    public static function translate(x:Float, y:Float, z:Float):Mat4
+        return [1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                 x,   y,   z,  1.0];
+    public static function scale(x:Float, y:Float, z:Float):Mat4
         return [ x,  0.0, 0.0, 0.0,
                 0.0,  y,  0.0, 0.0,
                 0.0, 0.0,  z,  0.0,
                 0.0, 0.0, 0.0, 1.0];
-    public static inline function rotateX(angle:Float):Mat4 {
+    public static function rotateX(angle:Float):Mat4 {
         var c = Math.cos(angle); var s = Math.sin(angle);
         return [1.0, 0.0, 0.0, 0.0,
-                0.0,  c,   -s, 0.0,
-                0.0,  s,   c,  0.0,
+                0.0,  c,   s,  0.0,
+                0.0, -s,   c,  0.0,
                 0.0, 0.0, 0.0, 1.0];
     }
-    public static inline function rotateY(angle:Float):Mat4 {
+    public static function rotateY(angle:Float):Mat4 {
         var c = Math.cos(angle); var s = Math.sin(angle);
-        return [ c,  0.0,  s,  0.0,
+        return [ c,  0.0, -s,  0.0,
                 0.0, 1.0, 0.0, 0.0,
-                 -s, 0.0,  c,  0.0,
+                 s,  0.0,  c,  0.0,
                 0.0, 0.0, 0.0, 1.0];
     }
-    public static inline function rotateZ(angle:Float):Mat4 {
+    public static function rotateZ(angle:Float):Mat4 {
         var c = Math.cos(angle); var s = Math.sin(angle);
-        return [c,   -s, 0.0,  0.0,
-                s,    c, 0.0,  0.0,
+        return [ c,   s,  0.0, 0.0,
+                -s,   c,  0.0, 0.0,
                 0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0];
     }
-    public static inline function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
+    public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
         var f = 1.0/Math.tan(fovY/2);
         var t = 1.0/(zNear-zFar);
-        return [f/aspectRatio, 0.0,      0.0,           0.0,
-                      0.0,      f,       0.0,           0.0,
-                      0.0,     0.0, (zFar+zNear)*t, 2*zFar*zNear*t,
-                      0.0,     0.0,     -1.0,           0.0       ];
+        return [f/aspectRatio, 0.0,      0.0,        0.0,
+                      0.0,      f,       0.0,        0.0,
+                      0.0,     0.0, (zFar+zNear)*t, -1.0,
+                      0.0,     0.0, 2*zFar*zNear*t , 0.0];
     }
-    public static inline function lookAt(eye:Vec3, centre:Vec3, ?up:Null<Vec3>):Mat4 {
+    public static function lookAt(eye:Vec3, centre:Vec3, ?up:Null<Vec3>):Mat4 {
         var e0 = eye.x;
         var e1 = eye.y;
         var e2 = eye.z;
@@ -195,13 +195,17 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
         u1 = s2*f0 - s0*f2;
         u2 = s0*f1 - s1*f0;
 
-        return [s0, u0, -f0, -e0*s0 - e1*s1 - e2*s2,
-                s1, u1, -f1, -e0*u0 - e1*u1 - e2*u2,
-                s2, u2, -f2,  e0*f0 + e1*f1 + e2*f2,
-                0,   0,   0,            1          ];
+        var d0 = -e0*s0 - e1*s1 - e2*s2;
+        var d1 = -e0*u0 - e1*u1 - e2*u2;
+        var d2 =  e0*f0 + e1*f1 + e2*f2;
+
+        return [s0, u0, -f0, 0.0,
+                s1, u1, -f1, 0.0,
+                s2, u2, -f2, 0.0,
+                d0, d1, d2, 1.0];
     }
 
-    @:op(A*B) public static inline function mul(a:Mat4, b:Mat4):Mat4
+    @:op(A*B) public static function mul(b:Mat4, a:Mat4):Mat4
         return [b[0]*a[0]  + b[4]*a[1]  + b[8] *a[2]  + b[12]*a[3],
                 b[1]*a[0]  + b[5]*a[1]  + b[9] *a[2]  + b[13]*a[3],
                 b[2]*a[0]  + b[6]*a[1]  + b[10]*a[2]  + b[14]*a[3],
