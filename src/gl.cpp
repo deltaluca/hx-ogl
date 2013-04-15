@@ -32,7 +32,7 @@ int byte_kind(int T) {
     return t;
 }
 int byte_size(int T) {
-    int t = byte_kind(t);
+    int t = byte_kind(T);
     return t == 0 ? 1 : t == 1 ? 2 : (t == 2 || t == 3) ? 4 : 8;
 }
 
