@@ -6,7 +6,7 @@ import haxe.io.BytesData;
 abstract GLubyteArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
     @:from public static inline function fromRaw(raw:BytesData):GLubyteArray return new GLubyteArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLubyte>):GLubyteArray return GL.buffer(arr, GL.UNSIGNED_BYTE);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLubyteArray return GL.buffer(arr, GL.UNSIGNED_BYTE);
     public static inline function alloc(count:Int):GLubyteArray return GL.allocBuffer(GL.UNSIGNED_BYTE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLubyteArray(arr.buffer);
@@ -36,7 +36,7 @@ abstract GLubyteArray(GLArray) to GLArray {
 abstract GLbyteArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.BYTE);
     @:from public static inline function fromRaw(raw:BytesData) return new GLbyteArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLbyte>):GLbyteArray return GL.buffer(arr, GL.BYTE);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLbyteArray return GL.buffer(arr, GL.BYTE);
     public static inline function alloc(count:Int):GLbyteArray return GL.allocBuffer(GL.BYTE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLbyteArray(arr.buffer);
@@ -66,7 +66,7 @@ abstract GLbyteArray(GLArray) to GLArray {
 abstract GLushortArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLushortArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLushort>):GLushortArray return GL.buffer(arr, GL.UNSIGNED_SHORT);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLushortArray return GL.buffer(arr, GL.UNSIGNED_SHORT);
     public static inline function alloc(count:Int):GLushortArray return GL.allocBuffer(GL.UNSIGNED_SHORT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLushortArray(arr.buffer);
@@ -94,7 +94,7 @@ abstract GLushortArray(GLArray) to GLArray {
 abstract GLshortArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.SHORT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLshortArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLshort>):GLshortArray return GL.buffer(arr, GL.SHORT);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLshortArray return GL.buffer(arr, GL.SHORT);
     public static inline function alloc(count:Int):GLshortArray return GL.allocBuffer(GL.SHORT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLshortArray(arr.buffer);
@@ -122,7 +122,7 @@ abstract GLshortArray(GLArray) to GLArray {
 abstract GLuintArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLuintArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLuint>):GLuintArray return GL.buffer(arr, GL.UNSIGNED_INT);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLuintArray return GL.buffer(arr, GL.UNSIGNED_INT);
     public static inline function alloc(count:Int):GLuintArray return GL.allocBuffer(GL.UNSIGNED_INT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLuintArray(arr.buffer);
@@ -150,7 +150,7 @@ abstract GLuintArray(GLArray) to GLArray {
 abstract GLintArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLintArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLint>):GLintArray return GL.buffer(arr, GL.INT);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLintArray return GL.buffer(arr, GL.INT);
     public static inline function alloc(count:Int):GLintArray return GL.allocBuffer(GL.INT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLintArray(arr.buffer);
@@ -178,7 +178,7 @@ abstract GLintArray(GLArray) to GLArray {
 abstract GLfloatArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.FLOAT);
     @:from public static inline function fromRaw(raw:BytesData) return new GLfloatArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLfloat>):GLfloatArray return GL.buffer(arr, GL.FLOAT);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLfloatArray return GL.buffer(arr, GL.FLOAT);
     public static inline function alloc(count:Int):GLfloatArray return GL.allocBuffer(GL.FLOAT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLfloatArray(arr.buffer);
@@ -206,7 +206,7 @@ abstract GLfloatArray(GLArray) to GLArray {
 abstract GLdoubleArray(GLArray) to GLArray {
     inline public function new(raw:BytesData) this = new GLArray(raw, 8, GL.DOUBLE);
     @:from public static inline function fromRaw(raw:BytesData) return new GLdoubleArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLdouble>):GLdoubleArray return GL.buffer(arr, GL.DOUBLE);
+    @:from public static inline function fromArr(arr:Array<Dynamic>):GLdoubleArray return GL.buffer(arr, GL.DOUBLE);
     public static inline function alloc(count:Int):GLdoubleArray return GL.allocBuffer(GL.DOUBLE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLdoubleArray(arr.buffer);

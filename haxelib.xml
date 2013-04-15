@@ -4,5 +4,5 @@
 	<user name="deltaluca"/>
 	<tag v="cpp"/>
 	<description>hxcpp bindings to OpenGL v3</description>
-	<version name="0.1.0">Large majority of the API bound, but untested. Small subset of GLM library emulated. Limited testing on linux64. </version>
+	<version name="0.1.1">Small bug fix on GLdoubleArray, and have all GL arrays accept Array Dynamic</version>
 </project>

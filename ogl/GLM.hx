@@ -113,7 +113,7 @@ abstract Mat2x3(GLfloatArray) to GLfloatArray {
                 b[2]*a[3] + b[5]*a[4] + a[5]];
 }
 
-abstract Mat4(GLfloatArray) from GLfloatArray {
+abstract Mat4(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
     @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat4(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Mat4(x);
