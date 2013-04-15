@@ -13,6 +13,12 @@ void hx_gl_glewInit() {
 }
 DEFINE_PRIM(hx_gl_glewInit, 0);
 
+// Get T* pointer to buffer_data + byteOffset
+template <typename T>
+T* get_buffer(value data, value offset) {
+    return (T*)(buffer_data(val_to_buffer(data)) + val_get<int>(offset));
+}
+
 
 // Convert Array<Int>, Array<Float> and
 // Array<Int|Float|Vec#> into hxcpp buffer
@@ -21,12 +27,13 @@ int byte_kind(int T) {
     int t = (T == GL_UNSIGNED_BYTE || T == GL_BYTE) ? 0 :
             (T == GL_UNSIGNED_SHORT || T == GL_SHORT) ? 1 :
             (T == GL_UNSIGNED_INT || T == GL_INT) ? 2 :
-            (T == GL_FLOAT) ? 3 : -1;
+            (T == GL_FLOAT) ? 3 :
+            (T == GL_DOUBLE) ? 4 : -1;
     return t;
 }
 int byte_size(int T) {
     int t = byte_kind(t);
-    return t == 0 ? 1 : t == 1 ? 2 : 4;
+    return t == 0 ? 1 : t == 1 ? 2 : (t == 2 || t == 3) ? 4 : 8;
 }
 
 buffer buffer_array(value arr, int T) {
@@ -46,7 +53,8 @@ buffer buffer_array(value arr, int T) {
             if     (t == 0) ((char *)(dat))[i] = ai[i];
             else if(t == 1) ((short*)(dat))[i] = ai[i];
             else if(t == 2) ((int  *)(dat))[i] = ai[i];
-            else            ((float*)(dat))[i] = ai[i];
+            else if(t == 3) ((float*)(dat))[i] = ai[i];
+            else           ((double*)(dat))[i] = ai[i];
         }
         return ret;
     }
@@ -59,7 +67,8 @@ buffer buffer_array(value arr, int T) {
             if     (t == 0) ((char *)(dat))[i] = ad[i];
             else if(t == 1) ((short*)(dat))[i] = ad[i];
             else if(t == 2) ((int  *)(dat))[i] = ad[i];
-            else            ((float*)(dat))[i] = ad[i];
+            else if(t == 3) ((float*)(dat))[i] = ad[i];
+            else           ((double*)(dat))[i] = ad[i];
         }
         return ret;
     }
@@ -86,7 +95,8 @@ buffer buffer_array(value arr, int T) {
             if     (t == 0) ((char *)(dat))[j++] = val_get<int>   (d);
             else if(t == 1) ((short*)(dat))[j++] = val_get<int>   (d);
             else if(t == 2) ((int  *)(dat))[j++] = val_get<int>   (d);
-            else            ((float*)(dat))[j++] = val_get<double>(d);
+            else if(t == 3) ((float*)(dat))[j++] = val_get<double>(d);
+            else           ((double*)(dat))[j++] = val_get<double>(d);
         }
         else {
             int size2 = val_array_size(d);
@@ -96,7 +106,8 @@ buffer buffer_array(value arr, int T) {
                     if     (t == 0) ((char *)(dat))[j++] = val_get<int>   (e);
                     else if(t == 1) ((short*)(dat))[j++] = val_get<int>   (e);
                     else if(t == 2) ((int  *)(dat))[j++] = val_get<int>   (e);
-                    else            ((float*)(dat))[j++] = val_get<double>(e);
+                    else if(t == 3) ((float*)(dat))[j++] = val_get<double>(e);
+                    else           ((double*)(dat))[j++] = val_get<double>(e);
                 }
                 else {
                     printf("arr had dim > 2\n");
@@ -213,11 +224,11 @@ void hx_gl_blitFramebuffer(value* args, int nargs) {
         val_get<int>(args[9])
     );
 }
-void hx_gl_bufferData(value target, value size, value data, value usage) {
-    glBufferData(val_get<int>(target), val_get<int>(size), buffer_data(val_to_buffer(data)), val_get<int>(usage));
+void hx_gl_bufferData(value target, value size, value data, value dataOffset, value usage) {
+    glBufferData(val_get<int>(target), val_get<int>(size), get_buffer<GLvoid>(data, dataOffset), val_get<int>(usage));
 }
-void hx_gl_bufferSubData(value target, value offset, value size, value data) {
-    glBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), buffer_data(val_to_buffer(data)));
+void hx_gl_bufferSubData(value target, value offset, value size, value data, value dataOffset) {
+    glBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), get_buffer<GLvoid>(data, dataOffset));
 }
 DEFINE_PRIM(hx_gl_beginConditionalRender, 2);
 DEFINE_PRIM(hx_gl_beginQuery,             2);
@@ -239,8 +250,8 @@ DEFINE_PRIM(hx_gl_blendEquationSeparate,  2);
 DEFINE_PRIM(hx_gl_blendFunc,              2);
 DEFINE_PRIM(hx_gl_blendFuncSeparate,      4);
 DEFINE_PRIM_MULT(hx_gl_blitFramebuffer);
-DEFINE_PRIM(hx_gl_bufferData,             4);
-DEFINE_PRIM(hx_gl_bufferSubData,          4);
+DEFINE_PRIM(hx_gl_bufferData,             5);
+DEFINE_PRIM(hx_gl_bufferSubData,          5);
 
 // ================================================================================================
 // C
@@ -260,8 +271,8 @@ void hx_gl_clearBufferiv(value _buffer, value drawBuffer, value _value) {
 void hx_gl_clearBufferuiv(value _buffer, value drawBuffer, value _value) {
     glClearBufferuiv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLuint*)val_array_int(_value));
 }
-void hx_gl_clearBufferfv(value _buffer, value drawBuffer, value _value) {
-    glClearBufferfv(val_get<int>(_buffer), val_get<int>(drawBuffer), (const GLfloat*)buffer_data(val_to_buffer(_value)));
+void hx_gl_clearBufferfv(value _buffer, value drawBuffer, value _value, value byteOffset) {
+    glClearBufferfv(val_get<int>(_buffer), val_get<int>(drawBuffer), get_buffer<GLfloat>(_value, byteOffset));
 }
 void hx_gl_clearBufferfi(value _buffer, value drawBuffer, value depth, value stencil) {
     glClearBufferfi(val_get<int>(_buffer), val_get<int>(drawBuffer), val_get<double>(depth), val_get<int>(stencil));
@@ -306,22 +317,22 @@ value hx_gl_compileShader(value shader) {
     }
 }
 void hx_gl_compressedTexImage1D(value* args, int nargs) {
-    glCompressedTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+    glCompressedTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), get_buffer<GLvoid>(args[6], args[7]));
 }
 void hx_gl_compressedTexImage2D(value* args, int nargs) {
-    glCompressedTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), buffer_data(val_to_buffer(args[7])));
+    glCompressedTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), get_buffer<GLvoid>(args[7], args[8]));
 }
 void hx_gl_compressedTexImage3D(value* args, int nargs) {
-    glCompressedTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+    glCompressedTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), get_buffer<GLvoid>(args[8], args[9]));
 }
 void hx_gl_compressedTexSubImage1D(value* args, int nargs) {
-    glCompressedTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+    glCompressedTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), get_buffer<GLvoid>(args[6], args[7]));
 }
 void hx_gl_compressedTexSubImage2D(value* args, int nargs) {
-    glCompressedTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+    glCompressedTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), get_buffer<GLvoid>(args[8], args[9]));
 }
 void hx_gl_compressedTexSubImage3D(value* args, int nargs) {
-    glCompressedTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), buffer_data(val_to_buffer(args[10])));
+    glCompressedTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), get_buffer<GLvoid>(args[10], args[11]));
 }
 void hx_gl_copyBufferSubData(value readt, value writet, value reado, value writeo, value size) {
     glCopyBufferSubData(val_get<int>(readt), val_get<int>(writet), val_get<int>(reado), val_get<int>(writeo), val_get<int>(size));
@@ -355,7 +366,7 @@ DEFINE_PRIM(hx_gl_clampColor,             2);
 DEFINE_PRIM(hx_gl_clear,                  1);
 DEFINE_PRIM(hx_gl_clearBufferiv,          3);
 DEFINE_PRIM(hx_gl_clearBufferuiv,         3);
-DEFINE_PRIM(hx_gl_clearBufferfv,          3);
+DEFINE_PRIM(hx_gl_clearBufferfv,          4);
 DEFINE_PRIM(hx_gl_clearBufferfi,          4);
 DEFINE_PRIM(hx_gl_clearColor,             4);
 DEFINE_PRIM(hx_gl_clearDepth,             1);
@@ -447,23 +458,23 @@ void hx_gl_drawBuffer(value mode) {
 void hx_gl_drawBuffers(value bufs) {
     glDrawBuffers(val_array_size(bufs), (const GLenum*)val_array_int(bufs));
 }
-void hx_gl_drawElements(value mode, value count, value type, value indices) {
-    glDrawElements(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)));
+void hx_gl_drawElements(value mode, value count, value type, value indices, value byteOffset) {
+    glDrawElements(val_get<int>(mode), val_get<int>(count), val_get<int>(type), get_buffer<GLvoid>(indices, byteOffset));
 }
-void hx_gl_drawElementsBaseVertex(value mode, value count, value type, value indices, value basevertex) {
-    glDrawElementsBaseVertex(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)), val_get<int>(basevertex));
+void hx_gl_drawElementsBaseVertex(value* args, int narg) {
+    glDrawElementsBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), get_buffer<GLvoid>(args[3], args[4]), val_get<int>(args[5]));
 }
-void hx_gl_drawElementsInstanced(value mode, value count, value type, value indices, value primcount) {
-    glDrawElementsInstanced(val_get<int>(mode), val_get<int>(count), val_get<int>(type), buffer_data(val_to_buffer(indices)), val_get<int>(primcount));
+void hx_gl_drawElementsInstanced(value* args, int narg) {
+    glDrawElementsInstanced(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), get_buffer<GLvoid>(args[3], args[4]), val_get<int>(args[5]));
 }
 void hx_gl_drawElementsInstancedBaseVertex(value* args, int nargs) {
-    glDrawElementsInstancedBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), buffer_data(val_to_buffer(args[3])), val_get<int>(args[4]), val_get<int>(args[5]));
+    glDrawElementsInstancedBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), get_buffer<GLvoid>(args[3], args[4]), val_get<int>(args[5]), val_get<int>(args[6]));
 }
 void hx_gl_drawRangeElements(value* args, int nargs) {
-    glDrawRangeElements(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), buffer_data(val_to_buffer(args[5])));
+    glDrawRangeElements(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), get_buffer<GLvoid>(args[5], args[6]));
 }
 void hx_gl_drawRangeElementsBaseVertex(value* args, int nargs) {
-    glDrawRangeElementsBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), buffer_data(val_to_buffer(args[5])), val_get<int>(args[6]));
+    glDrawRangeElementsBaseVertex(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), get_buffer<GLvoid>(args[5], args[6]), val_get<int>(args[7]));
 }
 DEFINE_PRIM(hx_gl_deleteBuffers,            1);
 DEFINE_PRIM(hx_gl_deleteFramebuffers,       1);
@@ -487,8 +498,8 @@ DEFINE_PRIM(hx_gl_drawArraysInstanced,      4);
 DEFINE_PRIM(hx_gl_drawBuffer,               1);
 DEFINE_PRIM(hx_gl_drawBuffers,              1);
 DEFINE_PRIM(hx_gl_drawElements,             4);
-DEFINE_PRIM(hx_gl_drawElementsBaseVertex,   5);
-DEFINE_PRIM(hx_gl_drawElementsInstanced,    5);
+DEFINE_PRIM_MULT(hx_gl_drawElementsBaseVertex);
+DEFINE_PRIM_MULT(hx_gl_drawElementsInstanced);
 DEFINE_PRIM_MULT(hx_gl_drawElementsInstancedBaseVertex);
 DEFINE_PRIM_MULT(hx_gl_drawRangeElements);
 DEFINE_PRIM_MULT(hx_gl_drawRangeElementsBaseVertex);
@@ -732,11 +743,11 @@ value hx_gl_getBufferParameteriv(value target, value value) {
     glGetBufferParameteriv(val_get<int>(target), val_get<int>(value), &ret);
     return alloc<int>(ret);
 }
-void hx_gl_getBufferSubData(value target, value offset, value size, value data) {
-    glGetBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), (GLvoid*)buffer_data(val_to_buffer(data)));
+void hx_gl_getBufferSubData(value target, value offset, value size, value data, value byteOffset) {
+    glGetBufferSubData(val_get<int>(target), val_get<int>(offset), val_get<int>(size), get_buffer<GLvoid>(data, byteOffset));
 }
-void hx_gl_getCompressedTexImage(value target, value lod, value img) {
-    glGetCompressedTexImage(val_get<int>(target), val_get<int>(lod), (GLvoid*)buffer_data(val_to_buffer(img)));
+void hx_gl_getCompressedTexImage(value target, value lod, value img, value byteOffset) {
+    glGetCompressedTexImage(val_get<int>(target), val_get<int>(lod), get_buffer<GLvoid>(img, byteOffset));
 }
 value hx_gl_getError() {
     return alloc<int>(glGetError());
@@ -852,8 +863,8 @@ value hx_gl_getSynciv(value sync, value pname) {
     glGetSynciv((GLsync)val_data(sync), val_get<int>(pname), 1, NULL, &ret);
     return alloc<int>(ret);
 }
-void hx_gl_getTexImage(value target, value level, value format, value type, value img) {
-    glGetTexImage(val_get<int>(target), val_get<int>(level), val_get<int>(format), val_get<int>(type), buffer_data(val_to_buffer(img)));
+void hx_gl_getTexImage(value* args, int narg) {
+    glGetTexImage(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), get_buffer<GLvoid>(args[4], args[5]));
 }
 value hx_gl_getTexLevelParameterfv(value target, value level, value pname) {
     GLfloat ret;
@@ -981,8 +992,8 @@ DEFINE_PRIM(hx_gl_getActiveUniformsiv,         4);
 DEFINE_PRIM(hx_gl_getAttachedShaders,          2);
 DEFINE_PRIM(hx_gl_getAttribLocation,           2);
 DEFINE_PRIM(hx_gl_getBufferParameteriv,        2);
-DEFINE_PRIM(hx_gl_getBufferSubData,            4);
-DEFINE_PRIM(hx_gl_getCompressedTexImage,       3);
+DEFINE_PRIM(hx_gl_getBufferSubData,            5);
+DEFINE_PRIM(hx_gl_getCompressedTexImage,       4);
 DEFINE_PRIM(hx_gl_getError,                    0);
 DEFINE_PRIM(hx_gl_getFragDataIndex,            2);
 DEFINE_PRIM(hx_gl_getFragDataLocation,         2);
@@ -1000,7 +1011,7 @@ DEFINE_PRIM(hx_gl_getShaderSource,             1);
 DEFINE_PRIM(hx_gl_getString,                   1);
 DEFINE_PRIM(hx_gl_getStringi,                  2);
 DEFINE_PRIM(hx_gl_getSynciv,                   2);
-DEFINE_PRIM(hx_gl_getTexImage,                 5);
+DEFINE_PRIM_MULT(hx_gl_getTexImage);
 DEFINE_PRIM(hx_gl_getTexLevelParameterfv,      3);
 DEFINE_PRIM(hx_gl_getTexLevelParameteriv,      3);
 DEFINE_PRIM(hx_gl_getTransformFeedbackVarying, 2);
@@ -1103,23 +1114,23 @@ DEFINE_PRIM(hx_gl_logicOp,     1);
 void hx_gl_multiDrawArrays(value mode, value first, value count) {
     glMultiDrawArrays(val_get<int>(mode), val_array_int(first), val_array_int(count), val_array_size(first));
 }
-void hx_gl_multiDrawElements(value mode, value count, value type, value indices) {
+void hx_gl_multiDrawElements(value mode, value count, value type, value indices, value byteOffsets) {
     int cnt = val_array_size(indices);
     const GLvoid** cindices = new const GLvoid*[cnt];
-    for (int i = 0; i < cnt; i++) cindices[i] = (const GLvoid*)buffer_data(val_to_buffer(val_array_i(indices, i)));
+    for (int i = 0; i < cnt; i++) cindices[i] = get_buffer<GLvoid>(val_array_i(indices, i), val_array_i(byteOffsets, i));
     glMultiDrawElements(val_get<int>(mode), val_array_int(count), val_get<int>(type), cindices, cnt);
     delete[] cindices;
 }
-void hx_gl_multiDrawElementsBaseVertex(value mode, value count, value type, value indices, value baseVertex) {
-    int cnt = val_array_size(indices);
+void hx_gl_multiDrawElementsBaseVertex(value* args, int narg) {
+    int cnt = val_array_size(args[3]);
     GLvoid** cindices = new GLvoid*[cnt];
-    for (int i = 0; i < cnt; i++) cindices[i] = (GLvoid*)buffer_data(val_to_buffer(val_array_i(indices, i)));
-    glMultiDrawElementsBaseVertex(val_get<int>(mode), val_array_int(count), val_get<int>(type), cindices, cnt, val_array_int(baseVertex));
+    for (int i = 0; i < cnt; i++) cindices[i] = get_buffer<GLvoid>(val_array_i(args[3], i), val_array_i(args[4], i));
+    glMultiDrawElementsBaseVertex(val_get<int>(args[0]), val_array_int(args[1]), val_get<int>(args[2]), cindices, cnt, val_array_int(args[5]));
     delete[] cindices;
 }
 DEFINE_PRIM(hx_gl_multiDrawArrays,             3);
-DEFINE_PRIM(hx_gl_multiDrawElements,           4);
-DEFINE_PRIM(hx_gl_multiDrawElementsBaseVertex, 5);
+DEFINE_PRIM(hx_gl_multiDrawElements,           5);
+DEFINE_PRIM_MULT(hx_gl_multiDrawElementsBaseVertex);
 
 // ================================================================================================
 // P
@@ -1176,7 +1187,7 @@ void hx_gl_readBuffer(value mode) {
     glReadBuffer(val_get<int>(mode));
 }
 void hx_gl_readPixels(value* args, int nargs) {
-    glReadPixels(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+    glReadPixels(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), get_buffer<GLvoid>(args[6], args[7]));
 }
 void hx_gl_renderbufferStorage(value target, value internalFormat, value width, value height) {
     glRenderbufferStorage(val_get<int>(target), val_get<int>(internalFormat), val_get<int>(width), val_get<int>(height));
@@ -1252,16 +1263,16 @@ void hx_gl_texBuffer(value target, value format, value buf) {
     glTexBuffer(val_get<int>(target), val_get<int>(format), val_get<int>(buf));
 }
 void hx_gl_texImage1D(value* args, int narg) {
-    glTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), buffer_data(val_to_buffer(args[7])));
+    glTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), get_buffer<GLvoid>(args[7], args[8]));
 }
 void hx_gl_texImage2D(value* args, int narg) {
-    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), get_buffer<GLvoid>(args[8], args[9]));
 }
 void hx_gl_texImage2DMultisample(value* args, int narg) {
     glTexImage2DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<bool>(args[5]));
 }
 void hx_gl_texImage3D(value* args, int narg) {
-    glTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), buffer_data(val_to_buffer(args[9])));
+    glTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), get_buffer<GLvoid>(args[9], args[10]));
 }
 void hx_gl_texImage3DMultisample(value* args, int narg) {
     glTexImage3DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<bool>(args[6]));
@@ -1273,13 +1284,13 @@ void hx_gl_texParameteri(value target, value pname, value param) {
     glTexParameteri(val_get<int>(target), val_get<int>(pname), val_get<int>(param));
 }
 void hx_gl_texSubImage1D(value* args, int narg) {
-    glTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), buffer_data(val_to_buffer(args[6])));
+    glTexSubImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), get_buffer<GLvoid>(args[6], args[7]));
 }
 void hx_gl_texSubImage2D(value* args, int narg) {
-    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), buffer_data(val_to_buffer(args[8])));
+    glTexSubImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), get_buffer<GLvoid>(args[8], args[9]));
 }
 void hx_gl_texSubImage3D(value* args, int narg) {
-    glTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), buffer_data(val_to_buffer(args[10])));
+    glTexSubImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), val_get<int>(args[9]), get_buffer<GLvoid>(args[10], args[11]));
 }
 void hx_gl_transformFeedbackVaryings(value program, value varyings, value bufferMode) {
     int cnt = val_array_size(varyings);
@@ -1338,10 +1349,10 @@ UNIFORM4(i, int);
 UNIFORM4(ui, int);
 
 #define UNIFORMF(N) \
-    void hx_gl_uniform##N##fv(value loc, value cnt, value val) { \
-        glUniform##N##fv(val_get<int>(loc), val_get<int>(cnt)/N, (const GLfloat*)buffer_data(val_to_buffer(val))); \
+    void hx_gl_uniform##N##fv(value loc, value cnt, value val, value off) { \
+        glUniform##N##fv(val_get<int>(loc), val_get<int>(cnt)/N, get_buffer<GLfloat>(val, off)); \
     } \
-    DEFINE_PRIM(hx_gl_uniform##N##fv, 3)
+    DEFINE_PRIM(hx_gl_uniform##N##fv, 4)
 UNIFORMF(1);
 UNIFORMF(2);
 UNIFORMF(3);
@@ -1357,10 +1368,10 @@ UNIFORMI(3, i, GLint); UNIFORMI(3, ui, GLuint);
 UNIFORMI(4, i, GLint); UNIFORMI(4, ui, GLuint);
 
 #define UNIFORMMAT(N, T) \
-    void hx_gl_uniformMatrix##N##fv(value loc, value cnt, value transpose, value val) { \
-        glUniformMatrix##N##fv(val_get<int>(loc), val_get<int>(cnt)/T, val_get<bool>(transpose), (const GLfloat*)buffer_data(val_to_buffer(val))); \
+    void hx_gl_uniformMatrix##N##fv(value loc, value cnt, value transpose, value val, value off) { \
+        glUniformMatrix##N##fv(val_get<int>(loc), val_get<int>(cnt)/T, val_get<bool>(transpose), get_buffer<GLfloat>(val, off)); \
     } \
-    DEFINE_PRIM(hx_gl_uniformMatrix##N##fv, 4)
+    DEFINE_PRIM(hx_gl_uniformMatrix##N##fv, 5)
 UNIFORMMAT(2, 4);
 UNIFORMMAT(3, 9);
 UNIFORMMAT(4, 16);
@@ -1402,10 +1413,10 @@ value hx_gl_validateProgram(value program) {
 DEFINE_PRIM(hx_gl_validateProgram, 1);
 
 #define VERTEXATTRv(N, G) \
-    void hx_gl_vertexAttrib##N##v(value index, value v) { \
-        glVertexAttrib##N##v(val_get<int>(index), (const G*)buffer_data(val_to_buffer(v))); \
+    void hx_gl_vertexAttrib##N##v(value index, value v, value off) { \
+        glVertexAttrib##N##v(val_get<int>(index), get_buffer<G>(v, off)); \
     } \
-    DEFINE_PRIM(hx_gl_vertexAttrib##N##v, 2)
+    DEFINE_PRIM(hx_gl_vertexAttrib##N##v, 3)
 #define VERTEXATTRa(N, T, G) \
     void hx_gl_vertexAttrib##N##v(value index, value v) { \
         glVertexAttrib##N##v(val_get<int>(index), (const G*)val_array_##T(v)); \

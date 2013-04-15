@@ -2,6 +2,7 @@ package ogl;
 
 import #if cpp cpp #else neko #end.Lib;
 import ogl.Macros;
+import ogl.GLArray;
 
 import haxe.io.BytesData;
 
@@ -23,379 +24,6 @@ typedef GLintptr   = Int;
 typedef GLclampf   = Float;
 typedef GLclampd   = Float;
 typedef GLboolean  = Bool;
-
-abstract GLubyteArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
-    @:from public static inline function fromRaw(raw:BytesData):GLubyteArray return new GLubyteArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLubyte>):GLubyteArray return GL.buffer(arr, GL.UNSIGNED_BYTE);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLubyte {
-        var byte = untyped __global__.__hxcpp_memory_get_byte(this.buffer, i);
-        return (byte < 0) ? (byte & 0xff) | 0x80 : byte;
-    }
-    @:arrayAccess public inline function set(i:Int, x:GLubyte):GLubyte {
-        untyped __global__.__hxcpp_memory_set_byte(this.buffer, i, x&0xff);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLbyteArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 1, GL.BYTE);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLbyteArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLbyte>):GLbyteArray return GL.buffer(arr, GL.BYTE);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLbyte {
-        var byte = untyped __global__.__hxcpp_memory_get_byte(this.buffer, i);
-        return (byte < 0) ? (byte & 0xff) | 0x80 : byte;
-    }
-    @:arrayAccess public inline function set(i:Int, x:GLbyte):GLbyte {
-        untyped __global__.__hxcpp_memory_set_byte(this.buffer, i, x&0xff);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLushortArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLushortArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLushort>):GLushortArray return GL.buffer(arr, GL.UNSIGNED_SHORT);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLushort
-        return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, i*2);
-    @:arrayAccess public inline function set(i:Int, x:GLushort):GLushort {
-        untyped __global__.__hxcpp_memory_set_i16(this.buffer, i*2, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLshortArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 2, GL.SHORT);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLshortArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLshort>):GLshortArray return GL.buffer(arr, GL.SHORT);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLshort
-        return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, i*2);
-    @:arrayAccess public inline function set(i:Int, x:GLshort):GLshort {
-        untyped __global__.__hxcpp_memory_set_i16(this.buffer, i*2, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLuintArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLuintArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLuint>):GLuintArray return GL.buffer(arr, GL.UNSIGNED_INT);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLuint
-        return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
-    @:arrayAccess public inline function set(i:Int, x:GLuint):GLuint {
-        untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLintArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.INT);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLintArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLint>):GLintArray return GL.buffer(arr, GL.INT);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLint
-        return untyped __global__.__hxcpp_memory_get_i32(this.buffer, i*4);
-    @:arrayAccess public inline function set(i:Int, x:GLint):GLint {
-        untyped __global__.__hxcpp_memory_set_i32(this.buffer, i*4, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLfloatArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 4, GL.FLOAT);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLfloatArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLfloat>):GLfloatArray return GL.buffer(arr, GL.FLOAT);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLfloat
-        return untyped __global__.__hxcpp_memory_get_float(this.buffer, i*4);
-    @:arrayAccess public inline function set<T>(i:Int, x:T):GLfloat {
-        untyped __global__.__hxcpp_memory_set_float(this.buffer, i*4, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-abstract GLdoubleArray(GLArray) to GLArray {
-    inline public function new(raw:BytesData) this = new GLArray(raw, 8, GL.DOUBLE);
-    @:from public static inline function fromRaw(raw:BytesData) return new GLdoubleArray(raw);
-    @:from public static inline function fromArr(arr:Array<GLdouble>):GLdoubleArray return GL.buffer(arr, GL.DOUBLE);
-    public var raw(get, never):BytesData;
-    inline function get_raw() return this.buffer;
-    public var count(get, never):Int;
-    inline function get_count() return this.count;
-    @:arrayAccess public inline function get(i:Int):GLdouble
-        return untyped __global__.__hxcpp_memory_get_double(this.buffer, i*8);
-    @:arrayAccess public inline function set<T>(i:Int, x:T):GLdouble {
-        untyped __global__.__hxcpp_memory_set_double(this.buffer, i*8, x);
-        return get(this, i);
-    }
-    inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
-}
-
-class GLArray {
-    public var size:Int;
-    public var type:GLenum;
-    public var buffer:BytesData;
-    public var count(get, never):Int;
-    inline function get_count() return Std.int(buffer.length / size);
-    public function new(buffer:BytesData, size:Int, type:Int) {
-        this.buffer = buffer;
-        this.size = size;
-        this.type = type;
-    }
-    inline public function toString() { return 'GLArray ($type/$size) x $count'; }
-}
-
-@:build(ogl.GLVector.run(2)) abstract Vec2(GLfloatArray) to GLfloatArray {
-    public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec2(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec2(x);
-
-    // .xy
-    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
-    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
-
-    // .rg
-    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
-
-    // .st
-    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
-    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
-
-    // array access
-    @:arrayAccess public inline function geti(i:Int):Float return this[i];
-    @:arrayAccess public inline function getf(i:Int):Float return this[i];
-    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
-    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
-}
-
-@:build(ogl.GLVector.run(3)) abstract Vec3(GLfloatArray) to GLfloatArray {
-    public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec3(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec3(x);
-
-    // .xyz
-    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
-    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
-    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
-
-    // .rgb
-    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
-    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
-
-    // .stp
-    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
-    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
-    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
-
-    // array access
-    @:arrayAccess public inline function geti(i:Int):Float return this[i];
-    @:arrayAccess public inline function getf(i:Int):Float return this[i];
-    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
-    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
-}
-
-@:build(ogl.GLVector.run(4)) abstract Vec4(GLfloatArray) to GLfloatArray {
-    public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Vec4(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec4(x);
-
-    // .xyzw
-    public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
-    public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
-    public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
-    public var w(get,set):Float; inline function get_w() return this[2]; inline function set_w(w:Float) return this[2] = w;
-
-    // .rgba
-    public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
-    public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
-    public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
-    public var a(get,set):Float; inline function get_a() return this[2]; inline function set_a(a:Float) return this[2] = a;
-
-    // .stpq
-    public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
-    public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
-    public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
-    public var q(get,set):Float; inline function get_q() return this[2]; inline function set_q(q:Float) return this[2] = q;
-
-    // array access
-    @:arrayAccess public inline function geti(i:Int):Float return this[i];
-    @:arrayAccess public inline function getf(i:Int):Float return this[i];
-    @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
-    @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
-}
-
-abstract Mat2x3(GLfloatArray) to GLfloatArray {
-    public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat2x3(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Mat2x3(x);
-
-    // array access
-    @:arrayAccess public inline function get(i:Int):Float return this[i];
-    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
-
-    public static inline function identity():Mat2x3
-        return [1.0, 0.0, 0.0,
-                0.0, 1.0, 0.0];
-
-    // (x, y) => (2*x/w - 1, 1 - 2*y/h)
-    public static inline function viewportMap(width:Float, height:Float):Mat2x3
-        return [2.0/width,  0.0, -1,
-                0.0, -2.0/height, 1];
-
-    @:op(A*B) public static inline function mul(a:Mat2x3, b:Mat2x3):Mat2x3
-        return [b[0]*a[0] + b[3]*a[1],
-                b[1]*a[0] + b[4]*a[1],
-                b[2]*a[0] + b[5]*a[1] + a[2],
-
-                b[0]*a[3] + b[3]*a[4],
-                b[1]*a[3] + b[4]*a[4],
-                b[2]*a[3] + b[5]*a[4] + a[5]];
-}
-
-abstract Mat4(GLfloatArray) from GLfloatArray {
-    public inline function new(x:GLfloatArray) this = x;
-    @:from public static inline function fromHaxe(x:Array<GLfloat>) return new Mat4(GLfloatArray.fromArr(x));
-    @:from public static inline function fromGL(x:GLfloatArray) return new Mat4(x);
-
-    // array access
-    @:arrayAccess public inline function get(i:Int):Float return this[i];
-    @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
-
-    public static inline function identity():Mat4
-        return [1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0];
-    public static inline function translate(x:Float, y:Float, z:Float):Mat4
-        return [1.0, 0.0, 0.0,  x,
-                0.0, 1.0, 0.0,  y,
-                0.0, 0.0, 1.0,  z,
-                0.0, 0.0, 0.0, 1.0];
-    public static inline function scale(x:Float, y:Float, z:Float):Mat4
-        return [ x,  0.0, 0.0, 0.0,
-                0.0,  y,  0.0, 0.0,
-                0.0, 0.0,  z,  0.0,
-                0.0, 0.0, 0.0, 1.0];
-    public static inline function rotateX(angle:Float):Mat4 {
-        var c = Math.cos(angle); var s = Math.sin(angle);
-        return [1.0, 0.0, 0.0, 0.0,
-                0.0,  c,   -s, 0.0,
-                0.0,  s,   c,  0.0,
-                0.0, 0.0, 0.0, 1.0];
-    }
-    public static inline function rotateY(angle:Float):Mat4 {
-        var c = Math.cos(angle); var s = Math.sin(angle);
-        return [ c,  0.0,  s,  0.0,
-                0.0, 1.0, 0.0, 0.0,
-                 -s, 0.0,  c,  0.0,
-                0.0, 0.0, 0.0, 1.0];
-    }
-    public static inline function rotateZ(angle:Float):Mat4 {
-        var c = Math.cos(angle); var s = Math.sin(angle);
-        return [c,   -s, 0.0,  0.0,
-                s,    c, 0.0,  0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0];
-    }
-    public static inline function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
-        var f = 1.0/Math.tan(fovY/2);
-        var t = 1.0/(zNear-zFar);
-        return [f/aspectRatio, 0.0,      0.0,           0.0,
-                      0.0,      f,       0.0,           0.0,
-                      0.0,     0.0, (zFar+zNear)*t, 2*zFar*zNear*t,
-                      0.0,     0.0,     -1.0,           0.0       ];
-    }
-    public static inline function lookAt(eye:Vec3, centre:Vec3, ?up:Null<Vec3>):Mat4 {
-        var e0 = eye.x;
-        var e1 = eye.y;
-        var e2 = eye.z;
-
-        var u0 = (up == null ? 0 : up.x);
-        var u1 = (up == null ? 1 : up.y);
-        var u2 = (up == null ? 0 : up.z);
-
-        var f0 = centre.x - e0;
-        var f1 = centre.y - e1;
-        var f2 = centre.z - e2;
-        var n = 1/Math.sqrt(f0*f0+f1*f1+f2*f2);
-        f0 *= n;
-        f1 *= n;
-        f2 *= n;
-
-        var s0 = f1*u2 - f2*u1;
-        var s1 = f2*u0 - f0*u2;
-        var s2 = f0*u1 - f1*u0;
-        n = 1/Math.sqrt(s0*s0+s1*s1+s2*s2);
-        s0 *= n;
-        s1 *= n;
-        s2 *= n;
-
-        u0 = s1*f2 - s2*f1;
-        u1 = s2*f0 - s0*f2;
-        u2 = s0*f1 - s1*f0;
-
-        return [s0, u0, -f0, -e0*s0 - e1*s1 - e2*s2,
-                s1, u1, -f1, -e0*u0 - e1*u1 - e2*u2,
-                s2, u2, -f2,  e0*f0 + e1*f1 + e2*f2,
-                0,   0,   0,            1          ];
-    }
-
-    @:op(A*B) public static inline function mul(a:Mat4, b:Mat4):Mat4
-        return [b[0]*a[0]  + b[4]*a[1]  + b[8] *a[2]  + b[12]*a[3],
-                b[1]*a[0]  + b[5]*a[1]  + b[9] *a[2]  + b[13]*a[3],
-                b[2]*a[0]  + b[6]*a[1]  + b[10]*a[2]  + b[14]*a[3],
-                b[3]*a[0]  + b[7]*a[1]  + b[11]*a[2]  + b[15]*a[3],
-
-                b[0]*a[4]  + b[4]*a[5]  + b[8] *a[6]  + b[12]*a[7],
-                b[1]*a[4]  + b[5]*a[5]  + b[9] *a[6]  + b[13]*a[7],
-                b[2]*a[4]  + b[6]*a[5]  + b[10]*a[6]  + b[14]*a[7],
-                b[3]*a[4]  + b[7]*a[5]  + b[11]*a[6]  + b[15]*a[7],
-
-                b[0]*a[8]  + b[4]*a[9]  + b[8] *a[10] + b[12]*a[11],
-                b[1]*a[8]  + b[5]*a[9]  + b[9] *a[10] + b[13]*a[11],
-                b[2]*a[8]  + b[6]*a[9]  + b[10]*a[10] + b[14]*a[11],
-                b[3]*a[8]  + b[7]*a[9]  + b[11]*a[10] + b[15]*a[11],
-
-                b[0]*a[12] + b[4]*a[13] + b[8] *a[14] + b[12]*a[15],
-                b[1]*a[12] + b[5]*a[13] + b[9] *a[14] + b[13]*a[15],
-                b[2]*a[12] + b[6]*a[13] + b[10]*a[14] + b[14]*a[15],
-                b[3]*a[12] + b[7]*a[13] + b[11]*a[14] + b[15]*a[15]];
-}
 
 class GLsync extends NativeBinding {
     @:allow(ogl)
@@ -422,11 +50,6 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):BytesData {
         return load("createBuffer", 2)(data, type);
     }
-
-    // Vector constructors (functional)
-    @:GLProc function v2(x:Float, y:Float):Vec2 return [x,y];
-    @:GLProc function v3(x:Float, y:Float, z:Float):Vec3 return [x,y,z];
-    @:GLProc function v4(x:Float, y:Float, z:Float, w:Float):Vec4 return [x,y,z,w];
 
     // ================================================================================================
     // A
@@ -457,13 +80,11 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function blendFunc(sfactor:GLenum, dfactor:GLenum):Void;
     @:GLProc function blendFuncSeparate(srcRGB:GLenum, dstRGB:GLenum, srcAlpha:GLenum, dstAlpha:GLenum):Void;
     @:GLProc function blitFrameBuffer(srcx0:GLint, srcy0:GLint, srcx1:GLint, srcy1:GLint, dstx0:GLint, dsty0:GLint, dstx1:GLint, dsty1:GLint, mask:GLbitfield, filter:GLenum):Void;
-    @:GLProc function bufferData(target:GLenum, data:GLArray, usage:GLenum, ?count:Null<Int>) {
-        if (count == null) count = data.count;
-        load("bufferData", 4)(target, data.size*count, data.buffer, usage);
+    @:GLProc function bufferData(target:GLenum, data:GLArray, usage:GLenum) {
+        load("bufferData", 5)(target, data.size*data.count, data.buffer, data.byteOffset, usage);
     }
-    @:GLProc function bufferSubData(target:GLenum, countOffset:Int, data:GLArray, ?count:Null<Int>) {
-        if (count == null) count = data.count;
-        load("bufferSubData", 4)(target, countOffset*data.size, count*data.size, data.buffer);
+    @:GLProc function bufferSubData(target:GLenum, countOffset:Int, data:GLArray) {
+        load("bufferSubData", 5)(target, countOffset*data.size, data.count*data.size, data.buffer, data.byteOffset);
     }
 
     // ================================================================================================
@@ -476,8 +97,10 @@ class GL implements GLConsts implements GLProcs {
         load("clearBufferiv", 3)(buffer, drawBuffer, value);
     @:GLProc function clearBufferuiv(buffer:GLenum, drawBuffer:GLint, value:Array<GLuint>):Void
         load("clearBufferuiv", 3)(buffer, drawBuffer, value);
-    @:GLProc function clearBufferfv(buffer:GLenum, drawBuffer:GLint, value:GLfloatArray):Void
-        load("clearBufferfv", 3)(buffer, drawBuffer, value.raw);
+    @:GLProc function clearBufferfv(buffer:GLenum, drawBuffer:GLint, value:GLfloatArray):Void {
+        var vals:GLArray = value;
+        load("clearBufferfv", 4)(buffer, drawBuffer, value.raw, vals.byteOffset);
+    }
     @:GLProc function clearBufferfi(buffer:GLenum, drawBuffer:GLint, depth:GLfloat, stencil:GLint):Void;
     @:GLProc function clearColor(red:GLclampf, green:GLclampf, blue:GLclampf, alpha:GLclampf):Void;
     @:GLProc function clearDepth(depth:GLclampd):Void;
@@ -491,17 +114,17 @@ class GL implements GLConsts implements GLProcs {
         if (err != null) throw err;
     }
     @:GLProc function compressedTexImage1D(target:GLenum, level:GLint, width:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage1D", 7)(target, level, data.type, width, border, data.buffer.length, data.buffer);
+        load("compressedTexImage1D", 8)(target, level, data.type, width, border, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function compressedTexImage2D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage2D", 8)(target, level, data.type, width, height, border, data.buffer.length, data.buffer);
+        load("compressedTexImage2D", 9)(target, level, data.type, width, height, border, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function compressedTexImage3D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage3D", 9)(target, level, data.type, width, height, depth, border, data.buffer.length, data.buffer);
+        load("compressedTexImage3D", 10)(target, level, data.type, width, height, depth, border, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function compressedTexSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage1D", 7)(target, level, xOffset, width, data.type, data.buffer.length, data.buffer);
+        load("compressedTexSubImage1D", 8)(target, level, xOffset, width, data.type, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function compressedTexSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage2D", 9)(target, level, xOffset, yOffset, width, height, data.type, data.buffer.length, data.buffer);
+        load("compressedTexSubImage2D", 10)(target, level, xOffset, yOffset, width, height, data.type, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function compressedTexSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage3D", 11)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, data.buffer.length, data.buffer);
+        load("compressedTexSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, data.buffer.length, data.buffer, data.byteOffset);
     @:GLProc function copyBufferSubData(readTarget:GLenum, writeTarget:GLenum, readOffset:GLintptr, writeOffset:GLintptr, size:GLsizeiptr):Void;
     @:GLProc function copyTexImage1D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, border:GLint):Void;
     @:GLProc function copyTexImage2D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, height:GLsizei, border:GLint):Void;
@@ -537,17 +160,17 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function drawBuffer(mode:GLenum):Void;
     @:GLProc function drawBuffers(bufs:Array<GLenum>):Void;
     @:GLProc function drawElements(mode:GLenum, count:GLsizei, indices:GLArray):Void
-        load("drawElements", 4)(mode, count, indices.type, indices.buffer);
+        load("drawElements", 5)(mode, count, indices.type, indices.buffer, indices.byteOffset);
     @:GLProc function drawElementsBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
-        load("drawElementsBaseVertex", 5)(mode, count, indices.type, indices.buffer, baseVertex);
+        load("drawElementsBaseVertex", 6)(mode, count, indices.type, indices.buffer, indices.byteOffset, baseVertex);
     @:GLProc function drawElementsInstanced(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei):Void
-        load("drawElementsInstanced", 5)(mode, count, indices.type, indices.buffer, primCount);
+        load("drawElementsInstanced", 6)(mode, count, indices.type, indices.buffer, indices.byteOffset, primCount);
     @:GLProc function drawElementsInstancedBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei, baseVertex:GLint):Void
-        load("drawElementsInstancedBaseVertex", 6)(mode, count, indices.type, indices.buffer, primCount, baseVertex);
+        load("drawElementsInstancedBaseVertex", 7)(mode, count, indices.type, indices.buffer, indices.byteOffset, primCount, baseVertex);
     @:GLProc function drawRangeElements(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray):Void
-        load("drawRangeElements", 6)(mode, start, end, count, indices.type, indices.buffer);
+        load("drawRangeElements", 7)(mode, start, end, count, indices.type, indices.buffer, indices.byteOffset);
     @:GLProc function drawRangeElementsBaseVertex(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
-        load("drawRangeElementsBaseVertex", 7)(mode, start, end, count, indices.type, indices.buffer, baseVertex);
+        load("drawRangeElementsBaseVertex", 8)(mode, start, end, count, indices.type, indices.buffer, indices.byteOffset, baseVertex);
 
     // ================================================================================================
     // E
@@ -676,9 +299,9 @@ class GL implements GLConsts implements GLProcs {
     }
     @:GLProc function getBufferParameteriv(target:GLenum, value:GLenum):GLint;
     @:GLProc function getBufferSubData(target:GLenum, offset:GLintptr, size:GLsizeiptr, data:GLArray):Void
-        load("getBufferSubData", 4)(target, offset, size, data.buffer);
+        load("getBufferSubData", 5)(target, offset, size, data.buffer, data.byteOffset);
     @:GLProc function getCompressedTexImage(target:GLenum, lod:GLint, img:GLArray):Void
-        load("getCompressedTexImage", 3)(target, lod, img.buffer);
+        load("getCompressedTexImage", 4)(target, lod, img.buffer, img.byteOffset);
     @:GLProc function getError():GLenum;
     @:GLProc function getFragDataIndex(program:GLuint, name:String):GLint;
     @:GLProc function getFragDataLocation(program:GLuint, name:String):GLint;
@@ -714,7 +337,7 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function getStringi(name:GLenum, index:GLuint):String;
     @:GLProc function getSynciv(sync:GLsync, pname:GLenum):GLint;
     @:GLProc function getTexImage(target:GLenum, level:GLint, format:GLenum, img:GLArray):Void
-        load("getTexImage", 5)(target, level, format, img.type, img.buffer);
+        load("getTexImage", 6)(target, level, format, img.type, img.buffer, img.byteOffset);
     @:GLProc function getTexLevelParameterfv(target:GLenum, level:GLint, pname:GLenum):GLfloat;
     @:GLProc function getTexLevelParameteriv(target:GLenum, level:GLint, pname:GLenum):GLint;
     @:GLProc function getTexParameterfv(target:GLenum, pname:GLenum):Array<GLfloat>
@@ -814,8 +437,12 @@ class GL implements GLConsts implements GLProcs {
             same;
         })) throw "Indices arrays must all be of the same GL type";
         var cindices = [];
-        for (i in indices) cindices.push(i.buffer);
-        load("multiDrawElements", 4)(mode, count, indices[0].type, cindices);
+        var coffsets = [];
+        for (i in indices) {
+            cindices.push(i.buffer);
+            coffsets.push(i.byteOffset);
+        }
+        load("multiDrawElements", 5)(mode, count, indices[0].type, cindices, coffsets);
     }
     @:GLProc function multiDrawElementsBaseVertex(mode:GLenum, count:Array<GLsizei>, indices:Array<GLArray>, baseVertex:Array<GLint>):Void {
         @:GLCheck if (count.length == 0) throw "Cannot draw 0 elements";
@@ -832,8 +459,12 @@ class GL implements GLConsts implements GLProcs {
             same;
         })) throw "Indices arrays must all be of the same GL type";
         var cindices = [];
-        for (i in indices) cindices.push(i.buffer);
-        load("multiDrawElementsBaseVertex", 5)(mode, count, indices[0].type, cindices, baseVertex);
+        var coffsets = [];
+        for (i in indices) {
+            cindices.push(i.buffer);
+            coffsets.push(i.byteOffset);
+        }
+        load("multiDrawElementsBaseVertex", 6)(mode, count, indices[0].type, cindices, coffsets, baseVertex);
     }
 
     // ================================================================================================
@@ -859,7 +490,7 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     @:GLProc function readBuffer(mode:GLenum):Void;
     @:GLProc function readPixels(x:GLint, y:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
-        load("readPixels", 7)(x, y, width, height, format, data.type, data.buffer);
+        load("readPixels", 8)(x, y, width, height, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function renderbufferStorage(target:GLenum, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
     @:GLProc function renderbufferStorageMultisample(target:GLenum, samples:GLsizei, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
 
@@ -886,21 +517,21 @@ class GL implements GLConsts implements GLProcs {
     // ================================================================================================
     @:GLProc function texBuffer(target:GLenum, internalFormat:GLenum, buffer:GLuint):Void;
     @:GLProc function texImage1D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, border:GLint, format:GLint, data:GLArray):Void
-        load("texImage1D", 8)(target, level, internalFormat, width, border, format, data.type, data.buffer);
+        load("texImage1D", 9)(target, level, internalFormat, width, border, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function texImage2D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, border:GLint, format:GLint, data:GLArray):Void
-        load("texImage2D", 9)(target, level, internalFormat, width, height, border, format, data.type, data.buffer);
+        load("texImage2D", 10)(target, level, internalFormat, width, height, border, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function texImage2DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, fixedsamplelocations:GLboolean):Void;
     @:GLProc function texImage3D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, format:GLint, data:GLArray):Void
-        load("texImage3D", 10)(target, level, internalFormat, width, height, depth, border, format, data.type, data.buffer);
+        load("texImage3D", 11)(target, level, internalFormat, width, height, depth, border, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function texImage3DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, fixedsamplelocations:GLboolean):Void;
     @:GLProc function texParameterf(target:GLenum, pname:GLenum, param:GLfloat):Void;
     @:GLProc function texParameteri(target:GLenum, pname:GLenum, param:GLint):Void;
     @:GLProc function texSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage1D", 7)(target, level, xOffset, width, format, data.type, data.buffer);
+        load("texSubImage1D", 8)(target, level, xOffset, width, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function texSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage2D", 9)(target, level, xOffset, yOffset, width, height, format, data.type, data.buffer);
+        load("texSubImage2D", 10)(target, level, xOffset, yOffset, width, height, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function texSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage3D", 11)(target, level, xOffset, yOffset, zOffset, width, height, depth, format, data.type, data.buffer);
+        load("texSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, format, data.type, data.buffer, data.byteOffset);
     @:GLProc function transformFeedbackVaryings(program:GLuint, varyings:Array<String>, bufferMode:GLenum):Void;
 
     // ================================================================================================
@@ -919,19 +550,24 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function uniform4i (location:GLint, v0:GLint  , v1:GLint  , v2:GLint  , v3:GLint  ):Void;
     @:GLProc function uniform4ui(location:GLint, v0:GLuint , v1:GLuint , v2:GLuint , v3:GLuint ):Void;
 
-    @:GLProc function uniform1fv(location:GLint, data:GLfloatArray):Void
-        load("uniform1fv", 3)(location, data.count, data.raw);
+    @:GLProc function uniform1fv(location:GLint, data:GLfloatArray):Void {
+        var dat:GLArray = data;
+        load("uniform1fv", 4)(location, data.count, data.raw, dat.byteOffset);
+    }
     @:GLProc function uniform2fv(location:GLint, data:GLfloatArray):Void {
         @:GLCheck if (data.count%2 != 0) throw "Data should have length as multiple of 2";
-        load("uniform2fv", 3)(location, data.count, data.raw);
+        var dat:GLArray = data;
+        load("uniform2fv", 4)(location, data.count, data.raw, dat.byteOffset);
     }
     @:GLProc function uniform3fv(location:GLint, data:GLfloatArray):Void {
         @:GLCheck if (data.count%3 != 0) throw "Data should have length as multiple of 3";
-        load("uniform3fv", 3)(location, data.count, data.raw);
+        var dat:GLArray = data;
+        load("uniform3fv", 4)(location, data.count, data.raw, dat.byteOffset);
     }
     @:GLProc function uniform4fv(location:GLint, data:GLfloatArray):Void {
         @:GLCheck if (data.count%4 != 0) throw "Data should have length as multiple of 4";
-        load("uniform4fv", 3)(location, data.count, data.raw);
+        var dat:GLArray = data;
+        load("uniform4fv", 4)(location, data.count, data.raw, dat.byteOffset);
     }
 
     @:GLProc function uniform1iv(location:GLint, data:Array<GLint>):Void;
@@ -964,39 +600,48 @@ class GL implements GLConsts implements GLProcs {
 
     @:GLProc function uniformMatrix2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%4 != 0) throw "Data should have size multiple of 4";
-        load("uniformMatrix2fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix2fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%9 != 0) throw "Data should have size multiple of 9";
-        load("uniformMatrix3fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix3fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%16 != 0) throw "Data should have size multiple of 16";
-        load("uniformMatrix4fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix4fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix2x3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%6 != 0) throw "Data should have size multiple of 6";
-        load("uniformMatrix2x3fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix2x3fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix3x2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%6 != 0) throw "Data should have size multiple of 6";
-        load("uniformMatrix3x2fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix3x2fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix2x4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%8 != 0) throw "Data should have size multiple of 8";
-        load("uniformMatrix2x4fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix2x4fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix4x2fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%8 != 0) throw "Data should have size multiple of 8";
-        load("uniformMatrix4x2fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix4x2fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix3x4fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%12 != 0) throw "Data should have size multiple of 12";
-        load("uniformMatrix3x4fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix3x4fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
     @:GLProc function uniformMatrix4x3fv(location:GLint, transpose:GLboolean, data:GLfloatArray):Void {
         @:GLCheck if (data.count%12 != 0) throw "Data should have size multiple of 12";
-        load("uniformMatrix4x3fv", 4)(location, data.count, transpose, data.raw);
+        var dat:GLArray = data;
+        load("uniformMatrix4x3fv", 5)(location, data.count, transpose, data.raw, dat.byteOffset);
     }
 
     @:GLProc function uniformBlockBinding(program:GLuint, uniformBlockIndex:GLuint, uniformBlockBinding:GLuint):Void;
@@ -1030,40 +675,94 @@ class GL implements GLConsts implements GLProcs {
     @:GLProc function vertexAttrib4Nub (index:GLuint, v0:GLubyte , v1:GLubyte , v2:GLubyte , v3:GLubyte ):Void;
     @:GLProc function vertexAttribI4i  (index:GLuint, v0:GLint   , v1:GLint   , v2:GLint   , v3:GLint   ):Void;
     @:GLProc function vertexAttribI4ui (index:GLuint, v0:GLuint  , v1:GLuint  , v2:GLuint  , v3:GLuint  ):Void;
-    @:GLProc function vertexAttrib1fv  (index:GLuint, v:GLfloatArray ):Void;
-    @:GLProc function vertexAttrib1sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib1fv  (index:GLuint, v:GLfloatArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib1fv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib1sv  (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib1sv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib1dv  (index:GLuint, v:Array<GLdouble>):Void;
     @:GLProc function vertexAttribI1iv (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttribI1uiv(index:GLuint, v:Array<GLuint>):Void;
-    @:GLProc function vertexAttrib2fv  (index:GLuint, v:GLfloatArray ):Void;
-    @:GLProc function vertexAttrib2sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib2fv  (index:GLuint, v:GLfloatArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib2fv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib2sv  (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib2sv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib2dv  (index:GLuint, v:Array<GLdouble>):Void;
     @:GLProc function vertexAttribI2iv (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttribI2uiv(index:GLuint, v:Array<GLuint>):Void;
-    @:GLProc function vertexAttrib3fv  (index:GLuint, v:GLfloatArray ):Void;
-    @:GLProc function vertexAttrib3sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib3fv  (index:GLuint, v:GLfloatArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib3fv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib3sv  (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib3sv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib3dv  (index:GLuint, v:Array<GLdouble>):Void;
     @:GLProc function vertexAttribI3iv (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttribI3uiv(index:GLuint, v:Array<GLuint>):Void;
-    @:GLProc function vertexAttrib4fv  (index:GLuint, v:GLfloatArray ):Void;
-    @:GLProc function vertexAttrib4sv  (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib4fv  (index:GLuint, v:GLfloatArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4fv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib4sv  (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4sv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib4dv  (index:GLuint, v:Array<GLdouble>):Void;
-    @:GLProc function vertexAttrib4Nubv(index:GLuint, v:GLubyteArray ):Void;
+    @:GLProc function vertexAttrib4Nubv(index:GLuint, v:GLubyteArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4Nubv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttribI4iv (index:GLuint, v:Array<GLint> ):Void;
     @:GLProc function vertexAttribI4uiv(index:GLuint, v:Array<GLuint>):Void;
     @:GLProc function vertexAttrib4iv  (index:GLuint, v:Array<GLint> ):Void;
-    @:GLProc function vertexAttrib4bv  (index:GLuint, v:GLbyteArray  ):Void;
-    @:GLProc function vertexAttrib4ubv (index:GLuint, v:GLubyteArray ):Void;
-    @:GLProc function vertexAttrib4usv (index:GLuint, v:GLushortArray):Void;
+    @:GLProc function vertexAttrib4bv  (index:GLuint, v:GLbyteArray  ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4bv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib4ubv (index:GLuint, v:GLubyteArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4ubv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib4usv (index:GLuint, v:GLushortArray):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4usv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib4uiv (index:GLuint, v:Array<GLuint>):Void;
-    @:GLProc function vertexAttrib4Nbv (index:GLuint, v:GLbyteArray  ):Void;
-    @:GLProc function vertexAttrib4Nsv (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttrib4Nbv (index:GLuint, v:GLbyteArray  ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4Nbv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttrib4Nsv (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4Nsv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib4Niv (index:GLuint, v:Array<GLint> ):Void;
-    @:GLProc function vertexAttrib4Nusv(index:GLuint, v:GLushortArray):Void;
+    @:GLProc function vertexAttrib4Nusv(index:GLuint, v:GLushortArray):Void {
+        var vv:GLArray = v;
+        load("vertexAttrib4Nusv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttrib4Nuiv(index:GLuint, v:Array<GLuint>):Void;
-    @:GLProc function vertexAttribI4bv (index:GLuint, v:GLbyteArray  ):Void;
-    @:GLProc function vertexAttribI4ubv(index:GLuint, v:GLubyteArray ):Void;
-    @:GLProc function vertexAttribI4sv (index:GLuint, v:GLshortArray ):Void;
+    @:GLProc function vertexAttribI4bv (index:GLuint, v:GLbyteArray  ):Void {
+        var vv:GLArray = v;
+        load("vertexAttribI4bv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttribI4ubv(index:GLuint, v:GLubyteArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttribI4ubv", 3)(index, v.raw, vv.byteOffset);
+    }
+    @:GLProc function vertexAttribI4sv (index:GLuint, v:GLshortArray ):Void {
+        var vv:GLArray = v;
+        load("vertexAttribI4sv", 3)(index, v.raw, vv.byteOffset);
+    }
     @:GLProc function vertexAttribDivisor(index:GLuint, divisor:GLuint):Void;
     @:GLProc function vertexAttribPointer(index:GLuint, size:GLint, type:GLenum, normalized:GLboolean, stride:GLsizei, offset:GLsizei):Void;
     @:GLProc function vertexAttribIPointer(index:GLuint, size:GLint, type:GLenum, stride:GLsizei, offset:GLsizei):Void;
