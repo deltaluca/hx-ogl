@@ -1,8 +1,0 @@
-<project name="ogl" url="https://github.com/deltaluca/hx-ogl" license="MIT">
-	<depends name="hxcpp"/>
-
-	<user name="deltaluca"/>
-	<tag v="cpp"/>
-	<description>hxcpp bindings to OpenGL v3</description>
-	<version name="0.1.2">Make Mat4 and Mat2x3(now Mat3x2) act as they would in GLSL/GLM. Add some samples.</version>
-</project>

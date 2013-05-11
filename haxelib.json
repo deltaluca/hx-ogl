@@ -1,0 +1,13 @@
+{
+    "name":         "ogl",
+    "url":          "https://github.com/deltaluca/hx-ogl",
+    "license":      "MIT",
+    "tags":         ["cpp"],
+    "description":  "Hxcpp bindings to OpenGL v3",
+    "version":      "0.1.2",
+    "releasenote":  "First release on new haxelib, still largely untested but functional.",
+    "contributors": ["deltaluca"],
+    "dependencies": {
+        "hxcpp": ""
+    }
+}
