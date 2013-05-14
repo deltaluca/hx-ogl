@@ -27,7 +27,7 @@ abstract GLubyteArray(GLArray) to GLArray {
     }
     @:arrayAccess public inline function set(i:Int, x:GLubyte):GLubyte {
         untyped __global__.__hxcpp_memory_set_byte(this.buffer, this.byteOffset+i, x&0xff);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -57,7 +57,7 @@ abstract GLbyteArray(GLArray) to GLArray {
     }
     @:arrayAccess public inline function set(i:Int, x:GLbyte):GLbyte {
         untyped __global__.__hxcpp_memory_set_byte(this.buffer, this.byteOffset+i, x&0xff);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -85,7 +85,7 @@ abstract GLushortArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, this.byteOffset+i*2);
     @:arrayAccess public inline function set(i:Int, x:GLushort):GLushort {
         untyped __global__.__hxcpp_memory_set_i16(this.buffer, this.byteOffset+i*2, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -113,7 +113,7 @@ abstract GLshortArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_ui16(this.buffer, this.byteOffset+i*2);
     @:arrayAccess public inline function set(i:Int, x:GLshort):GLshort {
         untyped __global__.__hxcpp_memory_set_i16(this.buffer, this.byteOffset+i*2, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -141,7 +141,7 @@ abstract GLuintArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_i32(this.buffer, this.byteOffset+i*4);
     @:arrayAccess public inline function set(i:Int, x:GLuint):GLuint {
         untyped __global__.__hxcpp_memory_set_i32(this.buffer, this.byteOffset+i*4, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -169,7 +169,7 @@ abstract GLintArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_i32(this.buffer, this.byteOffset+i*4);
     @:arrayAccess public inline function set(i:Int, x:GLint):GLint {
         untyped __global__.__hxcpp_memory_set_i32(this.buffer, this.byteOffset+i*4, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -197,7 +197,7 @@ abstract GLfloatArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_float(this.buffer, this.byteOffset+i*4);
     @:arrayAccess public inline function set<T>(i:Int, x:T):GLfloat {
         untyped __global__.__hxcpp_memory_set_float(this.buffer, this.byteOffset+i*4, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);
@@ -225,7 +225,7 @@ abstract GLdoubleArray(GLArray) to GLArray {
         return untyped __global__.__hxcpp_memory_get_double(this.buffer, this.byteOffset+i*8);
     @:arrayAccess public inline function set<T>(i:Int, x:T):GLdouble {
         untyped __global__.__hxcpp_memory_set_double(this.buffer, this.byteOffset+i*8, x);
-        return get(this, i);
+        return get(i);
     }
 
     inline public function resize(count:Int) GL.load("arrbuffer_resize", 2)(this.buffer, count*this.size);

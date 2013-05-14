@@ -404,7 +404,7 @@ class GLVector {
         });
     }
 
-    static function binop(name:String, op:Binop, self:Bool=false) {
+    static function binop(name:String, op:Binop, self:Bool=false, com:Bool=false) {
         var es = [];
         for (i in 0...N) {
             es.push({
@@ -460,7 +460,11 @@ class GLVector {
                     expr: EBinop(op, macro A, macro B),
                     pos: Context.currentPos()
                 }]
-            }],
+            }].concat(!com ? [] : [{
+                pos: Context.currentPos(),
+                name: ":commutative",
+                params: []
+            }]),
             kind: FFun({
                 ret: selfT,
                 params: [],
@@ -490,7 +494,11 @@ class GLVector {
                     expr: EBinop(op, macro A, macro B),
                     pos: Context.currentPos()
                 }]
-            }],
+            }].concat(!com ? [] : [{
+                pos: Context.currentPos(),
+                name: ":commutative",
+                params: []
+            }]),
             kind: FFun({
                 ret: selfT,
                 params: [],
@@ -518,10 +526,10 @@ class GLVector {
 
         selfT = TPath({sub:null,params:[],pack:[],name:"Vec"+N});
 
-        binop("add", OpAdd);
-        binop("sub", OpSub);
-        binop("div", OpDiv);
-        binop("mul", OpMult);
+        binop("add", OpAdd, false, true);
+        binop("sub", OpSub, false, true);
+        binop("div", OpDiv, false, true);
+        binop("mul", OpMult, false, true);
 
         binop("assign", OpAssign, true);
         binop("addAssign", OpAssignOp(OpAdd), true);

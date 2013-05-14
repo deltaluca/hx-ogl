@@ -4,6 +4,22 @@ import ogl.Macros;
 import ogl.GL;
 import ogl.GLArray;
 
+class Padder {
+    public static function pad(x:String, y:Array<Float>) {
+        var z = [];
+        var max = 0;
+        for (yt in y) {
+            var ys = Std.string(Math.fround(yt*1e10)*1e-10);
+            if (ys.length > max) max = ys.length;
+            z.push(ys);
+        }
+        for (i in 0...z.length) {
+            z[i] = StringTools.rpad(z[i], " ", max);
+        }
+        return (~/\$([0-9]+)/g).map(x, function (t) return z[Std.parseInt(t.matched(0).substr(1))]);
+    }
+}
+
 @:build(ogl.GLVector.run(2)) abstract Vec2(GLfloatArray) to GLfloatArray {
     public inline function new(x:GLfloatArray) this = x;
     @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Vec2(GLfloatArray.fromArr(x));
@@ -26,6 +42,8 @@ import ogl.GLArray;
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+
+    @:to public inline function toString() return Padder.pad("<$0 $1>",[x,y]);
 }
 
 @:build(ogl.GLVector.run(3)) abstract Vec3(GLfloatArray) to GLfloatArray {
@@ -53,6 +71,8 @@ import ogl.GLArray;
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+
+    @:to public inline function toString() return Padder.pad("<$0 $1 $2>",[x,y,z]);
 }
 
 @:build(ogl.GLVector.run(4)) abstract Vec4(GLfloatArray) to GLfloatArray {
@@ -83,6 +103,8 @@ import ogl.GLArray;
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+
+    @:to public inline function toString() return Padder.pad("<$0 $1 $2 $3>",[x,y,z,w]);
 }
 
 abstract Mat3x2(GLfloatArray) to GLfloatArray {
@@ -95,8 +117,9 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
     @:arrayAccess public inline function set(i:Int,x:Float):Float return this[i]=x;
 
     public static inline function identity():Mat3x2
-        return [1.0, 0.0, 0.0,
-                0.0, 1.0, 0.0];
+        return [1.0, 0.0,
+                0.0, 1.0,
+                0.0, 0.0];
 
     // (x, y) => (2*x/w - 1, 1 - 2*y/h)
     public static inline function viewportMap(width:Float, height:Float):Mat3x2
@@ -112,6 +135,8 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
                 b[0]*a[3] + b[3]*a[4],
                 b[1]*a[3] + b[4]*a[4],
                 b[2]*a[3] + b[5]*a[4] + a[5]];
+
+    @:to public inline function toString() return Padder.pad("[$0 $2 $4\n $1 $3 $5]",[get(0),get(1),get(2),get(3),get(4),get(5)]);
 }
 
 abstract Mat4(GLfloatArray) to GLfloatArray {
@@ -226,5 +251,14 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                 b[1]*a[12] + b[5]*a[13] + b[9] *a[14] + b[13]*a[15],
                 b[2]*a[12] + b[6]*a[13] + b[10]*a[14] + b[14]*a[15],
                 b[3]*a[12] + b[7]*a[13] + b[11]*a[14] + b[15]*a[15]];
+
+    @:to public inline function toString() {
+        return Padder.pad("[$0 $4 $8 $12\n $1 $5 $9 $13\n $2 $6 $10 $14\n $3 $7 $11 $15]",[
+            get(0),get(1),get(2),get(3),
+            get(4),get(5),get(6),get(7),
+            get(8),get(9),get(10),get(11),
+            get(12),get(13),get(14),get(15)]
+        );
+    }
 }
 

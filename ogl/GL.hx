@@ -764,8 +764,8 @@ class GL implements GLConsts implements GLProcs {
         load("vertexAttribI4sv", 3)(index, v.raw, vv.byteOffset);
     }
     @:GLProc function vertexAttribDivisor(index:GLuint, divisor:GLuint):Void;
-    @:GLProc function vertexAttribPointer(index:GLuint, size:GLint, type:GLenum, normalized:GLboolean, stride:GLsizei, offset:GLsizei):Void;
-    @:GLProc function vertexAttribIPointer(index:GLuint, size:GLint, type:GLenum, stride:GLsizei, offset:GLsizei):Void;
+    @:GLProc function vertexAttribPointer(index:GLuint, size:GLint, type:GLenum, normalized:GLboolean=false, stride:GLsizei=0, offset:GLsizei=0):Void;
+    @:GLProc function vertexAttribIPointer(index:GLuint, size:GLint, type:GLenum, stride:GLsizei=0, offset:GLsizei=0):Void;
     @:GLProc function viewport(x:GLint, y:GLint, width:GLsizei, height:GLsizei):Void;
 
     // ================================================================================================
