@@ -4,8 +4,8 @@
     "license":      "MIT",
     "tags":         ["cpp"],
     "description":  "Hxcpp bindings to OpenGL v3",
-    "version":      "0.1.2",
-    "releasenote":  "First release on new haxelib, still largely untested but functional.",
+    "version":      "0.1.3",
+    "releasenote":  "Bug fixes, some small additinos for GLM",
     "contributors": ["deltaluca"],
     "dependencies": {
         "hxcpp": ""

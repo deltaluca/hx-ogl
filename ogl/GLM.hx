@@ -84,19 +84,19 @@ class Padder {
     public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
     public var y(get,set):Float; inline function get_y() return this[1]; inline function set_y(y:Float) return this[1] = y;
     public var z(get,set):Float; inline function get_z() return this[2]; inline function set_z(z:Float) return this[2] = z;
-    public var w(get,set):Float; inline function get_w() return this[2]; inline function set_w(w:Float) return this[2] = w;
+    public var w(get,set):Float; inline function get_w() return this[3]; inline function set_w(w:Float) return this[3] = w;
 
     // .rgba
     public var r(get,set):Float; inline function get_r() return this[0]; inline function set_r(r:Float) return this[0] = r;
     public var g(get,set):Float; inline function get_g() return this[1]; inline function set_g(g:Float) return this[1] = g;
     public var b(get,set):Float; inline function get_b() return this[2]; inline function set_b(b:Float) return this[2] = b;
-    public var a(get,set):Float; inline function get_a() return this[2]; inline function set_a(a:Float) return this[2] = a;
+    public var a(get,set):Float; inline function get_a() return this[3]; inline function set_a(a:Float) return this[3] = a;
 
     // .stpq
     public var s(get,set):Float; inline function get_s() return this[0]; inline function set_s(s:Float) return this[0] = s;
     public var t(get,set):Float; inline function get_t() return this[1]; inline function set_t(t:Float) return this[1] = t;
     public var p(get,set):Float; inline function get_p() return this[2]; inline function set_p(p:Float) return this[2] = p;
-    public var q(get,set):Float; inline function get_q() return this[2]; inline function set_q(q:Float) return this[2] = q;
+    public var q(get,set):Float; inline function get_q() return this[3]; inline function set_q(q:Float) return this[3] = q;
 
     // array access
     @:arrayAccess public inline function geti(i:Int):Float return this[i];
