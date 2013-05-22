@@ -24,6 +24,7 @@ class Padder {
     public inline function new(x:GLfloatArray) this = x;
     @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Vec2(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Vec2(x);
+    @:from public static inline function fromAnon(x:{x:Float,y:Float}) return new Vec2([x.x,x.y]);
 
     // .xy
     public var x(get,set):Float; inline function get_x() return this[0]; inline function set_x(x:Float) return this[0] = x;
@@ -153,6 +154,28 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
 
                 b[0]*a[4] + b[2]*a[5] + b[4],
                 b[1]*a[4] + b[3]*a[5] + b[5]];
+
+    @:op(A*B) public static inline function mulv(b:Mat3x2, a:Vec2):Vec2 {
+        return [b[0]*a[0] + b[2]*a[1] + b[4],
+                b[1]*a[0] + b[3]*a[1] + b[5]];
+    }
+
+    // Multiply rectangle specified by Vec4 as a pair of Vec2 (point+vector)
+    @:op(A*B) public static inline function mulrect(b:Mat3x2, a:Vec4):Vec4 {
+        return [b[0]*a[0] + b[2]*a[1] + b[4],
+                b[1]*a[0] + b[3]*a[1] + b[4],
+                b[0]*a[2] + b[2]*a[3],
+                b[1]*a[2] + b[3]*a[3]];
+    }
+
+    public inline function inverse():Mat3x2 {
+        var a:Mat3x2 = this;
+        var det = 1.0/(a[0]*a[3] - a[1]*a[2]);
+        return [a[3]*det, -a[1]*det,
+               -a[2]*det,  a[0]*det,
+               (a[2]*a[5] - a[3]*a[4])*det,
+               (a[0]*a[5] - a[1]*a[4])*det];
+    }
 
     @:to public inline function toString() return Padder.pad("[$0 $2 $4\n $1 $3 $5]",[get(0),get(1),get(2),get(3),get(4),get(5)]);
 }
