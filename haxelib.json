@@ -8,6 +8,7 @@
     "releasenote":  "Bug fixes, some small additinos for GLM",
     "contributors": ["deltaluca"],
     "dependencies": {
-        "hxcpp": ""
+        "hxcpp": "",
+        "goodies": ""
     }
 }

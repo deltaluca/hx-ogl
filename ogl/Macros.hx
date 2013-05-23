@@ -3,6 +3,8 @@ package ogl;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
+import goodies.MacroUtils;
+
 @:autoBuild(ogl.GLConstsImpl.run())
 @:remove extern interface GLConsts {}
 
@@ -18,12 +20,7 @@ class GLConstsImpl {
 #if macro
 
     static function params(f:Field):Array<Expr> {
-        for (m in f.meta) {
-            if (m.name == ":GLConst") {
-                return m.params;
-            }
-        }
-        return [];
+        return MacroUtils.hasMeta(f, ":GLConst").or([]);
     }
     static function paramName(f:Field):Null<Expr> {
         for (p in params(f)) {
@@ -39,17 +36,14 @@ class GLConstsImpl {
         return null;
     }
 
-    static function isConst(f:Metadata) {
-        for (m in f) {
-            if (m.name == ":GLConst") return true;
-        }
-        return false;
+    static function isConst(f:Field) {
+        return MacroUtils.hasMeta(f, ":GLConst").bool();
     }
 
     public static function run() {
         var fields = Context.getBuildFields();
         for (f in fields) {
-            if (!isConst(f.meta)) {
+            if (!isConst(f)) {
                 continue;
             }
 
@@ -63,20 +57,9 @@ class GLConstsImpl {
                 var name = paramName(f);
                 if (name == null) name = macro $v{f.name};
 
-                var kind = FFun({
-                    ret:    type,
-                    params: [],
-                    args:   [],
-                    expr:   macro return load($name, 0)()
-                });
-                fields.push({
-                    pos:    f.pos,
-                    name:   "get_"+f.name,
-                    meta:   [],
-                    kind:   kind,
-                    doc:    null,
-                    access: [AStatic, AInline]
-                });
+                fields.push(MacroUtils.field(macro function ():$type {
+                    return load($name, 0)();
+                }, [AStatic, AInline], "get_"+f.name));
             default:
                 Context.warning("@:GLConst used on non-field type", f.pos);
             }
@@ -395,9 +378,9 @@ class GLVector {
                     value: null,
                     type: selfT,
                     opt: false,
-                    name: "u",
+                    name: "_u",
                 }],
-                expr: macro return $a{es}
+                expr: macro { var u = _u; return $a{es}; }
             }),
             doc: null,
             access: [AInline, AStatic, APublic]
@@ -430,14 +413,15 @@ class GLVector {
                     value: null,
                     type: selfT,
                     opt: false,
-                    name: "u",
+                    name: "_u",
                 }, {
                     value: null,
                     type: selfT,
                     opt: false,
-                    name: "v",
+                    name: "_v",
                 }],
-                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; }
+                           : macro { var u = _u; var v = _v; return $a{es}; }
             }),
             doc: null,
             access: [AInline, AStatic, APublic]
@@ -472,14 +456,15 @@ class GLVector {
                     value: null,
                     type: selfT,
                     opt: false,
-                    name: "u",
+                    name: "_u",
                 }, {
                     value: null,
                     type: macro :Float,
                     opt: false,
-                    name: "v",
+                    name: "_v",
                 }],
-                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; } :
+                             macro { var u = _u; var v = _v; return $a{es}; }
             }),
             doc: null,
             access: [AInline, AStatic, APublic]
@@ -506,14 +491,15 @@ class GLVector {
                     value: null,
                     type: selfT,
                     opt: false,
-                    name: "u",
+                    name: "_u",
                 }, {
                     value: null,
                     type: macro :Int,
                     opt: false,
-                    name: "v",
+                    name: "_v",
                 }],
-                expr: self ? macro { $b{es}; return u; } : macro return $a{es}
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; } :
+                             macro { var u = _u; var v = _v; return $a{es}; }
             }),
             doc: null,
             access: [AInline, AStatic, APublic]

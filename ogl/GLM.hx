@@ -44,7 +44,10 @@ class Padder {
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
-    @:to public inline function toString() return Padder.pad("<$0 $1>",[x,y]);
+    @:to public inline function toString() {
+        var a:Vec2 = this;
+        return Padder.pad("<$0 $1>",[a.x,a.y]);
+    }
 }
 
 @:build(ogl.GLVector.run(3)) abstract Vec3(GLfloatArray) to GLfloatArray {
@@ -73,7 +76,10 @@ class Padder {
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
-    @:to public inline function toString() return Padder.pad("<$0 $1 $2>",[x,y,z]);
+    @:to public inline function toString() {
+        var a:Vec3 = this;
+        return Padder.pad("<$0 $1 $2>",[a.x,a.y,a.z]);
+    }
 }
 
 @:build(ogl.GLVector.run(4)) abstract Vec4(GLfloatArray) to GLfloatArray {
@@ -105,7 +111,10 @@ class Padder {
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
-    @:to public inline function toString() return Padder.pad("<$0 $1 $2 $3>",[x,y,z,w]);
+    @:to public inline function toString() {
+        var a:Vec4 = this;
+        return Padder.pad("<$0 $1 $2 $3>",[a.x,a.y,a.z,a.w]);
+    }
 }
 
 abstract Mat3x2(GLfloatArray) to GLfloatArray {
@@ -145,7 +154,9 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
                    0.0, -2.0/height,
                   -1.0,     1.0    ];
 
-    @:op(A*B) public static inline function mul(b:Mat3x2, a:Mat3x2):Mat3x2
+    @:op(A*B) public static inline function mul(_b:Mat3x2, _a:Mat3x2):Mat3x2 {
+        var a = _a;
+        var b = _b;
         return [b[0]*a[0] + b[2]*a[1],
                 b[1]*a[0] + b[3]*a[1],
 
@@ -154,14 +165,19 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
 
                 b[0]*a[4] + b[2]*a[5] + b[4],
                 b[1]*a[4] + b[3]*a[5] + b[5]];
+    }
 
-    @:op(A*B) public static inline function mulv(b:Mat3x2, a:Vec2):Vec2 {
+    @:op(A*B) public static inline function mulv(_b:Mat3x2, _a:Vec2):Vec2 {
+        var a = _a;
+        var b = _b;
         return [b[0]*a[0] + b[2]*a[1] + b[4],
                 b[1]*a[0] + b[3]*a[1] + b[5]];
     }
 
     // Multiply rectangle specified by Vec4 as a pair of Vec2 (point+vector)
-    @:op(A*B) public static inline function mulrect(b:Mat3x2, a:Vec4):Vec4 {
+    @:op(A*B) public static inline function mulrect(_b:Mat3x2, _a:Vec4):Vec4 {
+        var a = _a;
+        var b = _b;
         return [b[0]*a[0] + b[2]*a[1] + b[4],
                 b[1]*a[0] + b[3]*a[1] + b[4],
                 b[0]*a[2] + b[2]*a[3],
@@ -177,7 +193,10 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
                (a[0]*a[5] - a[1]*a[4])*det];
     }
 
-    @:to public inline function toString() return Padder.pad("[$0 $2 $4\n $1 $3 $5]",[get(0),get(1),get(2),get(3),get(4),get(5)]);
+    @:to public inline function toString() {
+        var a:Mat3x2 = this;
+        return Padder.pad("[$0 $2 $4\n $1 $3 $5]",[a[0],a[1],a[2],a[3],a[4],a[5]]);
+    }
 }
 
 abstract Mat4(GLfloatArray) to GLfloatArray {
@@ -185,11 +204,13 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
     @:from public static inline function fromHaxe(x:Array<Dynamic>) return new Mat4(GLfloatArray.fromArr(x));
     @:from public static inline function fromGL(x:GLfloatArray) return new Mat4(x);
 
-    @:from public static inline function from3x2(x:Mat3x2):Mat4
+    @:from public static inline function from3x2(_x:Mat3x2):Mat4 {
+        var x = _x;
         return [x[0], x[1], 0, 0,
                 x[2], x[3], 0, 0,
                   0,    0,  1, 0,
                 x[4], x[5], 0, 1];
+    }
 
     // array access
     @:arrayAccess public inline function get(i:Int):Float return this[i];
@@ -239,7 +260,11 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                       0.0,     0.0, (zFar+zNear)*t, -1.0,
                       0.0,     0.0, 2*zFar*zNear*t , 0.0];
     }
-    public static function lookAt(eye:Vec3, centre:Vec3, ?up:Null<Vec3>):Mat4 {
+    public static function lookAt(_eye:Vec3, _centre:Vec3, ?_up:Null<Vec3>):Mat4 {
+        var eye = _eye;
+        var centre = _centre;
+        var up = _up;
+
         var e0 = eye.x;
         var e1 = eye.y;
         var e2 = eye.z;
@@ -278,7 +303,8 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                 d0, d1, d2, 1.0];
     }
 
-    @:op(A*B) public static function mul_3(b:Mat4, a:Mat3x2):Mat4
+    @:op(A*B) public static function mul_3(_b:Mat4, _a:Mat3x2):Mat4 {
+        var b = _b; var a = _a;
         return [b[0]*a[0]  + b[4]*a[1],
                 b[1]*a[0]  + b[5]*a[1],
                 b[2]*a[0]  + b[6]*a[1],
@@ -298,8 +324,11 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                 b[1]*a[4] + b[5]*a[5] + b[13],
                 b[2]*a[4] + b[6]*a[5] + b[14],
                 b[3]*a[4] + b[7]*a[5] + b[15]];
+    }
 
-    @:op(A*B) public static function _3_mul(b:Mat3x2, a:Mat4):Mat4
+    @:op(A*B) public static function _3_mul(_b:Mat3x2, _a:Mat4):Mat4 {
+        var b = _b;
+        var a = _a;
         return [b[0]*a[0]  + b[2]*a[1]  + b[4]*a[3],
                 b[1]*a[0]  + b[3]*a[1]  + b[5]*a[3],
                 a[2],
@@ -319,8 +348,11 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                 b[1]*a[12] + b[3]*a[13] + b[5]*a[15],
                 a[14],
                 a[15]];
+    }
 
-    @:op(A*B) public static function mul(b:Mat4, a:Mat4):Mat4
+    @:op(A*B) public static function mul(_b:Mat4, _a:Mat4):Mat4 {
+        var b = _b;
+        var a = _a;
         return [b[0]*a[0]  + b[4]*a[1]  + b[8] *a[2]  + b[12]*a[3],
                 b[1]*a[0]  + b[5]*a[1]  + b[9] *a[2]  + b[13]*a[3],
                 b[2]*a[0]  + b[6]*a[1]  + b[10]*a[2]  + b[14]*a[3],
@@ -340,13 +372,40 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
                 b[1]*a[12] + b[5]*a[13] + b[9] *a[14] + b[13]*a[15],
                 b[2]*a[12] + b[6]*a[13] + b[10]*a[14] + b[14]*a[15],
                 b[3]*a[12] + b[7]*a[13] + b[11]*a[14] + b[15]*a[15]];
+    }
+
+    public inline function inverse():Mat4 {
+        var a:Mat4 = this;
+        var s0 = a[0]*a[5] -a[4] *a[1]; var c5 = a[10]*a[15]-a[14]*a[11];
+        var s1 = a[0]*a[9] -a[8] *a[1]; var c4 = a[6] *a[15]-a[14]*a[7];
+        var s2 = a[0]*a[13]-a[12]*a[1]; var c3 = a[6] *a[11]-a[10]*a[7];
+        var s3 = a[4]*a[9] -a[8] *a[5]; var c2 = a[2] *a[15]-a[14]*a[3];
+        var s4 = a[4]*a[13]-a[12]*a[5]; var c1 = a[2] *a[11]-a[10]*a[3];
+        var s5 = a[8]*a[13]-a[12]*a[9]; var c0 = a[2] *a[7]- a[6] *a[3];
+        var D = 1/(s0*c5-s1*c4+s2*c3+s3*c2-s4*c1+s5*c0);
+        return [
+            D*( a[5]*c5-a[9] *c4+a[13]*c3),D*(-a[1]*c5+a[9] *c2-a[13]*c1),D*( a[1]*c4-a[5]*c2+a[13]*c0),D*(-a[1]*c3+a[5]*c1-a[9] *c0),
+            D*(-a[4]*c5+a[8] *c4-a[12]*c3),D*( a[0]*c5-a[8] *c2+a[12]*c1),D*(-a[0]*c4+a[4]*c2-a[12]*c0),D*( a[0]*c3-a[4]*c1+a[8] *c0),
+            D*( a[7]*s5-a[11]*s4+a[15]*s3),D*(-a[3]*s5+a[11]*s2-a[15]*s1),D*( a[3]*s4-a[7]*s2+a[15]*s0),D*(-a[3]*s3+a[7]*s1-a[11]*s0),
+            D*(-a[6]*s5+a[10]*s4-a[14]*s3),D*( a[2]*s5-a[10]*s2+a[14]*s1),D*(-a[2]*s4+a[6]*s2-a[14]*s0),D*( a[2]*s3-a[6]*s1+a[10]*s0),
+        ];
+    }
+
+    public inline function transpose():Mat4 {
+        var a:Mat4 = this;
+        return [a[0], a[4], a[8],  a[12],
+                a[1], a[5], a[9],  a[13],
+                a[2], a[6], a[10], a[14],
+                a[3], a[7], a[11], a[15]];
+    }
 
     @:to public inline function toString() {
+        var a:Mat4 = this;
         return Padder.pad("[$0 $4 $8 $12\n $1 $5 $9 $13\n $2 $6 $10 $14\n $3 $7 $11 $15]",[
-            get(0),get(1),get(2),get(3),
-            get(4),get(5),get(6),get(7),
-            get(8),get(9),get(10),get(11),
-            get(12),get(13),get(14),get(15)]
+            a[0],a[1],a[2],a[3],
+            a[4],a[5],a[6],a[7],
+            a[8],a[9],a[10],a[11],
+            a[12],a[13],a[14],a[15]]
         );
     }
 }
