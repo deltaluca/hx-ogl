@@ -47,9 +47,9 @@ class Sample5 {
         program = GL.createProgram();
 
         GL.shaderSource(vShader, "
-            #version 330 core
-            layout (location=0) in vec3 vPosition;
-            layout (location=1) in vec2 vUV;
+            #version 130
+            in vec3 vPosition;
+            in vec2 vUV;
             uniform mat4 MVP;
             out vec2 fUV;
             void main() {
@@ -59,7 +59,7 @@ class Sample5 {
             }
         ");
         GL.shaderSource(fShader, "
-            #version 330 core
+            #version 130
             in vec2 fUV;
             uniform sampler2D tex;
             out vec3 colour;
@@ -73,6 +73,9 @@ class Sample5 {
 
         GL.attachShader(program, vShader);
         GL.attachShader(program, fShader);
+
+        GL.bindAttribLocation(program, 0, "vPosition");
+        GL.bindAttribLocation(program, 1, "vUV");
         GL.linkProgram(program);
 
         GL.deleteShader(vShader);

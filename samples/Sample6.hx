@@ -14,7 +14,9 @@ class Sample6 {
     var nBuffer:GLuint;
     var texture:GLuint;
     var program:GLuint;
+
     var uMVP:GLuint;
+    var uMVit:GLuint;
     var uM:GLuint;
     var ulpos:GLuint;
 
@@ -64,11 +66,12 @@ class Sample6 {
         program = GL.createProgram();
 
         GL.shaderSource(vShader, "
-            #version 330 core
-            layout (location=0) in vec3 vPosition;
-            layout (location=1) in vec2 vUV;
-            layout (location=2) in vec3 vNormal;
+            #version 130
+            in vec3 vPosition;
+            in vec2 vUV;
+            in vec3 vNormal;
             uniform mat4 MVP;
+            uniform mat4 MVit;
             uniform mat4 M;
             out vec2 fUV;
             out vec3 fnormal;
@@ -77,12 +80,12 @@ class Sample6 {
                 vec4 v = vec4(vPosition, 1);
                 gl_Position = MVP * v;
                 fUV = vUV;
-                fnormal = normalize(inverse(transpose(mat3(M)))*vNormal);
+                fnormal = normalize((MVit * vec4(vNormal,0)).xyz);
                 fpos = (M * v).xyz;
             }
         ");
         GL.shaderSource(fShader, "
-            #version 330 core
+            #version 130
             in vec2 fUV;
             in vec3 fnormal;
             in vec3 fpos;
@@ -103,12 +106,17 @@ class Sample6 {
 
         GL.attachShader(program, vShader);
         GL.attachShader(program, fShader);
+
+        GL.bindAttribLocation(program, 0, "vPosition");
+        GL.bindAttribLocation(program, 1, "vUV");
+        GL.bindAttribLocation(program, 2, "vNormal");
         GL.linkProgram(program);
 
         GL.deleteShader(vShader);
         GL.deleteShader(fShader);
 
         uMVP  = GL.getUniformLocation(program, "MVP");
+        uMVit = GL.getUniformLocation(program, "MVit");
         uM    = GL.getUniformLocation(program, "M");
         ulpos = GL.getUniformLocation(program, "lpos");
 
@@ -162,8 +170,8 @@ class Sample6 {
         var s = Math.sin(t*3)*0.5+1;
         var model = Mat4.rotateX(t*-1)*Mat4.rotateY(t*3)*Mat4.rotateZ(t*-2)*Mat4.scale(s,s,s);
 
-        var MVP = projection * view * model;
-        GL.uniformMatrix4fv(uMVP, false, MVP);
+        GL.uniformMatrix4fv(uMVP, false, projection * view * model);
+        GL.uniformMatrix4fv(uMVit, false, (view * model).inverse().transpose());
         GL.uniformMatrix4fv(uM, false, model);
 
         var s = Math.sin(t*2)*0.5+3;

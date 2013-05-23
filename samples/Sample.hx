@@ -28,6 +28,7 @@ class Sample {
     }
 
     static function main() {
+        GLFW.setErrorCallback(function (i,e) throw(e));
         GLFW.init();
         GLFW.windowHint(GLFW.RESIZABLE, 0);
         window = GLFW.createWindow(800, 600, "");
@@ -44,7 +45,7 @@ class Sample {
         ];
         loadSample(0);
 
-        GLFW.setKeyCallback(window, function (_, key:Int, state:Int) {
+        GLFW.setKeyCallback(window, function (_, key:Int, state:Int, _) {
             if (state == GLFW.PRESS)
                 loadSample(key - GLFW.KEY_1);
         });
