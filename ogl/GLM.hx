@@ -190,7 +190,7 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
         return [a[3]*det, -a[1]*det,
                -a[2]*det,  a[0]*det,
                (a[2]*a[5] - a[3]*a[4])*det,
-               (a[0]*a[5] - a[1]*a[4])*det];
+               (a[1]*a[4] - a[0]*a[5])*det];
     }
 
     @:to public inline function toString() {
