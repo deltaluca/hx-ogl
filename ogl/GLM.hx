@@ -391,6 +391,15 @@ abstract Mat4(GLfloatArray) to GLfloatArray {
         ];
     }
 
+    @:op(A*B) public static inline function mulv(_b:Mat4, _a:Vec4):Vec4 {
+        var a = _a;
+        var b = _b;
+        return [b[0]*a[0] + b[4]*a[1] + b[8] *a[2] + b[12]*a[3],
+                b[1]*a[0] + b[5]*a[1] + b[9] *a[2] + b[13]*a[3],
+                b[2]*a[0] + b[6]*a[1] + b[10]*a[2] + b[14]*a[3],
+                b[3]*a[0] + b[7]*a[1] + b[11]*a[2] + b[15]*a[3]];
+    }
+
     public inline function transpose():Mat4 {
         var a:Mat4 = this;
         return [a[0], a[4], a[8],  a[12],
