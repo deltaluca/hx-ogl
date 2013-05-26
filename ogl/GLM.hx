@@ -179,7 +179,7 @@ abstract Mat3x2(GLfloatArray) to GLfloatArray {
         var a = _a;
         var b = _b;
         return [b[0]*a[0] + b[2]*a[1] + b[4],
-                b[1]*a[0] + b[3]*a[1] + b[4],
+                b[1]*a[0] + b[3]*a[1] + b[5],
                 b[0]*a[2] + b[2]*a[3],
                 b[1]*a[2] + b[3]*a[3]];
     }
