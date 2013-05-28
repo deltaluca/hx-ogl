@@ -44,6 +44,8 @@ class Padder {
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
+    @:op(A==B) public static inline function eq(a:Vec2, b:Vec2) return a != null && b != null && (a.x == b.x && a.y == b.y) || a == null && b == null;
+
     @:to public inline function toString() {
         var a:Vec2 = this;
         return Padder.pad("<$0 $1>",[a.x,a.y]);
@@ -75,6 +77,8 @@ class Padder {
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+
+    @:op(A==B) public static inline function eq(a:Vec3, b:Vec3) return a != null && b != null && (a.x == b.x && a.y == b.y && a.z == b.z) || a == null && b == null;
 
     @:to public inline function toString() {
         var a:Vec3 = this;
@@ -110,6 +114,8 @@ class Padder {
     @:arrayAccess public inline function getf(i:Int):Float return this[i];
     @:arrayAccess public inline function seti(i:Int,x:Int)  :Float return this[i]=x;
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
+
+    @:op(A==B) public static inline function eq(a:Vec4, b:Vec4) return a != null && b != null && (a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w) || a == null && b == null;
 
     @:to public inline function toString() {
         var a:Vec4 = this;
