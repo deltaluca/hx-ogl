@@ -253,7 +253,7 @@ class GLProcsImpl {
                         switch (y) {
                         case (macro if ($cond) throw $err else $e) if (e == null):
                             var err2 = '${field.name} :: ';
-                            ys.push(macro if ($cond) throw $v{err2}+$err);
+                            ys.push(macro if ($cond) throw Std.string($v{err2}+$err));
                         default:
                             Context.warning("@:GLCheck expr was not if (..) throw ..", p);
                         }
@@ -313,7 +313,7 @@ class GLProcsImpl {
             );
             if (errs.length != 0) {
                 errs.unshift("GL."+$v{field.name});
-                throw errs;
+                throw Std.string(errs);
             }
         };
 

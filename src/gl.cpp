@@ -1263,16 +1263,25 @@ void hx_gl_texBuffer(value target, value format, value buf) {
     glTexBuffer(val_get<int>(target), val_get<int>(format), val_get<int>(buf));
 }
 void hx_gl_texImage1D(value* args, int narg) {
-    glTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), get_buffer<GLvoid>(args[7], args[8]));
+    void* data = NULL;
+    value buf = args[7];
+    if (!val_is_null(buf)) data = get_buffer<GLvoid>(buf, args[8]);
+    glTexImage1D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), data);
 }
 void hx_gl_texImage2D(value* args, int narg) {
-    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), get_buffer<GLvoid>(args[8], args[9]));
+    void* data = NULL;
+    value buf = args[8];
+    if (!val_is_null(buf)) data = get_buffer<GLvoid>(buf, args[9]);
+    glTexImage2D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), data);
 }
 void hx_gl_texImage2DMultisample(value* args, int narg) {
     glTexImage2DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<bool>(args[5]));
 }
 void hx_gl_texImage3D(value* args, int narg) {
-    glTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), get_buffer<GLvoid>(args[9], args[10]));
+    void* data = NULL;
+    value buf = args[9];
+    if (!val_is_null(buf)) data = get_buffer<GLvoid>(buf, args[10]);
+    glTexImage3D(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<int>(args[6]), val_get<int>(args[7]), val_get<int>(args[8]), data);
 }
 void hx_gl_texImage3DMultisample(value* args, int narg) {
     glTexImage3DMultisample(val_get<int>(args[0]), val_get<int>(args[1]), val_get<int>(args[2]), val_get<int>(args[3]), val_get<int>(args[4]), val_get<int>(args[5]), val_get<bool>(args[6]));
