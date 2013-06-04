@@ -33,7 +33,7 @@ class GLsync extends NativeBinding {
     inline static function cvt(x:Dynamic) return if (x == null) null else new GLsync(x);
 }
 
-class GL implements GLConsts implements GLProcs {
+class GL implements GLProcs {
     @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
         return Lib.load("ogl","hx_gl_"+n, p);

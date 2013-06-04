@@ -1,7 +1,6 @@
 #include <hx/CFFI.h>
 #include <cstring>
 #include "utils.h"
-#define CONST(N) PCONST(gl, GL, N)
 
 
 
