@@ -92,7 +92,7 @@ class Sample5 {
 
         texture = GL.genTextures(1)[0];
         GL.bindTexture(GL.TEXTURE_2D, texture);
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGB, pngHeader.width, pngHeader.height, 0, GL.RGBA, textureData);
+        GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGB, pngHeader.width, pngHeader.height, 0, GL.BGRA, textureData);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
         GL.generateMipmap(GL.TEXTURE_2D);

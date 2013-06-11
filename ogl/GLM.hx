@@ -46,6 +46,10 @@ class Padder {
 
     @:op(A==B) public static inline function eq(a:Vec2, b:Vec2) return a != null && b != null && (a.x == b.x && a.y == b.y) || a == null && b == null;
 
+    public static inline function length   (a:Vec2)         return Math.sqrt(a.x*a.x+a.y*a.y);
+    public static inline function distance (a:Vec2, b:Vec2) return length(a - b);
+    public static inline function normalize(a:Vec2)         return a*(1/length(a));
+
     @:to public inline function toString() {
         var a:Vec2 = this;
         return Padder.pad("<$0 $1>",[a.x,a.y]);
@@ -79,6 +83,10 @@ class Padder {
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
     @:op(A==B) public static inline function eq(a:Vec3, b:Vec3) return a != null && b != null && (a.x == b.x && a.y == b.y && a.z == b.z) || a == null && b == null;
+
+    public static inline function length   (a:Vec3)         return Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
+    public static inline function distance (a:Vec3, b:Vec3) return length(a - b);
+    public static inline function normalize(a:Vec3)         return a*(1/length(a));
 
     @:to public inline function toString() {
         var a:Vec3 = this;
@@ -116,6 +124,10 @@ class Padder {
     @:arrayAccess public inline function setf(i:Int,x:Float):Float return this[i]=x;
 
     @:op(A==B) public static inline function eq(a:Vec4, b:Vec4) return a != null && b != null && (a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w) || a == null && b == null;
+
+    public static inline function length   (a:Vec4)         return Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z+a.w*a.w);
+    public static inline function distance (a:Vec4, b:Vec4) return length(a - b);
+    public static inline function normalize(a:Vec4)         return a*(1/length(a));
 
     @:to public inline function toString() {
         var a:Vec4 = this;

@@ -47,7 +47,7 @@ class Sample {
 
         GLFW.setKeyCallback(window, function (_, key:Int, state:Int, _) {
             if (state == GLFW.PRESS)
-                loadSample(key - GLFW.KEY_1);
+                loadSample(key - GLFW.ONE);
         });
 
         while (!GLFW.windowShouldClose(window)) {
