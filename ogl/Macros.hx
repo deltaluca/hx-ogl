@@ -235,6 +235,7 @@ class GLProcsImpl {
 
         if (Context.defined("ogl-dont-check-errors")) return;
         if (field.name == "getError") return; //!!!!
+        if (MacroUtils.hasMeta(field, ":oglNoErrors") != null) return;
 
         var check = macro {
             var errs = [];

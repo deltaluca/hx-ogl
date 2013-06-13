@@ -39,15 +39,14 @@ class GL implements GLProcs {
         return Lib.load("ogl","hx_gl_"+n, p);
 
 
-    @:GLProc(glewInit) function init():Void;
-
+    @:oglNoErrors @:GLProc(glewInit) function init():Void;
 
     // Haxe specific interfaces.
-    @:GLProc function allocBuffer(type:GLenum, count:Int):BytesData {
+    @:oglNoErrors @:GLProc function allocBuffer(type:GLenum, count:Int):BytesData {
         return load("allocBuffer", 2)(type, count);
     }
     // TODO: Haxe issue 1667 prevents this working nicely without Dynamic
-    @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):BytesData {
+    @:oglNoErrors @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):BytesData {
         return load("createBuffer", 2)(data, type);
     }
 
