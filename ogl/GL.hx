@@ -36,18 +36,36 @@ class GLsync extends NativeBinding {
 class GL implements GLProcs {
     @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
-        return Lib.load("ogl","hx_gl_"+n, p);
+        return Lib.load("ogl","hx_gl_"+n, p > 5 ? -1 : p);
 
 
-    @:oglNoErrors @:GLProc(glewInit) function init():Void;
+#if neko
+    static var hasinit = false;
+    static function nekoinit() {
+        if (hasinit) return;
+        hasinit = true;
+        var i = Lib.load("ogl","neko_init",5);
+        if (i != null)
+            i(function(s)return new String(s),function(len:Int){var r=[];if(len>0)r[len-1]=null;return r;},null,true,false);
+    }
+#end
+    public static inline function init():Void {
+        #if neko nekoinit(); #end
+        load("glewInit", 0)();
+    }
 
     // Haxe specific interfaces.
-    @:oglNoErrors @:GLProc function allocBuffer(type:GLenum, count:Int):BytesData {
-        return load("allocBuffer", 2)(type, count);
+    @:oglNoErrors @:GLProc function allocBuffer(type:GLenum, count:Int):Dynamic {
+        var ret = load("allocVector", 2)(type, count);
+        return ret;
     }
-    // TODO: Haxe issue 1667 prevents this working nicely without Dynamic
-    @:oglNoErrors @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):BytesData {
-        return load("createBuffer", 2)(data, type);
+    @:oglNoErrors @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):Dynamic {
+        var ret = load("createVector", 2)(data, type);
+        return ret;
+    }
+    @:oglNoErrors @:GLProc function dataBuffer(data:BytesData, type:GLenum):Dynamic {
+        var ret = load("dataVector", 2)(data, #if neko BytesData.length(data) #else data.length #end);
+        return ret;
     }
 
     // ================================================================================================
@@ -80,10 +98,10 @@ class GL implements GLProcs {
     @:GLProc function blendFuncSeparate(srcRGB:GLenum, dstRGB:GLenum, srcAlpha:GLenum, dstAlpha:GLenum):Void;
     @:GLProc function blitFrameBuffer(srcx0:GLint, srcy0:GLint, srcx1:GLint, srcy1:GLint, dstx0:GLint, dsty0:GLint, dstx1:GLint, dsty1:GLint, mask:GLbitfield, filter:GLenum):Void;
     @:GLProc function bufferData(target:GLenum, data:GLArray, usage:GLenum) {
-        load("bufferData", 5)(target, data.size*data.count, data.buffer, data.byteOffset, usage);
+        load("bufferData", 5)(target, data.size*data.count, data.vector, data.byteOffset, usage);
     }
     @:GLProc function bufferSubData(target:GLenum, countOffset:Int, data:GLArray) {
-        load("bufferSubData", 5)(target, countOffset*data.size, data.count*data.size, data.buffer, data.byteOffset);
+        load("bufferSubData", 5)(target, countOffset*data.size, data.count*data.size, data.vector, data.byteOffset);
     }
 
     // ================================================================================================
@@ -113,17 +131,17 @@ class GL implements GLProcs {
         if (err != null) throw err;
     }
     @:GLProc function compressedTexImage1D(target:GLenum, level:GLint, width:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage1D", 8)(target, level, data.type, width, border, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexImage1D", 8)(target, level, data.type, width, border, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function compressedTexImage2D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage2D", 9)(target, level, data.type, width, height, border, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexImage2D", 9)(target, level, data.type, width, height, border, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function compressedTexImage3D(target:GLenum, level:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, data:GLArray):Void
-        load("compressedTexImage3D", 10)(target, level, data.type, width, height, depth, border, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexImage3D", 10)(target, level, data.type, width, height, depth, border, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function compressedTexSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage1D", 8)(target, level, xOffset, width, data.type, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexSubImage1D", 8)(target, level, xOffset, width, data.type, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function compressedTexSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage2D", 10)(target, level, xOffset, yOffset, width, height, data.type, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexSubImage2D", 10)(target, level, xOffset, yOffset, width, height, data.type, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function compressedTexSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, data:GLArray):Void
-        load("compressedTexSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, data.buffer.length, data.buffer, data.byteOffset);
+        load("compressedTexSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, data.type, ByteUtils.length(data.vector), data.vector, data.byteOffset);
     @:GLProc function copyBufferSubData(readTarget:GLenum, writeTarget:GLenum, readOffset:GLintptr, writeOffset:GLintptr, size:GLsizeiptr):Void;
     @:GLProc function copyTexImage1D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, border:GLint):Void;
     @:GLProc function copyTexImage2D(target:GLenum, level:GLint, internalFormat:GLenum, x:GLint, y:GLint, width:GLsizei, height:GLsizei, border:GLint):Void;
@@ -159,17 +177,17 @@ class GL implements GLProcs {
     @:GLProc function drawBuffer(mode:GLenum):Void;
     @:GLProc function drawBuffers(bufs:Array<GLenum>):Void;
     @:GLProc function drawElements(mode:GLenum, count:GLsizei, indices:GLArray):Void
-        load("drawElements", 5)(mode, count, indices.type, indices.buffer, indices.byteOffset);
+        load("drawElements", 5)(mode, count, indices.type, indices.vector, indices.byteOffset);
     @:GLProc function drawElementsBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
-        load("drawElementsBaseVertex", 6)(mode, count, indices.type, indices.buffer, indices.byteOffset, baseVertex);
+        load("drawElementsBaseVertex", 6)(mode, count, indices.type, indices.vector, indices.byteOffset, baseVertex);
     @:GLProc function drawElementsInstanced(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei):Void
-        load("drawElementsInstanced", 6)(mode, count, indices.type, indices.buffer, indices.byteOffset, primCount);
+        load("drawElementsInstanced", 6)(mode, count, indices.type, indices.vector, indices.byteOffset, primCount);
     @:GLProc function drawElementsInstancedBaseVertex(mode:GLenum, count:GLsizei, indices:GLArray, primCount:GLsizei, baseVertex:GLint):Void
-        load("drawElementsInstancedBaseVertex", 7)(mode, count, indices.type, indices.buffer, indices.byteOffset, primCount, baseVertex);
+        load("drawElementsInstancedBaseVertex", 7)(mode, count, indices.type, indices.vector, indices.byteOffset, primCount, baseVertex);
     @:GLProc function drawRangeElements(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray):Void
-        load("drawRangeElements", 7)(mode, start, end, count, indices.type, indices.buffer, indices.byteOffset);
+        load("drawRangeElements", 7)(mode, start, end, count, indices.type, indices.vector, indices.byteOffset);
     @:GLProc function drawRangeElementsBaseVertex(mode:GLenum, start:GLuint, end:GLuint, count:GLsizei, indices:GLArray, baseVertex:GLint):Void
-        load("drawRangeElementsBaseVertex", 8)(mode, start, end, count, indices.type, indices.buffer, indices.byteOffset, baseVertex);
+        load("drawRangeElementsBaseVertex", 8)(mode, start, end, count, indices.type, indices.vector, indices.byteOffset, baseVertex);
 
     // ================================================================================================
     // E
@@ -298,9 +316,9 @@ class GL implements GLProcs {
     }
     @:GLProc function getBufferParameteriv(target:GLenum, value:GLenum):GLint;
     @:GLProc function getBufferSubData(target:GLenum, offset:GLintptr, size:GLsizeiptr, data:GLArray):Void
-        load("getBufferSubData", 5)(target, offset, size, data.buffer, data.byteOffset);
+        load("getBufferSubData", 5)(target, offset, size, data.vector, data.byteOffset);
     @:GLProc function getCompressedTexImage(target:GLenum, lod:GLint, img:GLArray):Void
-        load("getCompressedTexImage", 4)(target, lod, img.buffer, img.byteOffset);
+        load("getCompressedTexImage", 4)(target, lod, img.vector, img.byteOffset);
     @:GLProc function getError():GLenum;
     @:GLProc function getFragDataIndex(program:GLuint, name:String):GLint;
     @:GLProc function getFragDataLocation(program:GLuint, name:String):GLint;
@@ -336,7 +354,7 @@ class GL implements GLProcs {
     @:GLProc function getStringi(name:GLenum, index:GLuint):String;
     @:GLProc function getSynciv(sync:GLsync, pname:GLenum):GLint;
     @:GLProc function getTexImage(target:GLenum, level:GLint, format:GLenum, img:GLArray):Void
-        load("getTexImage", 6)(target, level, format, img.type, img.buffer, img.byteOffset);
+        load("getTexImage", 6)(target, level, format, img.type, img.vector, img.byteOffset);
     @:GLProc function getTexLevelParameterfv(target:GLenum, level:GLint, pname:GLenum):GLfloat;
     @:GLProc function getTexLevelParameteriv(target:GLenum, level:GLint, pname:GLenum):GLint;
     @:GLProc function getTexParameterfv(target:GLenum, pname:GLenum):Array<GLfloat>
@@ -438,7 +456,7 @@ class GL implements GLProcs {
         var cindices = [];
         var coffsets = [];
         for (i in indices) {
-            cindices.push(i.buffer);
+            cindices.push(i.vector);
             coffsets.push(i.byteOffset);
         }
         load("multiDrawElements", 5)(mode, count, indices[0].type, cindices, coffsets);
@@ -460,7 +478,7 @@ class GL implements GLProcs {
         var cindices = [];
         var coffsets = [];
         for (i in indices) {
-            cindices.push(i.buffer);
+            cindices.push(i.vector);
             coffsets.push(i.byteOffset);
         }
         load("multiDrawElementsBaseVertex", 6)(mode, count, indices[0].type, cindices, coffsets, baseVertex);
@@ -489,7 +507,7 @@ class GL implements GLProcs {
     // ================================================================================================
     @:GLProc function readBuffer(mode:GLenum):Void;
     @:GLProc function readPixels(x:GLint, y:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
-        load("readPixels", 8)(x, y, width, height, format, data.type, data.buffer, data.byteOffset);
+        load("readPixels", 8)(x, y, width, height, format, data.type, data.vector, data.byteOffset);
     @:GLProc function renderbufferStorage(target:GLenum, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
     @:GLProc function renderbufferStorageMultisample(target:GLenum, samples:GLsizei, internalFormat:GLenum, width:GLsizei, height:GLsizei):Void;
 
@@ -516,21 +534,21 @@ class GL implements GLProcs {
     // ================================================================================================
     @:GLProc function texBuffer(target:GLenum, internalFormat:GLenum, buffer:GLuint):Void;
     @:GLProc function texImage1D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, border:GLint, format:GLint, data:Null<GLArray>):Void
-        load("texImage1D", 9)(target, level, internalFormat, width, border, format, data==null?GL.INT:data.type, data==null?null:data.buffer, data==null?-1:data.byteOffset);
+        load("texImage1D", 9)(target, level, internalFormat, width, border, format, data==null?GL.INT:data.type, data==null?null:data.vector, data==null?-1:data.byteOffset);
     @:GLProc function texImage2D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, border:GLint, format:GLint, data:Null<GLArray>):Void
-        load("texImage2D", 10)(target, level, internalFormat, width, height, border, format, data==null?GL.INT:data.type, data==null?null:data.buffer, data==null?-1:data.byteOffset);
+        load("texImage2D", 10)(target, level, internalFormat, width, height, border, format, data==null?GL.INT:data.type, data==null?null:data.vector, data==null?-1:data.byteOffset);
     @:GLProc function texImage2DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, fixedsamplelocations:GLboolean):Void;
     @:GLProc function texImage3D(target:GLenum, level:GLint, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, border:GLint, format:GLint, data:Null<GLArray>):Void
-        load("texImage3D", 11)(target, level, internalFormat, width, height, depth, border, format, data==null?GL.INT:data.type, data==null?null:data.buffer, data==null?-1:data.byteOffset);
+        load("texImage3D", 11)(target, level, internalFormat, width, height, depth, border, format, data==null?GL.INT:data.type, data==null?null:data.vector, data==null?-1:data.byteOffset);
     @:GLProc function texImage3DMultisample(target:GLenum, samples:GLsizei, internalFormat:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, fixedsamplelocations:GLboolean):Void;
     @:GLProc function texParameterf(target:GLenum, pname:GLenum, param:GLfloat):Void;
     @:GLProc function texParameteri(target:GLenum, pname:GLenum, param:GLint):Void;
     @:GLProc function texSubImage1D(target:GLenum, level:GLint, xOffset:GLint, width:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage1D", 8)(target, level, xOffset, width, format, data.type, data.buffer, data.byteOffset);
+        load("texSubImage1D", 8)(target, level, xOffset, width, format, data.type, data.vector, data.byteOffset);
     @:GLProc function texSubImage2D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, width:GLsizei, height:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage2D", 10)(target, level, xOffset, yOffset, width, height, format, data.type, data.buffer, data.byteOffset);
+        load("texSubImage2D", 10)(target, level, xOffset, yOffset, width, height, format, data.type, data.vector, data.byteOffset);
     @:GLProc function texSubImage3D(target:GLenum, level:GLint, xOffset:GLint, yOffset:GLint, zOffset:GLint, width:GLsizei, height:GLsizei, depth:GLsizei, format:GLenum, data:GLArray):Void
-        load("texSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, format, data.type, data.buffer, data.byteOffset);
+        load("texSubImage3D", 12)(target, level, xOffset, yOffset, zOffset, width, height, depth, format, data.type, data.vector, data.byteOffset);
     @:GLProc function transformFeedbackVaryings(program:GLuint, varyings:Array<String>, bufferMode:GLenum):Void;
 
     // ================================================================================================

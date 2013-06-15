@@ -87,7 +87,8 @@ class Sample5 {
 
         var file = File.read("cube_texture.png", true);
         var pngData = (new format.png.Reader(file)).read();
-        var textureData:GLubyteArray = format.png.Tools.extract32(pngData).getData();
+        var data = format.png.Tools.extract32(pngData).getData();
+        var textureData:GLubyteArray = data;
         var pngHeader = format.png.Tools.getHeader(pngData);
 
         texture = GL.genTextures(1)[0];

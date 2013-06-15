@@ -43,7 +43,7 @@ class Sample {
             new Sample5(),
             new Sample6(),
         ];
-        loadSample(0);
+        loadSample(4);
 
         GLFW.setKeyCallback(window, function (_, key:Int, _, state:Int, _) {
             if (state == GLFW.PRESS)

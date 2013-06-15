@@ -190,7 +190,6 @@ class GLProcsImpl {
                         case (macro if ($cond) throw $err else $e) if (e == null):
                             var err2 = '${field.name} :: ';
                             ys.push(macro if ($cond) {
-                                cpp.Lib.println($v{err2}+$err);
                                 throw Std.string($v{err2}+$err);
                             });
                         default:
@@ -216,7 +215,6 @@ class GLProcsImpl {
                 var err = '${field.name} :: ${arg.name} cannot be null';
                 checks.push(macro {
                     if ($i{arg.name} == null) {
-                        cpp.Lib.println($v{err});
                         throw $v{err};
                     }
                 });
@@ -256,7 +254,6 @@ class GLProcsImpl {
             );
             if (errs.length != 0) {
                 errs.unshift("GL."+$v{field.name});
-                cpp.Lib.println(errs);
                 throw Std.string(errs);
             }
         };
