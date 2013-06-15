@@ -17,8 +17,6 @@ class Sample2 {
             [ 1,-1,0],
             [ 0, 1,0],
         ];
-        trace(vData);
-        trace([vData[0],vData[1],vData[2],vData[3],vData[4],vData[5],vData[6],vData[7],vData[8]]);
         vBuffer = GL.genBuffers(1)[0];
         GL.bindBuffer(GL.ARRAY_BUFFER, vBuffer);
         GL.bufferData(GL.ARRAY_BUFFER, vData, GL.STATIC_DRAW);
