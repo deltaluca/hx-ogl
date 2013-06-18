@@ -5,15 +5,16 @@ import haxe.io.BytesData;
 
 import #if neko neko #else cpp #end.Lib;
 class ByteUtils {
-    public static inline function length(b:Dynamic) {
+    public static inline function length(b:GLbuffer) {
         return Lib.load("ogl", "hx_gl_vector_len", 1)(b);
     }
 }
 
 abstract GLubyteArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 1, GL.UNSIGNED_BYTE);
     @:from public static inline function fromData(b:BytesData):GLubyteArray return new GLubyteArray(GL.dataBuffer(b, GL.UNSIGNED_BYTE));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLubyteArray return new GLubyteArray(GL.buffer(arr, GL.UNSIGNED_BYTE));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLubyteArray(raw);
     public static inline function alloc(count:Int):GLubyteArray return GL.allocBuffer(GL.UNSIGNED_BYTE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLubyteArray(arr.vector);
@@ -23,7 +24,7 @@ abstract GLubyteArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 1;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -39,9 +40,10 @@ abstract GLubyteArray(GLArray) to GLArray {
 }
 
 abstract GLbyteArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 1, GL.BYTE);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 1, GL.BYTE);
     @:from public static inline function fromData(b:BytesData):GLbyteArray return new GLbyteArray(GL.dataBuffer(b, GL.BYTE));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLbyteArray return new GLbyteArray(GL.buffer(arr, GL.BYTE));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLbyteArray(raw);
     public static inline function alloc(count:Int):GLbyteArray return GL.allocBuffer(GL.BYTE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLbyteArray(arr.vector);
@@ -51,7 +53,7 @@ abstract GLbyteArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 1;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -67,9 +69,10 @@ abstract GLbyteArray(GLArray) to GLArray {
 }
 
 abstract GLushortArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 2, GL.UNSIGNED_SHORT);
     @:from public static inline function fromData(b:BytesData):GLushortArray return new GLushortArray(GL.dataBuffer(b, GL.UNSIGNED_SHORT));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLushortArray return new GLushortArray(GL.buffer(arr, GL.UNSIGNED_SHORT));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLushortArray(raw);
     public static inline function alloc(count:Int):GLushortArray return GL.allocBuffer(GL.UNSIGNED_SHORT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLushortArray(arr.vector);
@@ -79,7 +82,7 @@ abstract GLushortArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 2;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -93,9 +96,10 @@ abstract GLushortArray(GLArray) to GLArray {
 }
 
 abstract GLshortArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 2, GL.SHORT);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 2, GL.SHORT);
     @:from public static inline function fromData(b:BytesData):GLshortArray return new GLshortArray(GL.dataBuffer(b, GL.SHORT));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLshortArray return new GLshortArray(GL.buffer(arr, GL.SHORT));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLshortArray(raw);
     public static inline function alloc(count:Int):GLshortArray return GL.allocBuffer(GL.SHORT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLshortArray(arr.vector);
@@ -105,7 +109,7 @@ abstract GLshortArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 2;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -119,9 +123,10 @@ abstract GLshortArray(GLArray) to GLArray {
 }
 
 abstract GLuintArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 4, GL.UNSIGNED_INT);
     @:from public static inline function fromData(b:BytesData):GLuintArray return new GLuintArray(GL.dataBuffer(b, GL.UNSIGNED_INT));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLuintArray return new GLuintArray(GL.buffer(arr, GL.UNSIGNED_INT));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLuintArray(raw);
     public static inline function alloc(count:Int):GLuintArray return GL.allocBuffer(GL.UNSIGNED_INT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLuintArray(arr.vector);
@@ -131,7 +136,7 @@ abstract GLuintArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 4;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -145,9 +150,10 @@ abstract GLuintArray(GLArray) to GLArray {
 }
 
 abstract GLintArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 4, GL.INT);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 4, GL.INT);
     @:from public static inline function fromData(b:BytesData):GLintArray return new GLintArray(GL.dataBuffer(b, GL.INT));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLintArray return new GLintArray(GL.buffer(arr, GL.INT));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLintArray(raw);
     public static inline function alloc(count:Int):GLintArray return GL.allocBuffer(GL.INT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLintArray(arr.vector);
@@ -157,7 +163,7 @@ abstract GLintArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 4;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -171,9 +177,10 @@ abstract GLintArray(GLArray) to GLArray {
 }
 
 abstract GLfloatArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 4, GL.FLOAT);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 4, GL.FLOAT);
     @:from public static inline function fromData(b:BytesData):GLfloatArray return new GLfloatArray(GL.dataBuffer(b, GL.FLOAT));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLfloatArray return new GLfloatArray(GL.buffer(arr, GL.FLOAT));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLfloatArray(raw);
     public static inline function alloc(count:Int):GLfloatArray return GL.allocBuffer(GL.FLOAT, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLfloatArray(arr.vector);
@@ -181,9 +188,18 @@ abstract GLfloatArray(GLArray) to GLArray {
         return ret;
     }
 
+    public inline function subData(data:Array<Float>, offset:Int=0, count:Int=-1) {
+        if (count == -1) count = data.length;
+        Lib.load("ogl", "hx_gl_vector_set_floats", 5)(this.vector, this.byteOffset, offset, data, count);
+    }
+    public inline function subDataVec(data:GLfloatArray, offset:Int=0) {
+        var dat:GLArray = untyped data;
+        Lib.load("ogl", "hx_gl_vector_set_floats_vec", -1)(this.vector, this.byteOffset, offset, dat.vector, dat.byteOffset, dat.count);
+    }
+
     public var size(get, never):Int;
     inline function get_size() return 4;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -197,9 +213,10 @@ abstract GLfloatArray(GLArray) to GLArray {
 }
 
 abstract GLdoubleArray(GLArray) to GLArray {
-    inline public function new(raw:Dynamic) this = new GLArray(raw, 8, GL.DOUBLE);
+    inline public function new(raw:GLbuffer) this = new GLArray(raw, 8, GL.DOUBLE);
     @:from public static inline function fromData(b:BytesData):GLdoubleArray return new GLdoubleArray(GL.dataBuffer(b, GL.DOUBLE));
     @:from public static inline function fromArr(arr:Array<Dynamic>):GLdoubleArray return new GLdoubleArray(GL.buffer(arr, GL.DOUBLE));
+    @:from public static inline function fromRaw(raw:GLbuffer) return new GLdoubleArray(raw);
     public static inline function alloc(count:Int):GLdoubleArray return GL.allocBuffer(GL.DOUBLE, count);
     public static inline function view(arr:GLArray, byteOffset:Int, count:Int) {
         var ret = new GLdoubleArray(arr.vector);
@@ -209,7 +226,7 @@ abstract GLdoubleArray(GLArray) to GLArray {
 
     public var size(get, never):Int;
     inline function get_size() return 8;
-    public var raw(get, never):Dynamic;
+    public var raw(get, never):GLbuffer;
     inline function get_raw() return this.vector;
     public var count(get, never):Int;
     inline function get_count() return this.count;
@@ -229,12 +246,12 @@ class GLArray {
 
     public var size:Int; // element size
     public var type:GLenum;
-    public var vector:Dynamic;
+    public var vector:GLbuffer;
     public var count(get, never):Int;
     inline function get_count()
         return if (isView) fixedCount else Std.int(ByteUtils.length(vector) / size);
 
-    public function new(vector:Dynamic, size:Int, type:Int) {
+    public function new(vector:GLbuffer, size:Int, type:Int) {
         this.vector = vector;
         this.size = size;
         this.type = type;

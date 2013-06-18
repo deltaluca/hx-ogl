@@ -33,6 +33,8 @@ class GLsync extends NativeBinding {
     inline static function cvt(x:Dynamic) return if (x == null) null else new GLsync(x);
 }
 
+extern class GLbuffer {}
+
 class GL implements GLProcs {
     @:allow(ogl)
     static inline function load(n:String, p:Int):Dynamic
@@ -55,15 +57,15 @@ class GL implements GLProcs {
     }
 
     // Haxe specific interfaces.
-    @:oglNoErrors @:GLProc function allocBuffer(type:GLenum, count:Int):Dynamic {
+    @:oglNoErrors @:GLProc function allocBuffer(type:GLenum, count:Int):GLbuffer {
         var ret = load("allocVector", 2)(type, count);
         return ret;
     }
-    @:oglNoErrors @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):Dynamic {
+    @:oglNoErrors @:GLProc function buffer(data:Array<Dynamic>, type:GLenum):GLbuffer {
         var ret = load("createVector", 2)(data, type);
         return ret;
     }
-    @:oglNoErrors @:GLProc function dataBuffer(data:BytesData, type:GLenum):Dynamic {
+    @:oglNoErrors @:GLProc function dataBuffer(data:BytesData, type:GLenum):GLbuffer {
         var ret = load("dataVector", 2)(data, #if neko BytesData.length(data) #else data.length #end);
         return ret;
     }

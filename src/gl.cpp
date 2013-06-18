@@ -71,6 +71,22 @@ int byte_size(int T) {
     return t == 0 ? 1 : t == 1 ? 2 : (t == 2 || t == 3) ? 4 : 8;
 }
 
+value hx_gl_vector_set_floats(value data, value offset, value i, value xs, value count) {
+    float* dat = get_vector<float>(data, offset) + val_get<int>(i);
+    for (int j = 0; j < val_get<int>(count); j++)
+        *(dat++) = val_get<float>(val_array_i(xs, j));
+    return val_null;
+}
+value hx_gl_vector_set_floats_vec(value* args, int cnt) {
+    float* dat = get_vector<float>(args[0], args[1]) + val_get<int>(args[2]);
+    float* vec = get_vector<float>(args[3], args[4]);
+    for (int j = 0; j < val_get<int>(args[5]); j++)
+        *(dat++) = *(vec++);
+    return val_null;
+}
+DEFINE_PRIM(hx_gl_vector_set_floats, 5)
+DEFINE_PRIM_MULT(hx_gl_vector_set_floats_vec)
+
 value hx_gl_vector_get_byte(value data, value offset, value i) {
     char* dat = get_vector<char>(data, offset);
     return alloc<int>(dat[val_get<int>(i)]);
@@ -188,7 +204,7 @@ value hx_gl_allocVector(value type, value count) {
     void* dat = malloc(val_get<int>(count) * byte_size(val_get<int>(type)));
     Vector *vec = new Vector;
     vec->dat = dat;
-    vec->size = val_get<int>(count);
+    vec->size = val_get<int>(count) * byte_size(val_get<int>(type));
     value v = alloc_abstract(k_Vector, vec);
     val_gc(v, finalise_vector);
     return v;
@@ -201,14 +217,20 @@ value hx_gl_dataVector(value data, value size) {
     if (val_is_string(data)) buf = val_get<string>(data);
     else buf = buffer_data(val_to_buffer(data));
     Vector* vec = new Vector;
-    vec->dat = malloc(val_get<int>(size));
-    memcpy(vec->dat, buf, val_get<int>(size));
+    vec->dat = (void*)buf;
     vec->size = val_get<int>(size);
     value v = alloc_abstract(k_Vector, vec);
     return v;
 }
 value hx_gl_arrvector_resize(value buf, value size) {
-    printf("NOT IMPLEMENTED\n");
+    Vector* vec = (Vector*)val_data(buf);
+    void* ndat = malloc(val_get<int>(size));
+    int cpy = val_get<int>(size);
+    if (cpy > vec->size) cpy = vec->size;
+    memcpy(ndat, vec->dat, cpy);
+    free(vec->dat);
+    vec->dat = ndat;
+    vec->size = val_get<int>(size);
     return buf;
 }
 DEFINE_PRIM(hx_gl_allocVector, 2);
