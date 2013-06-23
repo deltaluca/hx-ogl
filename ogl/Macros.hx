@@ -287,6 +287,193 @@ class GLProcsImpl {
 // Add same type vector operations
 // for GL vector type.
 //
+class GLVec {
+#if macro
+    static var N:Int;
+    static var fields:Array<Field>;
+    static var selfT:ComplexType;
+
+    static function unop(name:String, op:Unop, post:Bool) {
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EUnop(op, post, macro u[$v{i}])
+            });
+        }
+        fields.push({
+            pos: Context.currentPos(),
+            name: name,
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EUnop(op, post, macro A),
+                    pos: Context.currentPos()
+                }]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "_u",
+                }],
+                expr: macro { var u = _u; return $a{es}; }
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+    }
+
+    static function binop(name:String, op:Binop, self:Bool=false, com:Bool=false) {
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EBinop(op, macro u[$v{i}], macro v[$v{i}])
+            });
+        }
+        fields.push({
+            pos: Context.currentPos(),
+            name: name,
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
+            }],
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "_u",
+                }, {
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "_v",
+                }],
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; }
+                           : macro { var u = _u; var v = _v; return $a{es}; }
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+
+        var es = [];
+        for (i in 0...N) {
+            es.push({
+                pos: Context.currentPos(),
+                expr: EBinop(op, macro u[$v{i}], macro v)
+            });
+        }
+        fields.push({
+            pos: Context.currentPos(),
+            name: name+"f",
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
+            }].concat(!com ? [] : [{
+                pos: Context.currentPos(),
+                name: ":commutative",
+                params: []
+            }]),
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "_u",
+                }, {
+                    value: null,
+                    type: macro :Float,
+                    opt: false,
+                    name: "_v",
+                }],
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; } :
+                             macro { var u = _u; var v = _v; return $a{es}; }
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+        fields.push({
+            pos: Context.currentPos(),
+            name: name+"i",
+            meta: [{
+                pos: Context.currentPos(),
+                name: ":op",
+                params: [{
+                    expr: EBinop(op, macro A, macro B),
+                    pos: Context.currentPos()
+                }]
+            }].concat(!com ? [] : [{
+                pos: Context.currentPos(),
+                name: ":commutative",
+                params: []
+            }]),
+            kind: FFun({
+                ret: selfT,
+                params: [],
+                args: [{
+                    value: null,
+                    type: selfT,
+                    opt: false,
+                    name: "_u",
+                }, {
+                    value: null,
+                    type: macro :Int,
+                    opt: false,
+                    name: "_v",
+                }],
+                expr: self ? macro { var u = _u; var v = _v; $b{es}; return _u; } :
+                             macro { var u = _u; var v = _v; return $a{es}; }
+            }),
+            doc: null,
+            access: [AInline, AStatic, APublic]
+        });
+    }
+
+    public static function run(n:Int) {
+        N = n;
+        fields = Context.getBuildFields();
+
+        selfT = TPath({sub:null,params:[],pack:[],name:"Vector"+N});
+
+        binop("add", OpAdd, false, true);
+        binop("sub", OpSub, false, true);
+        binop("div", OpDiv, false, true);
+        binop("mul", OpMult, false, true);
+
+        binop("assign", OpAssign, true);
+        binop("addAssign", OpAssignOp(OpAdd), true);
+        binop("subAssign", OpAssignOp(OpSub), true);
+        binop("divAssign", OpAssignOp(OpDiv), true);
+        binop("mulAssign", OpAssignOp(OpMult), true);
+
+        unop("neg", OpNeg, false);
+
+        return fields;
+    }
+#end
+}
+//
+// Add same type vector operations
+// for GL vector type.
+//
 class GLVector {
 #if macro
     static var N:Int;

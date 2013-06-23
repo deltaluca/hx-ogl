@@ -1,5 +1,5 @@
-all: main
-	./bin/Main-debug
+all: haxelib
+	haxe -x Testgl -lib ogl
 #	cd bin && neko Main.n
 
 .PHONY: lib
