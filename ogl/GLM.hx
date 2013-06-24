@@ -27,8 +27,8 @@ class Padder {
         for (x in xs) ys = ys.concat(x);
         return new Vec2(ys);
     }
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec2([x[0],x[1]]);
     @:from public static inline function fromAnon(x:{x:Float,y:Float}) return new Vec2([x.x,x.y]);
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec2([x[0],x[1]]);
     @:to public inline function toGL() return GLfloatArray.fromArr(this);
     @:to public inline function toAnon() return {x:x, y:y};
 
@@ -69,8 +69,8 @@ class Padder {
         for (x in xs) ys = ys.concat(x);
         return new Vec3(ys);
     }
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec3([x[0],x[1],x[2]]);
     @:from public static inline function fromAnon(x:{x:Float,y:Float,z:Float}) return new Vec3([x.x,x.y,x.z]);
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec3([x[0],x[1],x[2]]);
     @:to public inline function toGL() return GLfloatArray.fromArr(this);
     @:to public inline function toAnon() return {x:x, y:y, z:z};
 
@@ -114,8 +114,8 @@ class Padder {
         for (x in xs) ys = ys.concat(x);
         return new Vec4(ys);
     }
-    @:from public static inline function fromGL(x:GLfloatArray) return new Vec4([x[0],x[1],x[2],x[3]]);
     @:from public static inline function fromAnon(x:{x:Float,y:Float,z:Float,w:Float}) return new Vec4([x.x,x.y,x.z,x.w]);
+    @:from public static inline function fromGL(x:GLfloatArray) return new Vec4([x[0],x[1],x[2],x[3]]);
     @:to public inline function toGL() return GLfloatArray.fromArr(this);
     @:to public inline function toAnon() return {x:x, y:y, z:z, w:w};
 

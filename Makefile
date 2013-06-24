@@ -1,5 +1,5 @@
 all: haxelib
-	haxe -x Testgl -lib ogl
+	haxe -x Testgl -lib ogl -D dump=pretty
 #	cd bin && neko Main.n
 
 .PHONY: lib

@@ -33,7 +33,7 @@ class GLsync extends NativeBinding {
     inline static function cvt(x:Dynamic) return if (x == null) null else new GLsync(x);
 }
 
-extern class GLbuffer {}
+abstract GLbuffer(Dynamic) from Dynamic to Dynamic {}
 
 class GL implements GLProcs {
     @:allow(ogl)
