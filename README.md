@@ -7,7 +7,13 @@ thoroughly tested if at all.
 Anyone wishing to use OpenGL in hxcpp (without any other dependancy, or else use NME!)
 should consider testing and submitting pull requests :)
 
+#### Table of Contents
+- [API Changes to OpenGL](#API Changes to OpenGL) 
+- [GLArray](#GLArray) WebGL style typed arrays for GL data.
+- [GLM](#GLM) Vector/Matrix types emulating subset of GLSL types (As per GLM library)
+- [DebugDraw](#DebugDraw) Utility for line/triangle drawing for debug purposes.
 
+<a name="API Changes to OpenGL"/>
 #### API Changes to OpenGL.
 
 Major change, is that unless -D ogl-dont-check-errors is set, every GL call will call glGetError to look for errors
@@ -49,6 +55,7 @@ Most other changes regard uses of GLvoid* data buffers and arrays of GLbyte/GLsh
     GL.texImage1D(target, level, internalFormat, width, border, format, data);
 ```
 
+<a name="GLArray"/>
 #### GLArray
 
 GLArray is the underlying type of the (abstract) typed arrays:
@@ -120,6 +127,7 @@ Example:
    GL.bufferSubData(GL.ARRAY_BUFFER, 3, GLfloatArray.view(vertex_data, 3*vertex_data.size, 3));
 ```
 
+<a name="GLM"/>
 #### GLM
 
 Inspired by the GLM library, emulating GLSL vector/matrix types and behaviours in C, there are some equivalent types in hx-ogl
@@ -131,4 +139,54 @@ for float vector types, and float matrix types based on GLfloatArray
   var proj = Mat4.perspective(45, 4/3, 0.1, 1000);
   GL.uniformMatrix4fv(matrixID, false, proj * view * model);
 ```  
+
+<a name="DebugDraw"/>
+#### DebugDraw
   
+Utility for drawing lines/triangles with OGL.
+```
+    // Construct new DebugDraw instance.
+    // If 'textured' is true, then fragment colours are chosen from a 1D texture using the
+    // 'red' component of a vertex colour, with vertex 'alpha' used, and 'green'/'blue' ignored.
+    function new(textured:Bool=false)
+    
+    // Release GL buffers/arrays/programs
+    function destroy():Void
+    
+    // Draw a solid line
+    function drawLine(p0:Vec3, p1:Vec3, colour:Vec4):Void;
+    
+    // Draw a dashed line
+    function drawDashedLine(p0:Vec3, p1:Vec3, colour:Vec4, solidLength:Float, gapLength:Float):Void;
+    
+    // Begin drawing, must be called before setting transform
+    function begin(texture:GLuint=-1):Void;
+    
+    // Flush any currently buffered calls to GPU
+    function flush():Void;
+    
+    // End drawing, any buffered calls will be flushed.
+    function end():Void;
+    
+    // Clear any currently buffered calls
+    function clear():Void;
+    
+    // Set transform for next batch of calls, any currently buffered calls will be flushed.
+    function setTransform(mat:Mat4):Void;
+```
+
+The following are for manual drawing of geometry:
+```
+    // Swap to line rendering mode, any currently buffered triangle geom. will be flushed.
+    function swapLines():Void;
+    
+    // Swap to triangle rendering mode, any currently buffered line geom. will be flushed.
+    function swapFills():Void;
+    
+    // Push a single vertex into geom. buffer.
+    function pushVertex(p:Vec3, colour:Vec4):Void;
+    
+    // Push a sequence of vertex data into geom. buffer.
+    // [p, c, p, c, p, c, ...]
+    function pushData(xs:Array<Float>):Void;
+```
